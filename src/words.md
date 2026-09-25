@@ -7,17 +7,28 @@ words; the rest of the book assumes these.
   and its UTXO model, both below.
 - **L1**: "layer 1", the Kaspa network itself. The thing that actually
   holds the money.
-- **Output (UTXO)**: a piece of KAS sitting at a lock. A Kaspa payment
-  does not edit a number in a database; it spends existing outputs and
-  creates new ones. "Your money" is the set of outputs only you can spend.
-  And an output lives in exactly one transaction: once spent it is gone,
-  and no other transaction can reference it. That one-way rule is why
-  shared on-chain state is hard here (chapter 2).
-- **Lock, script, P2SH**: the condition under which an output may be
-  spent. *Pay to public key*: whoever proves control of a secret key.
-  *Pay to script hash*: whoever satisfies a small program whose
-  fingerprint is baked into the address. P2SH is how this machine writes
-  its own rules onto Kaspa.
+- **L2**: "layer 2": a system that does its work off the L1 while leaning
+  on the L1 for what must be trusted: ordering, data availability, and
+  settlement. A *rollup* is the common L2 shape: execute off-chain, then
+  prove or commit the results back on-chain. The machine in this book is
+  one.
+- **Output (UTXO)**: a piece of KAS at a lock. Every Kaspa transaction
+  consumes earlier outputs (as its inputs) and creates new outputs; one
+  that no transaction has consumed yet is an *unspent transaction
+  output*. "Your money" is the set of UTXOs your key can unlock. And an
+  output lives in exactly one transaction: once spent it is gone, and no
+  other transaction can reference it. That one-way rule is why shared
+  on-chain state is hard here (chapter 2).
+- **SPK, P2PK, P2SH**: the locking half of an output is its *SPK*
+  (script public key), a small program stored inside the output. A later
+  transaction spends that output by supplying input data that satisfies
+  the SPK. *P2PK*: the SPK demands a signature from one specific public
+  key, and the address is derived from that key. *P2SH*: the SPK stores
+  only the hash of a script; the spender reveals the script, shows its
+  hash matches, and the revealed script then runs and must succeed. P2SH
+  is how this machine puts its own rules onto Kaspa: the program is
+  committed from the moment the output exists, but only seen at spend
+  time.
 - **Covenant**: the 32-byte identity of one program instance: its deposit
   address, its action lane, and the exact rule-set version it proves, all
   bundled into one name.
@@ -26,17 +37,8 @@ words; the rest of the book assumes these.
 - **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
   transactions carrying users' signed actions. Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
-- **Witness**: the confirmed Kaspa facts the machine feeds to the program:
-  which actions landed, which deposits paid, what the blocks said. Not a
-  courtroom; a data feed.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
-- **Merkle tree**: a fingerprint of fingerprints. Leaves are hashed in
-  pairs up to one root, so a short list of branch-hashes proves a leaf
-  belongs under that root. *Sparse* means every possible position exists,
-  so proving "your account" never requires revealing anyone else's. An
-  *accumulator* is the same idea trimmed to one question: "is this leaf
-  in?"
 - **Runtime**: the layer of code that checks and applies each action; the
   rules of the house. Chapter 7 is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on

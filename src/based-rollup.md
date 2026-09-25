@@ -4,8 +4,9 @@
 
 A based rollup moves a program *off* the L1 (its state, its rules, its
 execution) but keeps its *enforcement* on the L1: every state change worth
-trusting is proved and settled back to Kaspa. "Based" means the app leans
-on the L1 for the parts it must not provide itself. Ordering and data
+trusting is proved and settled back to Kaspa. That off-chain half is the
+**L2**: the program's own world, leaning on Kaspa for what it must not
+provide itself. Ordering and data
 availability come from the program's lane on Kaspa; enforcement and
 payouts land on Kaspa; no external committee, DA service, or bridge token
 sits in between. A DA level still exists, and Kaspa is it.
@@ -34,11 +35,16 @@ flowchart LR
 Users sign actions and submit them to the program's lane on Kaspa
 *themselves*: the lane is an L1 subnetwork that serves as the program's
 public inbox and its data availability. The operator never has to be asked:
-it reads the lane and the chain as witnesses and executes actions
+it reads the lane and the chain directly and executes actions
 off-chain. Provers produce cryptographic proofs that the execution followed
 the program's rules. Settlements, carrying those proofs and commitments to
 the new state, land on Kaspa. Money flows back out to users through exits,
 enforced by exactly those settled proofs.
+
+One arrow in the diagram deserves a note: apps read current state from the
+operator's index (the dashed line), not from Kaspa directly. The index is
+a convenience; the authority behind what it serves is the settlement chain
+on Kaspa, and chapter 8 covers what a skeptic can do without the index.
 
 ## The walls, and the hinges
 

@@ -1,9 +1,21 @@
 # The transaction vocabulary
 
-The whole machine, from deposits and games to withdrawals and settlements,
-is built from four kinds of transaction. Two live on the L1, one lives in
-the lane, and one is the settlement itself. Learn these four and every
-chapter after this is just consequences.
+Start where an L1 observer stands. Kaspa sees four kinds of transaction
+from this machine, and none looks special on-chain: they are ordinary
+transactions with particular scripts and payloads. The program's own
+world, the L2, is what those bytes mean once interpreted. This chapter
+walks both views: what lands on Kaspa, then what the program makes of it.
+
+- a **settlement** spends the covenant's continuation output and carries a
+  new state digest plus pointers in its script data
+- a **lane entry** is an ordinary transaction tagged for the program's
+  subnetwork, carrying a signed action
+- a **deposit** is an ordinary payment to the program's deposit address
+- an **exit claim** spends the permission output and pays a user out
+
+Two are plain Kaspa usage (lane entries, deposits); two are the machine's
+own script shapes (settlements, claims). Learn the four and every chapter
+after this is just consequences.
 
 ## The state transition (settlement)
 
@@ -11,16 +23,28 @@ The settlement is the tx that matters: it is the only thing that advances the
 program's authoritative state, and it does so on Kaspa itself. A settlement
 attests three things at once:
 
-- a **state digest**: the program's new state root. Inside every program
-  state lives in a sparse Merkle tree, and the digest is its 32-byte root:
-  a cryptographic fingerprint of *every account, every game, every balance*,
-  at one moment. Change one satoshi somewhere and the digest is a completely
-  different number. The proof's central claim is always of the form "state
-  root X became state root Y by executing the rules correctly".
-- a **lane tip**: the head of the program's action lane (next section) at
-  the moment of settlement: "I have processed everything up to here."
-- a **block proof point**: the L1 block the whole claim is proven against:
-  "and the L1 world I saw was real up to this block."
+- a **state digest**: the program's new state root. The full state (every
+  account, every game, every balance) lives off-chain, served by the
+  operator's DA; what Kaspa holds is one 32-byte root, a fingerprint of
+  all of it at one moment. The structure behind the fingerprint is a
+  *sparse Merkle tree*, and it exists for exactly this split: one root can
+  commit to an entire off-chain world, and, because the tree is sparse
+  (every possible position exists), proving that one account was inside
+  takes a short branch of hashes and reveals nothing else. Change one
+  sompi somewhere and the digest is a completely different number. The
+  proof's central claim is always of the form "state root X became state
+  root Y by executing the rules correctly".
+- a **lane tip**: how far execution had read the program's action lane
+  (next section) when the snapshot was taken: "I have processed every
+  published action up to here."
+- a **block proof point**: the last L1 block whose data execution
+  consumed: "and the L1 world I saw was real up to this block."
+
+Read a settlement as a snapshot claim, not a switch. It says: at block Y,
+the state digest was D. The proof inside shows how the digest got there,
+root by root, from block X to block Y; the settlement transaction itself
+lands at least one block after Y, and sometimes later. Each settlement
+pins one more provable snapshot; nothing starts applying "from now on".
 
 These three ride directly in the settlement transaction's script data, and
 the settlement's outputs chain to the next settlement: output 0 is a P2SH
@@ -95,7 +119,8 @@ equally valid choice. Same battery, different placement.
 
 An exit is how value leaves: the program debits a user and emits an
 entitlement to withdraw on L1. The entitlements accumulate in the
-**permission tree**: a Merkle accumulator whose leaves are
+**permission tree**, an accumulator (a Merkle structure that answers one
+question: is this leaf in?) whose leaves are
 "(L1 script, amount)" pairs: who may claim how much, by L1 lock type. A
 settlement whose bundle emitted exits carries the tree's current commitment
 in a dedicated P2SH output (a bundle with no exits settles without one),

@@ -16,7 +16,7 @@ flowchart TB
 
 **The bridge** is the machine's eyes on L1. It follows the Kaspa chain
 behind the confirmation window and turns confirmed lane actions and
-deposits into witnesses for execution. Users submit to the lane
+deposits into the inputs execution consumes. Users submit to the lane
 themselves; the bridge only ever reads. Every fact the machine believes
 about L1 arrives through it.
 
