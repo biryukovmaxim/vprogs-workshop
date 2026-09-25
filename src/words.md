@@ -3,8 +3,8 @@
 Blockchain writing leans on a small vocabulary. Here is all of it, in plain
 words; the rest of the book assumes these.
 
-- **Kaspa**: the L1 this book runs on. What matters here is its blockdag
-  and its UTXO model, both below.
+- **Kaspa**: the proof-of-work network this book runs on; its coin is
+  KAS. What matters here is its blockdag and its UTXO model, both below.
 - **L1**: "layer 1", the Kaspa network itself. The thing that actually
   holds the money.
 - **L2**: "layer 2": a system that does its work off the L1 while leaning
@@ -12,6 +12,8 @@ words; the rest of the book assumes these.
   settlement. A *rollup* is the common L2 shape: execute off-chain, then
   prove or commit the results back on-chain. The machine in this book is
   one.
+- **KIP**: Kaspa Improvement Proposal: the process by which the network
+  proposes, reviews, and activates protocol changes.
 - **Output (UTXO)**: a piece of KAS at a lock. Every Kaspa transaction
   consumes earlier outputs (as its inputs) and creates new outputs; one
   that no transaction has consumed yet is an *unspent transaction
@@ -37,6 +39,10 @@ words; the rest of the book assumes these.
 - **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
   transactions carrying users' signed actions. Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
+- **Journal**: the fixed-format record inside each proof: the previous and
+  new state roots, the lane tips, and the L1 context the execution saw.
+  The settlement script hashes exactly these bytes into the digest the
+  receipt commits.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
 - **Runtime**: the layer of code that checks and applies each action; the

@@ -11,16 +11,15 @@ they earned. Even the operator running the game cannot quietly rewrite the
 scoreboard, because the scoreboard is not a promise. It is a proof.
 
 Now the strange part: **a staked match is an awkward fit for Kaspa's
-chain, but not because Kaspa "has no smart contracts".** It has a script
-engine, richer than Bitcoin's, and layers like SilverScript are being
-built on it; a determined builder could even push a pot-and-board game
-through scripting alone, threading the state from output to output. But
-that is building against the grain. Kaspa runs on UTXOs: every coin is an
-output that exactly one transaction may consume, and no other transaction
-can reference it afterward, so shared state has no native home and must
-be hand-carried forward transaction by transaction; the script language
-stays deliberately short of Turing-complete; and every rule, timer, and
-branch costs on-chain execution. And yet the pot above is enforced, on
+chain, but not because Kaspa "has no smart contracts".** Its script engine
+can do real work, and ecosystem projects (SilverScript among them) are
+building easier ways to use it; a determined builder could even push a
+pot-and-board game through scripting alone. But it is a fight with the
+grain. Kaspa's coins are outputs, and each output lives in exactly one
+transaction: nothing on-chain can watch a pot, a board, and two balances
+evolve together, so a script-only game must carry its whole state
+forward, move by move, inside the transactions themselves. And the script
+language stays deliberately small. And yet the pot above is enforced, on
 that chain, without a trusted referee, and without the fight.
 
 This is **vprog-tictactoe** (we'll call it *tt*), a working example built on

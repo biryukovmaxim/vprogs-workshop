@@ -28,9 +28,9 @@ program, not the executor.
 **The provers** turn execution into arithmetic certainty, in three stages,
 one guest program each: the transaction guest proves one transaction, the
 batch guest compounds a block of those proofs, and the aggregator
-compounds batches into the single proof a settlement carries. Batches
-prove in sequence, each on top of the last, so the pipeline is a chain by
-construction. Staging exists for the same reason factories have stations:
+compounds batches into the single proof a settlement carries. Batch
+proofs chain within a bundle, and bundles chain across settlements, so
+the pipeline is a chain by construction. Staging exists for the same reason factories have stations:
 each stage stays small enough to run continuously, and the final product
 is one compact proof covering everything.
 
@@ -67,12 +67,17 @@ public. So anyone can, in principle, stand up this same open stack
 against the same lane and continue where the last operator stopped.
 Second, exits already committed to the permission tree are claimable by
 their holders alone; no operator sits in that loop. Permissionless
-settlement cuts both ways, though: a griefer with a proving stack can
-settle valid-but-empty extensions too, pinning the lane tip while paying
-real fees and proving cost for every round of it. An honest operator
-outruns them by settling real work, but nothing on-chain punishes the
-stall itself. Permissionless is a floor under liveness, not a ceiling on
-nuisance. What is *not* shipped today is an escape hatch, a flow that lets
+settlement cuts both ways, though. A griefer with a proving stack can
+settle empty extensions: bundles that execute nothing new and leave the
+lane tip behind its true head, so pending actions (yours, perhaps) stay
+unsettleable. Both sides spend the same continuation output, so each link
+is a mempool race; whoever confirms first wins, the loser's settlement
+dies with its input, and its proving work is wasted. Nothing on-chain
+punishes any of this; the only brake is cost, paid by the griefer, for
+every round they win, for as long as they keep winning. What they cannot
+touch is safety: state stays unforgeable and committed exits stay
+claimable. What stalls is movement. Permissionless is a floor under
+liveness, not a ceiling on nuisance. What is *not* shipped today is an escape hatch, a flow that lets
 a user force a settlement through without first running the machine. Until
 one exists, a balance that never became a committed exit waits for an
 operator, and the honest sentence is: exit early if you plan to leave.

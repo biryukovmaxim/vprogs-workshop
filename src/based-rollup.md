@@ -9,7 +9,8 @@ trusting is proved and settled back to Kaspa. That off-chain half is the
 provide itself. Ordering and data
 availability come from the program's lane on Kaspa; enforcement and
 payouts land on Kaspa; no external committee, DA service, or bridge token
-sits in between. A DA level still exists, and Kaspa is it.
+sits in between: the data-availability layer is the program's lane on
+Kaspa itself.
 
 A note for readers from the Ethereum world (others can skip this
 paragraph): in Ethereum discourse "based" means L1 proposers do the
@@ -48,10 +49,12 @@ on Kaspa, and chapter 8 covers what a skeptic can do without the index.
 
 ## The walls, and the hinges
 
-Kaspa's script engine is real, and richer than Bitcoin's; abstraction
-layers are being built on it (SilverScript, Argent among them). The
-caricature of "no smart contracts because no scripting" is wrong. The
-walls are structural, and there are two. First,
+Kaspa's script engine is real, and richer than Bitcoin's: it concatenates,
+hashes, does arithmetic, inspects its own transaction's inputs and
+outputs, and, since KIP-16, verifies zk proofs. Ecosystem projects
+(SilverScript, Argent among them) are building higher-level abstractions
+over it. The caricature of "no smart contracts because no scripting" is
+wrong. The walls are structural, and there are two. First,
 Kaspa runs on UTXOs: every coin is an output consumed by exactly one
 transaction, and no other transaction can reference it afterward; shared
 state has no native home, so a program must carry its pot, board, and
@@ -62,8 +65,9 @@ lock and check, not to *be* an application.
 
 Those walls are not accidents to be fixed; they are design choices: the
 price of a chain that stays fast and simple to reason about. But the
-walls came with hinges, added through Kaspa's own proposal process and
-activated on testnet-10 by the Toccata hard fork. KIP-16 gave the script
+walls came with hinges, added through Kaspa's own proposal process (KIPs,
+the network's improvement proposals) and activated on testnet-10 by the
+Toccata hard fork, a coordinated upgrade. KIP-16 gave the script
 engine a zk-verify precompile: a script opcode that checks a zk receipt
 inside script execution, so a script can make the chain trust a
 computation it never ran. KIP-20 added covenant ids, so scripts can bind

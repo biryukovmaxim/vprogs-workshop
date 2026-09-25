@@ -42,7 +42,10 @@ attests three things at once:
 
 Read a settlement as a snapshot claim, not a switch. It says: at block Y,
 the state digest was D. The proof inside shows how the digest got there,
-root by root, from block X to block Y; the settlement transaction itself
+root by root, from block X to block Y, where X is the previous
+settlement's proof point; the windows are contiguous, each bundle's
+journal continuing exactly where the last one ended, so no block range
+goes unwitnessed. The settlement transaction itself
 lands at least one block after Y, and sometimes later. Each settlement
 pins one more provable snapshot; nothing starts applying "from now on".
 
@@ -60,8 +63,9 @@ User actions can't just be whispered to the operator, because then nobody
 could prove what was submitted, when, or in what order. Instead, each
 program instance owns a **lane**: an L1 subnetwork where its users' actions
 are published as ordinary Kaspa transactions. The entries are sequenced by
-the node's own commitment machinery (KIP-21), not by users racing for a
-shared UTXO; the L1's order fixes the chain. So the lane has a single
+the node's own commitment machinery (KIP-21): Kaspa's consensus itself
+orders the lane and can prove, up to any block, exactly what it
+contained. So the lane has a single
 well-defined head, the **lane tip**, and the L1 node itself can prove what
 the lane contained up to any block.
 
@@ -97,9 +101,9 @@ own logic, checked inside the proof. The L1 neither knows nor cares what a
 ## Deposits
 
 A deposit is how value enters: an ordinary L1 output, paid to the program's
-**deposit address**, one derived from the *covenant id* (the 32-byte
-identity of this program instance, formally introduced at the end of the
-chapter), and credited to a user by the program's rules. In tt the deposit
+**deposit address** (derived from the *covenant id*, the 32-byte identity
+of this program instance, formally introduced at the end of the chapter),
+and credited to a user by the program's rules. In tt the deposit
 *is* the action: the Kaspa transaction you publish to the lane carries your
 signed deposit action (naming the account to credit, and your lock if the
 account is new) and, in the same transaction, an output paying the deposit
@@ -126,17 +130,22 @@ settlement whose bundle emitted exits carries the tree's current commitment
 in a dedicated P2SH output (a bundle with no exits settles without one),
 and a user claims by spending from it on L1: a permission spend that names
 the covenant and proves its leaf. The claim is a self-updating UTXO: your
-spend proves your leaf against the committed root, pays you from the
-deposited outputs it sweeps in as inputs (only this script shape can unlock
-them), and must re-commit the accumulator with your amount deducted for
-everyone still waiting. The same exit cannot be claimed twice over: the
-UTXO you spent is gone, and the new commitment no longer contains your
-leaf.
+spend proves your leaf against the committed root, pays you, and must
+re-commit the accumulator with your amount deducted for
+everyone still waiting. Paying you works like making change: your claim
+transaction pulls in whole coins from the program's deposit pile (only
+this script shape can unlock them; your wallet picks which), the script
+checks on-chain that what was pulled covers your amount, you receive your
+leaf's value, and any leftover is re-locked at the same script in the same
+transaction, for the people still in line. The same exit cannot be claimed
+twice over: the UTXO you spent is gone, and the new commitment no longer
+contains your leaf.
 
 Claims serialize through that one UTXO: heavy exit traffic queues, and two
-claims racing in the mempool conflict like any double-spend; the loser is
-evicted and rebuilds against the new commitment. Swept-but-unpaid value
-returns to the deposit pool for the claimants still waiting. And newer
+claims racing in the mempool conflict like any double-spend. One wins;
+the other's transaction can no longer confirm (its input is gone), and the
+wallet rebuilds it against the new commitment once it sees the winner.
+And newer
 settlements commit the accumulator *after* deducting every claim the
 machine has watched land on L1, so an entitlement already claimed against
 an older commitment is simply absent from the newer one; commitments
@@ -174,7 +183,10 @@ on-chain: the covenant's script hash is computed *from* the pinned image
 ids, so anyone can take a claimed rule-set, recompute the hash, and check
 it against the address before depositing. The tooling for that check is a
 script, not a website, today. In tt's live deployment the covenant is
-literally a constant the operator funds.
+literally a constant the operator funds. That constant is the settlement
+chain's first link: at bootstrap the operator funds an initial output
+locked by the covenant's script at its genesis state, and every
+settlement descends from it.
 
 With the vocabulary in hand: how do proofs tie all four tx types together
 across multiple L1 blocks?

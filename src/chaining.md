@@ -53,19 +53,28 @@ L1 history (all lane entries and deposits up to a named block), and the
 settlement says so explicitly: this state is proven against L1 block N,
 this lane tip is included, and if you disagree, verify the proof. User
 actions submitted in block 3 and block 40 end up proven together into one
-settled state, with nothing in between silently dropped: the lane is a
-hash chain, and the proof binds its tip. The bind is checked on-chain at
+settled state, with nothing in between silently dropped: the node's
+sequencing commitments (KIP-21) give the lane one canonical history, and
+the proof binds its tip. The bind is checked on-chain at
 spend time: the settlement script asks the chain itself for the cited
 block's lane commitment and requires the proof's journal to commit exactly
 that value, so a proof about a fictional or stale L1 world cannot satisfy
-a live node.
+a node that follows the real chain. The check runs while the node
+validates the settlement transaction itself. The machine only cites
+blocks already behind the confirmation window, so a cited block always
+sits deeper than the settlement resting on it; a reorg deep enough to
+kill the one would have to swallow the other. Past that depth, both are
+as permanent as any Kaspa payment.
 
 ## Deposits and the permission tree ride the same train
 
 Deposits are L1 outputs, so they're witnessed the same way lane actions
 are: each batch's journal carries a commitment to the deposit address its
 credited outputs paid, and the proof checks every credited deposit against
-the L1 data it covers. Exits flow the other way but on the same rails:
+the L1 data it covers. Deposits also bind on-chain through their address:
+the journal commits the deposit address the bundle credited, and the
+settlement script re-derives that address from the covenant id and
+requires the proof to name exactly it. Exits flow the other way but on the same rails:
 when execution debits a user and emits an exit, the entitlement lands in
 the permission tree, and the settlement that includes it carries the
 tree's commitment. One proof cycle carries the whole ledger of

@@ -16,7 +16,7 @@ Both systems are, at heart, the same picture:
 | State shape | accounts, addressed by keys, holding data and lamports | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
-| Concurrency discipline | non-conflicting txs at once | the same rule: concurrent writes never execute in parallel; bundle proving is sequential by construction |
+| Concurrency discipline | non-conflicting txs run in parallel, conflicting ones wait | the same split: work touching the same state never runs in parallel; bundle proving is sequential by construction |
 | Money | native token, rent on accounts | native KAS, fees and storage mass |
 
 A Solana developer reading tt's guest code will feel at home: there are
