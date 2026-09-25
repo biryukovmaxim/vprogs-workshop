@@ -1,3 +1,78 @@
 # Solana: the real difference
 
-TODO-DRAFT
+If you know one smart-contract platform, this chapter is for you. vprogs
+rollups and Solana look strikingly similar on the surface — and the one
+place they differ explains everything else about the design.
+
+## The similarities are real
+
+Both systems are, at heart, the same picture:
+
+| | Solana | a vprogs rollup |
+|---|---|---|
+| State shape | accounts, addressed by keys, holding data and lamports | resources, addressed by derived ids, holding data and balances |
+| User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
+| Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
+| Parallelism ambition | many non-conflicting txs at once | batches scheduled with conflict tracking |
+| Money | native token, rent on accounts | native KAS, fees and storage mass |
+
+A Solana developer reading tt's guest code will feel at home: there are
+user accounts with balances, locks authorizing spends, a fee-paying
+discipline, an index of "who owns what". The shape rhymes deliberately —
+it's a good shape.
+
+## The difference: whose runtime is it?
+
+On Solana, the runtime is **the chain**. Sealevel's scheduling model, the
+account model, rent and fee rules, what makes a transaction well-formed —
+all of that is protocol, identical for every program, enforced by every
+validator, changeable only by a network upgrade. Programs are guests in a
+fixed house: they orchestrate accounts, but the rules of the house are not
+theirs to define.
+
+In a vprogs rollup, the runtime is **the program**. tt's guest literally
+ships a `runtime.rs` — and inside the proved world it is the *only*
+runtime there is. Resource derivation lives in the app too: tt decides
+its resource kinds, its hash domains, its id derivations (the framework
+hands you the pattern; the app picks the keyspace). Transaction validity,
+lock semantics, what a "turn timer" means — all rollup program logic,
+executed and proved like any other line of guest code. There is no fixed
+house; every program builds — or rather, assembles from batteries — its
+own.
+
+This is not a small philosophical point; it is the direct consequence of
+the zkVM: since the guest is an ordinary program, whatever it computes
+*about its own rules* is covered by the same proof that covers the rules
+themselves. On a chain, the runtime must be fixed because every validator
+must agree on it before running your code. In a proved world, agreement is
+bought by the receipt — so the runtime can be as application-specific as
+the application.
+
+## What it buys
+
+- **Resource derivation as a design surface.** tt gives games their own
+  keyspace derived from the creator's lock and a counter — a Solana
+  program would express that as PDA conventions; here it is just code,
+  with domain separation to keep keyspaces from colliding.
+- **Rules that can be arbitrary.** A turn timer that forfeits a round, a
+  pot that splits on a draw — no need to fit these into a shared
+  execution model, because there is no shared execution model.
+- **Upgrades without a fork.** "The protocol" is the guest ELF; changing
+  the rules is changing the program (covenants pin image ids precisely so
+  this is explicit — a new rules version is a new identity, not a
+  surprise).
+
+## What it costs
+
+- **No free composability.** Solana programs share one state machine, so
+  one program can call another atomically. Each vprogs program is its own
+  proved world; cross-program calls aren't a feature of the shape (chapter
+  9 lives entirely inside this limitation).
+- **The runtime is your responsibility.** Nobody else guarantees your
+  rules make sense. The framework's batteries — locks, signers, lifecycle
+  hooks — are the strong default, and `runtime.rs`'s job is largely
+  *assembling* them rather than inventing from zero. But the choice, and
+  the consequences, belong to the program.
+
+Same shape, different landlord. In a Solana program you rent the runtime;
+in a vprogs rollup you own it — assembled from good parts, and proved.
