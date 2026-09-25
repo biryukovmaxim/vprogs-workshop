@@ -2,13 +2,21 @@
 
 ## The one-sentence version
 
-A based rollup moves a program *off* the L1 — its state, its rules, its
-execution — but keeps its *enforcement* on the L1: every state change worth
+A based rollup moves a program *off* the L1 (its state, its rules, its
+execution) but keeps its *enforcement* on the L1: every state change worth
 trusting is proved and settled back to Kaspa. "Based" means the app leans
-directly on its own settlement layer — there is no external committee, no
-alternative DA layer, no bridge token standing between the program and the
-chain that actually pays out. Kaspa is the bedrock; the rollup is the
-building on top of it.
+on the L1 for the parts it must not provide itself. Ordering and data
+availability come from the program's lane on Kaspa; enforcement and
+payouts land on Kaspa; no external committee, DA service, or bridge token
+sits in between. A DA level still exists, and Kaspa is it.
+
+A note for readers from the Ethereum world (others can skip this
+paragraph): in Ethereum discourse "based" means L1 proposers do the
+sequencing. Here nobody sequences at all; ordering is not a service. Users
+publish actions straight to the L1 lane, and the L1's own order *is* the
+order. The word is used in its root sense: the app is based directly on
+its chain, with no committee, no separate data layer, and no bridge token
+between them.
 
 The shape of the whole system fits in one diagram:
 
@@ -24,32 +32,58 @@ flowchart LR
 ```
 
 Users sign actions and submit them to the program's lane on Kaspa
-*themselves* — the lane is an L1 subnetwork that serves as the program's
+*themselves*: the lane is an L1 subnetwork that serves as the program's
 public inbox and its data availability. The operator never has to be asked:
 it reads the lane and the chain as witnesses and executes actions
 off-chain. Provers produce cryptographic proofs that the execution followed
-the program's rules. Settlements — carrying those proofs and commitments to
-the new state — land on Kaspa. Money flows back out to users through exits,
+the program's rules. Settlements, carrying those proofs and commitments to
+the new state, land on Kaspa. Money flows back out to users through exits,
 enforced by exactly those settled proofs.
 
-## Why Kaspa?
+## The walls, and the hinges
 
-Kaspa is a proof-of-work L1 with a blockdag rather than a chain: many blocks
-per second, woven into a single consensus ordering. It is fast at the thing
-it does. The thing it does is deliberately small — transferring KAS under a
-few standard lock types (think P2PK-style and P2SH-style scripts). There is
-no virtual machine on the chain, no contract language, no place to put
-application logic.
+Kaspa's script engine is real, and richer than Bitcoin's; abstraction
+layers are being built on it (SilverScript, Argent among them). The
+caricature of "no smart contracts because no scripting" is wrong. The
+walls are structural, and there are two. First,
+Kaspa runs on UTXOs: every coin is an output consumed by exactly one
+transaction, and no other transaction can reference it afterward; shared
+state has no native home, so a program must carry its pot, board, and
+balances forward output by output (abstractions like SilverScript make the
+threading tractable; it remains a fight with the grain). Second, the
+script language is deliberately not Turing-complete: flexible enough to
+lock and check, not to *be* an application.
 
-That minimalism is not an accident to be fixed; it is a design choice.
-"Minimal" is not "zero": the scripting that remains can hash, compare,
-inspect its own transaction, and verify a zk proof — enough to *enforce* a
-settlement, never enough to *host* application logic. Keeping the L1 tiny
-is what lets it stay fast and simple to reason about. The cost is that
-programmability has to come from somewhere else. A based rollup is that
-somewhere else: instead of the chain *running* your program, someone runs
-it off-chain and *proves* it, and the chain only has to verify a compact
-proof and move money according to the result. The L1 stays small; the
+Those walls are not accidents to be fixed; they are design choices: the
+price of a chain that stays fast and simple to reason about. But the
+walls came with hinges, added through Kaspa's own proposal process and
+activated on testnet-10 by the Toccata hard fork. KIP-16 gave the script
+engine a zk-verify precompile: a script opcode that checks a zk receipt
+inside script execution, so a script can make the chain trust a
+computation it never ran. KIP-20 added covenant ids, so scripts can bind
+outputs to one program instance's identity. KIP-21 added lane
+commitments: the node's consensus anchors, references, and proves the
+subset of transactions belonging to one lane. Proof verification is
+therefore a consensus rule, not a service: every Kaspa node that executes
+a settlement runs the check, and a bad-proof settlement is invalid,
+rejected like a bad signature. Which proof system and which program
+version to trust are not choices made at spend time; they are baked into
+the covenant's script hash itself, which chapter 3 opens up.
+
+Where this lives today deserves its own sentences. Those extensions are
+**implemented and activated on Kaspa's public testnet-10** (the network
+the live demo settles on, mined by its public miners) and **not yet on
+Kaspa mainnet**. Until mainnet activates them, every vprogs settlement is
+a testnet fact, and the mainnet path is the standard
+proposal-and-activation process, not a promise. "Kaspa holds the money"
+is a statement about the design and about the testnet of today; mainnet is
+still the road ahead.
+
+A based rollup is what the three hinges make, and it dissolves both walls
+at once: the program's state lives in the proved world, shared and owned
+outright in any shape the program likes, and the rules can be arbitrary
+code, because the chain never runs them; it verifies a compact proof and
+moves money according to the result. The L1 stays simple; the
 applications don't have to be.
 
 ## What are you actually trusting?
@@ -65,16 +99,23 @@ steal, and what stops them? It's a spectrum:
 
 Moving down the table removes trust in *people* one layer at a time. The
 zk-proven model's trick is that "did the execution follow the rules?" stops
-being a question about anyone's honesty — the operator can be a complete
+being a question about anyone's honesty; the operator can be a complete
 stranger, run on junk hardware, in a bad mood, and still cannot produce a
 settlement for a state the program's rules don't allow. The proof either
 checks out on Kaspa or the settlement doesn't happen.
 
-What *remains* is a different kind of trust: liveness (someone sequences
-actions and settles proofs — and exits exist so users are never trapped
-waiting for that someone), and data availability (you can see the state you
-need to act). We'll meet both again, with their machinery, in the chapters
-ahead.
+What *remains* is a different kind of trust, and it deserves plain words:
+**liveness** and **data availability** (you can see the state you need to
+act). Liveness, honestly: a settlement only exists if someone executes
+actions and settles proofs, and today that someone is the operator. No
+operator key is needed anywhere in the machine: the on-chain scripts check
+proofs, never signatures, so in principle anyone can run the stack and
+settle. But no permissionless escape-hatch flow is shipped yet either. If
+every operator of a covenant stops before your balance has become a
+committed exit, your funds wait until someone resumes the stack. The
+machine is built to make "someone" cheap to become (the lane, the chain,
+and the proofs are all public), but cheap is not automatic. We'll meet
+both trusts again, with their machinery, in the chapters ahead.
 
 ## The shape and the rules
 
@@ -85,11 +126,11 @@ plainly now:
 
 The framework fixes the *shape* of the machine: user actions are signed,
 state changes are proved, settlements land on Kaspa, money exits through
-enforced doors. But the *rules* — what a deposit requires, who may move
-which funds, how the state is derived, even how exits work — are not laws
+enforced doors. But the *rules* (what a deposit requires, who may move
+which funds, how the state is derived, even how exits work) are not laws
 of nature. They are choices made by each program. vprogs ships solid,
 ready-to-use implementations of all of them (deposit logic, lockers and
-signers, the permission tree, the exit mechanism) — treat each as a
+signers, the permission tree, the exit mechanism); treat each as a
 battery: a standard part you can use as-is, and in principle replace with
 a different design.
 

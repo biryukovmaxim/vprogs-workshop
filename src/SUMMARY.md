@@ -1,6 +1,7 @@
 # Summary
 
 - [The hook: tic-tac-toe with stakes](./intro.md)
+- [The words you need](./words.md)
 - [Based rollup on Kaspa](./based-rollup.md)
 - [The transaction vocabulary](./transactions.md)
 - [How it all chains](./chaining.md)
