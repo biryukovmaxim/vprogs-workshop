@@ -17,16 +17,20 @@ flowchart LR
     U["Users (signed actions)"] --> OP["Program instance (operator)"]
     OP --> PR["Provers"]
     PR -- "proofs" --> OP
-    OP -- "settlements + proofs" --> L1["Kaspa L1"]
-    L1 -- "witnesses (deposits, blocks)" --> OP
+    OP -- "user actions → lane (subnetwork)" --> L1["Kaspa L1"]
+    OP -- "settlements + proofs" --> L1
+    L1 -- "witnesses (lane data, deposits, blocks)" --> OP
     L1 -- "payouts (exits)" --> U
 ```
 
-Users sign actions and hand them to a program instance run by an operator.
-The operator executes them off-chain. Provers produce cryptographic proofs
-that the execution followed the program's rules. Settlements — carrying
-those proofs and commitments to the new state — land on Kaspa. Money flows
-back out to users through exits, enforced by exactly those settled proofs.
+Users sign actions and hand them to the program instance's operator, which
+publishes them to the program's lane on Kaspa — an L1 subnetwork that serves
+as the program's public inbox and its data availability. The operator
+executes actions off-chain, reading the lane and the chain as witnesses.
+Provers produce cryptographic proofs that the execution followed the
+program's rules. Settlements — carrying those proofs and commitments to the
+new state — land on Kaspa. Money flows back out to users through exits,
+enforced by exactly those settled proofs.
 
 ## Why Kaspa?
 
