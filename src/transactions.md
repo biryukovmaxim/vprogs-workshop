@@ -73,8 +73,9 @@ choice. Same battery, different placement.
 An exit is how value leaves: the program debits a user and emits an
 entitlement to withdraw on L1. The entitlements accumulate in the
 **permission tree** — a Merkle accumulator whose leaves are
-"(L1 script, amount)" pairs: who may claim how much, by L1 lock type. Each
-settlement carries the tree's current commitment in a dedicated P2SH output,
+"(L1 script, amount)" pairs: who may claim how much, by L1 lock type. A
+settlement whose bundle emitted exits carries the tree's current commitment
+in a dedicated P2SH output (a bundle with no exits settles without one),
 and a user claims by spending from it on L1 — a permission spend that names
 the covenant and proves its leaf.
 

@@ -8,12 +8,11 @@ proofs.
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant OP as Operator (bridge)
+    participant OP as Operator
     participant P as Provers
     participant L1 as Kaspa L1
 
-    U->>OP: signed action (e.g. PlaceMark)
-    OP->>L1: publish action to the lane (subnetwork)
+    U->>L1: submit signed action to the lane (subnetwork)
     U->>L1: deposit (output paying the covenant's deposit address)
     Note over L1: blocks pass — actions, deposits and settlements interleave
     L1-->>OP: witnesses: confirmed lane data, deposits, chain context
@@ -24,7 +23,7 @@ sequenceDiagram
     P-->>OP: bundle proof
     OP->>L1: settlement: (new_state, new_lane_tip, prove-to block N) + proof
     Note over L1: confirmation window passes
-    L1-->>U: exit entitlements live; user claims via permission spend
+    L1-->>U: exit entitlements live — user claims via permission spend
 ```
 
 ## State digests succeed each other
@@ -58,8 +57,9 @@ are: each batch's journal carries a commitment to the deposit address its
 credited outputs paid, and the proof checks every credited deposit against
 the L1 data it covers. Exits flow the other way but on the same rails:
 when execution debits a user and emits an exit, the entitlement lands in
-the permission tree, whose commitment rides along in the settlement. One
-proof cycle carries the whole ledger of who-entered and who-may-leave.
+the permission tree, and the settlement that includes it carries the
+tree's commitment. One proof cycle carries the whole ledger of
+who-entered and who-may-leave.
 
 ## Waiting for finality — and surviving reorgs
 
@@ -79,8 +79,9 @@ Stand back and look at a single settlement tx on an explorer. It names
 its covenant. It commits the new state digest, the lane tip, and the block
 it proves to. Its first output can only be spent by the next settlement of
 the same covenant — so the history cannot fork without splitting real
-money on L1. Its second output is the permission tree: live, claimable
-exit entitlements. And everything inside it — every move of every game,
+money on L1. Where the bundle emitted exits, a permission output commits
+the tree: live, claimable entitlements (a bundle with no exits settles
+without one). And everything inside it — every move of every game,
 every deposit, every balance — is a 32-byte root away, verified by a proof
 anyone can check. That is the machine. The rest of this book is about who
 runs it, what proves it, and what it's like to build on.

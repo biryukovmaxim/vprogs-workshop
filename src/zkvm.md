@@ -38,11 +38,12 @@ Two modes matter in practice:
 - **Dev mode** — the prover emits stub receipts instead of real proofs.
   Instant, free, and completely unsafe: fine for a local simnet demo,
   worthless on a real network (and rejected there).
-- **Real proving** — actual cryptographic proofs, GPU-provable at
-  production scale. tt's testnet deployments settle with real proofs.
+- **Real proving** — actual cryptographic proofs, GPU-produced. tt's
+  testnet deployments settle with real proofs.
 
-The distinction is an operating switch, not an architecture difference:
-the same guest, the same settlement shape, the same verification logic.
+The same guest and the same settlement layout — but not the same
+security: a dev settlement's script skips the on-chain proof verification
+entirely, which is why dev mode is never anything more than a local demo.
 
 ## What may come
 

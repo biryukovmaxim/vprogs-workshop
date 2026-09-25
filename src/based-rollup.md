@@ -14,22 +14,22 @@ The shape of the whole system fits in one diagram:
 
 ```mermaid
 flowchart LR
-    U["Users (signed actions)"] --> OP["Program instance (operator)"]
+    U["Users (signed actions)"] -- "actions → lane (subnetwork)" --> L1["Kaspa L1"]
+    U -. "state reads (index)" .-> OP["Program instance (operator)"]
     OP --> PR["Provers"]
     PR -- "proofs" --> OP
-    OP -- "user actions → lane (subnetwork)" --> L1["Kaspa L1"]
     OP -- "settlements + proofs" --> L1
     L1 -- "witnesses (lane data, deposits, blocks)" --> OP
     L1 -- "payouts (exits)" --> U
 ```
 
-Users sign actions and hand them to the program instance's operator, which
-publishes them to the program's lane on Kaspa — an L1 subnetwork that serves
-as the program's public inbox and its data availability. The operator
-executes actions off-chain, reading the lane and the chain as witnesses.
-Provers produce cryptographic proofs that the execution followed the
-program's rules. Settlements — carrying those proofs and commitments to the
-new state — land on Kaspa. Money flows back out to users through exits,
+Users sign actions and submit them to the program's lane on Kaspa
+*themselves* — the lane is an L1 subnetwork that serves as the program's
+public inbox and its data availability. The operator never has to be asked:
+it reads the lane and the chain as witnesses and executes actions
+off-chain. Provers produce cryptographic proofs that the execution followed
+the program's rules. Settlements — carrying those proofs and commitments to
+the new state — land on Kaspa. Money flows back out to users through exits,
 enforced by exactly those settled proofs.
 
 ## Why Kaspa?
@@ -42,12 +42,15 @@ no virtual machine on the chain, no contract language, no place to put
 application logic.
 
 That minimalism is not an accident to be fixed; it is a design choice.
-Keeping the L1 tiny is what lets it stay fast and simple to reason about.
-The cost is that programmability has to come from somewhere else. A based
-rollup is that somewhere else: instead of the chain *running* your program,
-someone runs it off-chain and *proves* it, and the chain only has to verify
-a compact proof and move money according to the result. The L1 stays small;
-the applications don't have to be.
+"Minimal" is not "zero": the scripting that remains can hash, compare,
+inspect its own transaction, and verify a zk proof — enough to *enforce* a
+settlement, never enough to *host* application logic. Keeping the L1 tiny
+is what lets it stay fast and simple to reason about. The cost is that
+programmability has to come from somewhere else. A based rollup is that
+somewhere else: instead of the chain *running* your program, someone runs
+it off-chain and *proves* it, and the chain only has to verify a compact
+proof and move money according to the result. The L1 stays small; the
+applications don't have to be.
 
 ## What are you actually trusting?
 

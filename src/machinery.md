@@ -5,7 +5,7 @@ and looks around: who runs what. Four roles cover the whole machine.
 
 ```mermaid
 flowchart TB
-    BR["Bridge — watches confirmed L1, publishes the lane, feeds witnesses"]
+    BR["Bridge — watches confirmed L1, feeds witnesses from lane and deposits"]
     EX["Executor — runs the program's rules over actions and deposits"]
     PR["Provers — transaction → batch → aggregate proofs"]
     ST["Settler — builds and submits settlement txs"]
@@ -14,10 +14,11 @@ flowchart TB
     BR --> DA
 ```
 
-**The bridge** is the machine's eyes and voice on L1. It follows the Kaspa
-chain behind the confirmation window, turns confirmed lane actions and
-deposits into witnesses for execution, and publishes new user actions to
-the lane. Every fact the machine believes about L1 arrives through it.
+**The bridge** is the machine's eyes on L1. It follows the Kaspa chain
+behind the confirmation window and turns confirmed lane actions and
+deposits into witnesses for execution — users submit to the lane
+themselves; the bridge only ever reads. Every fact the machine believes
+about L1 arrives through it.
 
 **The executor** applies the program's rules — the guest code — to the
 witnessed actions. It is deliberately boring: same inputs, same state, same
@@ -38,11 +39,10 @@ proof, continuation and permission outputs — and submits it to Kaspa.
 program's current state over an API so apps can query it without replaying
 proofs. Chapter 8 builds on it.
 
-In tt's deployment these roles are processes around one `ttd` node
-(`bridge` → executor → provers → settler) plus the web app reading the DA
-APIs — but the roles are independent of the packaging: the framework
-ships them as a reusable daemon engine, and a bigger deployment could
-scale each separately.
+In tt's deployment these roles are in-process components of the single
+`ttd` daemon — the framework's reusable runner engine — plus the web app
+reading the DA APIs. The roles are independent of the packaging, though:
+a bigger deployment could scale each separately.
 
 ## Who are you trusting, again?
 
