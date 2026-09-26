@@ -1,7 +1,7 @@
 # The machinery
 
-Chapter 4 followed one settlement through time. This chapter stands still
-and looks around: who runs what. Four roles cover the whole machine.
+Chapter 5 followed one settlement through time. This chapter stands still
+and looks around: who runs what. Five roles cover the whole machine.
 
 ```mermaid
 flowchart TB
@@ -39,7 +39,7 @@ proof, continuation and permission outputs) and submits it to Kaspa.
 
 **The DA/index layer** is the read side: an operator can serve the
 program's current state over an API so apps can query it without replaying
-proofs. Chapter 8 builds on it.
+proofs. Chapter 9 builds on it.
 
 In tt's deployment these roles are in-process components of the single
 `ttd` daemon (the framework's reusable runner engine), plus the web app
@@ -48,7 +48,7 @@ a bigger deployment could scale each separately.
 
 ## Who are you trusting, again?
 
-With the roles named, the trust question from chapter 2 gets concrete.
+With the roles named, the trust question from chapter 3 gets concrete.
 The bridge can't invent L1 facts; the proofs check everything against
 the real chain. The executor can't cheat; its output is proven. The
 settler can't settle fiction; Kaspa verifies the proof before accepting
@@ -65,6 +65,10 @@ proofs and ends without any signature (a valid proof from anyone extends
 the chain), the bridge only reads public chain data, and the lane is
 public. So anyone can, in principle, stand up this same open stack
 against the same lane and continue where the last operator stopped.
+"In principle" is the honest size of the claim: nothing is keyed to the
+operator, but resuming means feeding a proving stack, real work at real
+cost (chapter 9 says who would pay), so it is a capability, not a service
+anyone promises.
 Second, exits already committed to the permission tree are claimable by
 their holders alone; no operator sits in that loop. Permissionless
 settlement cuts both ways, though. A griefer with a proving stack can
@@ -74,7 +78,13 @@ unsettleable. Both sides spend the same continuation output, so each link
 is a mempool race; whoever confirms first wins, the loser's settlement
 dies with its input, and its proving work is wasted. Nothing on-chain
 punishes any of this; the only brake is cost, paid by the griefer, for
-every round they win, for as long as they keep winning. What they cannot
+every round they win, for as long as they keep winning. The honest side
+pays too: a settlement that loses a race dies with its input, and its
+proving work burns with it, so baiting the operator into losing races is
+itself a cost attack. And the stall is not neutral about victims: an
+exit does not exist until a settlement commits it, so a departing user's
+withdrawal is exactly as stallable as any action; committed exits are
+safe, pending ones wait. What they cannot
 touch is safety: state stays unforgeable and committed exits stay
 claimable. What stalls is movement. Permissionless is a floor under
 liveness, not a ceiling on nuisance. What is *not* shipped today is an escape hatch, a flow that lets

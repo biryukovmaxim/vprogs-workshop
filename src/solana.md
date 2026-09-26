@@ -16,8 +16,8 @@ Both systems are, at heart, the same picture:
 | State shape | accounts, addressed by keys, holding data and lamports | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
-| Concurrency discipline | non-conflicting txs run in parallel, conflicting ones wait | the same split: work touching the same state never runs in parallel; bundle proving is sequential by construction |
-| Money | native token, rent on accounts | native KAS, fees and storage mass |
+| Concurrency discipline | non-conflicting txs run in parallel; a losing tx fails and is resubmitted | the same split: work touching the same state never runs in parallel; bundle proving is sequential by construction |
+| Money | native token, rent (a minimum-balance floor) on accounts | native KAS, fees and storage mass (Kaspa's extra charge for outputs that park data on nodes) |
 
 A Solana developer reading tt's guest code will feel at home: there are
 user accounts with balances, locks authorizing spends, a minimum-balance
@@ -60,10 +60,10 @@ the application.
 - **Rules that can be arbitrary.** A turn timer that forfeits a round, a
   pot that splits on a draw: no need to fit these into a shared
   execution model, because there is no shared execution model.
-- **Upgrades without a fork.** "The protocol" is the guest ELF; changing
+- **New rules, new identity.** "The protocol" is the guest ELF; changing
   the rules is changing the program (covenants pin image ids precisely so
   this is explicit: a new rules version is a new identity, not a
-  surprise). The money moves the honest way: a new image id is a new
+  surprise, and an upgrade is an emigration). The money moves the honest way: a new image id is a new
   covenant, so an upgrade is an emigration. Users exit through the old
   instance's permission tree and deposit into the new one. In-place
   migration does not ship today. And the window is honest about its own
@@ -78,12 +78,27 @@ the application.
 - **No free composability.** Solana programs share one state machine, so
   one program can call another atomically. Each vprogs program is its own
   proved world; cross-program calls aren't a feature of the shape
-  (chapter 9 lives entirely inside this limitation).
+  (chapter 10 lives entirely inside this limitation).
 - **The runtime is your responsibility.** Nobody else guarantees your
-  rules make sense. The framework's batteries (locks, signers, lifecycle
-  hooks) are the strong default, and `runtime.rs`'s job is largely
+  rules make sense. The framework's batteries (locks, unlockers, signers)
+  are the strong default, and `runtime.rs`'s job is largely
   *assembling* them rather than inventing from zero. But the choice, and
   the consequences, belong to the program.
+
+## The Ethereum reader's checklist
+
+The Solana comparison above rhymes on accounts and runtimes; the reader
+from EVM rollups has a different checklist, and the honest answers are
+short:
+
+| The question | Here |
+|---|---|
+| Validity or fraud proofs? | Validity: every settlement carries a zk proof every Kaspa node checks |
+| Forced inclusion? | Not shipped: no escape hatch; the tip moves only when someone settles (chapter 6) |
+| Sequencer failure? | There is no sequencer; whoever settles picks how far the tip moves, and anyone with a valid proof can settle |
+| Exit latency? | Confirmation window plus proving plus L1 inclusion (chapter 5); no measured numbers published yet |
+| Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block (chapter 4) |
+| Preconfirmations? | None: a state is known when its settlement is buried, not before |
 
 Same shape, different landlord. In a Solana program you rent the runtime;
 in a vprogs rollup you own it, assembled from good parts, and proved.

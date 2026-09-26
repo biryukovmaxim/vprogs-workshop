@@ -25,7 +25,8 @@ flowchart LR
 ## What vprogs uses today
 
 vprogs is built on **RISC0**, a zkVM for RISC-V programs. The proving
-pipeline is three guest programs, each an ordinary RISC-V ELF with its own
+pipeline is three guest programs, each an ordinary program binary (in
+RISC-V ELF form) with its own
 *image id*:
 
 - the **transaction guest** is the application itself: tt's runtime and
@@ -37,7 +38,7 @@ pipeline is three guest programs, each an ordinary RISC-V ELF with its own
 - the **aggregator** compounds a run of batch proofs into the single proof
   a settlement carries: the bundle proof.
 
-All three image ids are pinned into the covenant at bootstrap (chapter 3),
+All three image ids are pinned into the covenant at bootstrap (chapter 4),
 and every proof names the exact images it executed, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
@@ -45,7 +46,12 @@ because each bundle's journal continues the previous one. That is what
 makes the digest chain a chain. It also shapes latency: because each
 proof continues the last instead of restarting, a prover that keeps up
 stays a fixed distance behind the chain; a prover that cannot keep up
-falls behind without bound.
+falls behind without bound. While it is behind, settlements wait, so
+exits wait to be committed: the same liveness exposure chapter 6 names.
+Recovery is catching up, and the shape allows it: a proof window can span
+many blocks, so a backlog drains in bigger bites at the price of later
+snapshots, and a machine stalled past the twelve-hour anchor window of
+chapter 5 must prove such a span before it can settle again.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
 engine ships a zk-verify opcode (KIP-16, live on testnet-10); the
@@ -77,7 +83,8 @@ entirely, which is why dev mode is never anything more than a local demo.
 ## What may come
 
 The zkVM landscape is young and moving. vprogs' proving stack sits behind
-a backend interface: execution, proving, and verification are traits, and
+a backend interface: execution, proving, and verification each sit behind
+one standard interface, and
 RISC0 is currently the one implementation behind them. That seam is what
 makes "another zkVM tomorrow" a migration rather than a rewrite:
 *outlook, not promise*. The door is a real, existing interface, not a

@@ -1,6 +1,6 @@
 # Single sovereign apps
 
-Chapter 7 named the cost of the design; this chapter sizes it. What
+Chapter 8 named the cost of the design; this chapter sizes it. What
 *is* a vprogs program today, and what isn't it yet?
 
 ## One covenant, one world

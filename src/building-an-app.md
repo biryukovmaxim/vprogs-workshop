@@ -13,8 +13,8 @@ with the program's wire format, sign it with the user's key. tt compiles
 its guest wire library to WebAssembly so the browser can do exactly this:
 the same encoders the zkVM verifies, running in the page, producing signed
 actions with zero servers involved. The wallet never asks anyone's
-permission to *construct* a transaction; only the L1's rules decide
-whether it holds, once proved.
+permission to *construct* a transaction; the L1 carries it, and whether
+it holds is decided at proof time by the program's own rules.
 
 ## The read side: indexes
 
@@ -34,13 +34,17 @@ state. tt's node exposes exactly the API a tic-tac-toe app needs:
 | `GET /api/exits` | exit entitlements waiting to be claimed on L1 |
 
 The web app is then a perfectly ordinary frontend: fetch state, render a
-board, post signed actions. All the exotic machinery from chapters 3–6 is
+board, post signed actions. There is no Anchor-style IDL or generated
+client yet: the WASM wire library is the client SDK, and the endpoints
+above are hand-written. All the exotic machinery from chapters 3–6 is
 behind two habits: *sign locally, read the index*.
 
 ## Who pays for what
 
 Users pay ordinary Kaspa fees for their own lane actions and deposits;
-each action rides a normal transaction funded from the user's own UTXOs.
+each action rides a normal transaction funded from the user's own UTXOs,
+and an exit claim is likewise the claimant's own transaction, its fee
+carried by one of the claimer's own coins (chapter 4 sketches the shape).
 The operator pays the settlement transactions' fees and the proving
 compute. tt itself charges nothing inside the program today; an in-program
 fee model (debiting accounts to fund the operator) is a battery a real
@@ -50,7 +54,12 @@ actions to the lane, but garbage pays its own L1 fees, and the program is
 free to reject it at near-zero execution cost. The other half is honest
 too: garbage bytes still ride the batch into the proving pipeline, so
 volume spam burns operator proving cycles until the fee battery is
-placed. Both costs are real; only one is priced today. And the economics
+placed. Why prove garbage at all instead of filtering it first? Because
+a pre-proof filter is also a censorship seam: whoever filters decides
+what counts as garbage, and the lane's promise is that inclusion is not
+anyone's decision. The proof path cannot quietly skip an entry; skipping
+shows up as a stalled lane tip, which is chapter 6's stall, honest and
+visible, not a hidden filter. Both costs are real; only one is priced today. And the economics
 are deliberately unanswered in tt: running the stack is pure cost, which
 means the "someone will resume it" liveness story currently rests on
 enthusiasm. Pricing actions to fund the operator is exactly what that

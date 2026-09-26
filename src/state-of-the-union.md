@@ -17,11 +17,12 @@ Where does all this stand, honestly?
   Kaspa testnet-10: a fresh covenant, a full match, real GPU-produced
   proofs settling on the public testnet, exits claimed. That testnet is
   where the KIP-16/20/21 script and lane extensions are live; mainnet
-  activation is pending (chapter 2 says plainly what that means). Dev-mode
+  activation is pending (chapter 3 says plainly what that means). Dev-mode
   stub receipts are strictly for the local demo; the testnet deployments
   prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
-  pruned nodes; snapshot bootstrap, resume, and catch-up modes exist
+  pruned nodes (nodes that have discarded old block data); snapshot
+  bootstrap, resume, and catch-up modes exist
   because they've had to.
 
 ## What it isn't yet
@@ -29,9 +30,9 @@ Where does all this stand, honestly?
 - **Production.** The project states it plainly: early development /
   prototype phase; APIs and architecture may change significantly. Treat
   everything accordingly.
-- **Multi-program.** As chapter 9 said: single sovereign apps. The
+- **Multi-program.** As chapter 10 said: single sovereign apps. The
   composability question is open future work.
-- **Multi-zkVM.** RISC0 today; the backend seam exists (chapter 6), the
+- **Multi-zkVM.** RISC0 today; the backend seam exists (chapter 7), the
   migrations don't yet.
 
 ## What it costs, and how long it takes
@@ -60,7 +61,9 @@ makes it boring, and boring is the compliment: signed actions into a
 public lane; execution by rules the program itself defines and a zkVM
 proves; state as a digest chain anchored settlement by settlement into
 Kaspa itself; money out through exits that, once committed, no operator
-can withhold. The rollup fixed the shape; the program picked the rules;
+can withhold (until committed, chapter 6's stalls apply: robbed and
+delayed are different failures, and only the first is solved). The
+rollup fixed the shape; the program picked the rules;
 the L1 holds the money. If the live demo is running next door, go lose a
 game of tic-tac-toe knowing exactly why you can't be robbed on the way
-out.
+out, and exactly what has to keep running so you can walk out.

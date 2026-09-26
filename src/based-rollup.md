@@ -8,9 +8,10 @@ trusting is proved and settled back to Kaspa. That off-chain half is the
 **L2**: the program's own world, leaning on Kaspa for what it must not
 provide itself. Ordering and data
 availability come from the program's lane on Kaspa; enforcement and
-payouts land on Kaspa; no external committee, DA service, or bridge token
-sits in between: the data-availability layer is the program's lane on
-Kaspa itself.
+payouts land on Kaspa; no external committee, no data-availability
+service, and no bridge token (no new coin standing in for the locked
+KAS) sits in between: the data-availability layer is the program's lane
+on Kaspa itself.
 
 A note for readers from the Ethereum world (others can skip this
 paragraph): in Ethereum discourse "based" means L1 proposers do the
@@ -19,6 +20,13 @@ publish actions straight to the L1 lane, and the L1's own order *is* the
 order. The word is used in its root sense: the app is based directly on
 its chain, with no committee, no separate data layer, and no bridge token
 between them.
+
+One Ethereum connotation deliberately does not transfer, and it deserves
+its own sentence: there, based also buys forced inclusion, an L1 path
+that makes the rollup process your transaction even if the sequencer
+refuses. This machine ships no such forced path; the liveness limits are
+chapter 6's, stated there plainly. Readers who prefer the established
+name for this shape will find it in chapter 10: a sovereign app.
 
 The shape of the whole system fits in one diagram:
 
@@ -45,7 +53,7 @@ enforced by exactly those settled proofs.
 One arrow in the diagram deserves a note: apps read current state from the
 operator's index (the dashed line), not from Kaspa directly. The index is
 a convenience; the authority behind what it serves is the settlement chain
-on Kaspa, and chapter 8 covers what a skeptic can do without the index.
+on Kaspa, and chapter 9 covers what a skeptic can do without the index.
 
 ## The walls, and the hinges
 
@@ -60,7 +68,8 @@ transaction, and no other transaction can reference it afterward; shared
 state has no native home, so a program must carry its pot, board, and
 balances forward output by output (abstractions like SilverScript make the
 threading tractable; it remains a fight with the grain). Second, the
-script language is deliberately not Turing-complete: flexible enough to
+script language is deliberately not Turing-complete (it cannot run
+arbitrary programs, only check fixed shapes): flexible enough to
 lock and check, not to *be* an application.
 
 Those walls are not accidents to be fixed; they are design choices: the
@@ -68,17 +77,19 @@ price of a chain that stays fast and simple to reason about. But the
 walls came with hinges, added through Kaspa's own proposal process (KIPs,
 the network's improvement proposals) and activated on testnet-10 by the
 Toccata hard fork, a coordinated upgrade. KIP-16 gave the script
-engine a zk-verify precompile: a script opcode that checks a zk receipt
-inside script execution, so a script can make the chain trust a
-computation it never ran. KIP-20 added covenant ids, so scripts can bind
+engine a zk-verify precompile, a ready-made checking routine: one script
+instruction that checks a zk receipt, so a script can make the chain
+trust a computation it never ran. KIP-20 added covenant ids, so scripts can bind
 outputs to one program instance's identity. KIP-21 added lane
 commitments: the node's consensus anchors, references, and proves the
 subset of transactions belonging to one lane. Proof verification is
 therefore a consensus rule, not a service: every Kaspa node that executes
 a settlement runs the check, and a bad-proof settlement is invalid,
-rejected like a bad signature. Which proof system and which program
+rejected like a bad signature. The check is verification, not
+re-execution: small for every node, and priced into the settlement's own
+transaction like any script work. Which proof system and which program
 version to trust are not choices made at spend time; they are baked into
-the covenant's script hash itself, which chapter 3 opens up.
+the covenant's script hash itself, which chapter 4 opens up.
 
 Where this lives today deserves its own sentences. Those extensions are
 **implemented and activated on Kaspa's public testnet-10** (the network
@@ -105,7 +116,7 @@ steal, and what stops them? It's a spectrum:
 |---|---|---|---|
 | **Custodial referee** | The operator | Reputation, law | Everything: they can just take it |
 | **Multisig escrow** | A set of signers | M-of-N honesty | The majority of signers, and their liveness |
-| **Zk-proven program** | The L1 itself | Proofs the L1 verifies | Only the code being proved, and that someone keeps the machine running |
+| **Zk-proven program** | The L1 itself | Proofs the L1 verifies | The code being proved, the zkVM and verifier opcode underneath it (chapter 7), and that someone keeps the machine running |
 
 Moving down the table removes trust in *people* one layer at a time. The
 zk-proven model's trick is that "did the execution follow the rules?" stops
@@ -113,6 +124,13 @@ being a question about anyone's honesty; the operator can be a complete
 stranger, run on junk hardware, in a bad mood, and still cannot produce a
 settlement for a state the program's rules don't allow. The proof either
 checks out on Kaspa or the settlement doesn't happen.
+
+One more honest line, because the table above compresses it: the deposit
+pile is pooled custody at a script, and its safety is exactly the safety
+of the pinned code, bugs included. A rule-set bug that pays the wrong
+hands drains the pile through perfectly valid proofs. That is what
+"trusting the code" means, and it is why the pinning in chapter 4 is
+load-bearing.
 
 What *remains* is a different kind of trust, and it deserves plain words:
 **liveness** and **data availability** (you can see the state you need to
