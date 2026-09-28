@@ -38,7 +38,8 @@ RISC-V ELF form) with its own
 - the **aggregator** compounds a run of batch proofs into the single proof
   a settlement carries: the bundle proof.
 
-All three image ids are pinned into the covenant at bootstrap (chapter 4),
+All three image ids are pinned at bootstrap, alongside the covenant id
+(chapter 4),
 and every proof names the exact images it executed, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,

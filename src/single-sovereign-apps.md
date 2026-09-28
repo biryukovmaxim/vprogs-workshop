@@ -3,7 +3,7 @@
 Chapter 8 named the cost of the design; this chapter sizes it. What
 *is* a vprogs program today, and what isn't it yet?
 
-## One covenant, one world
+## One covenant id, one world
 
 Each program instance is one covenant id: one lane, one state tree, one
 settlement chain, one set of pinned guest images, one operator stack.
@@ -47,11 +47,11 @@ fog.
 
 Where it goes from here, multi-program worlds and cross-covenant
 calls, is future work with design behind it: a yellow paper sketches
-composability, cross-program invocation between covenants, and none of
+composability, cross-program invocation between instances, and none of
 it is implemented yet. The current shape is a deliberate first step,
 not the destination.
 
 For now, the mental model to take away: **vprogs today lets you stand up a
 small, self-contained chain for a single application, based on Kaspa.**
-One app, one covenant, one proof chain, no landlord, and no new coin: the
+One app, one covenant id, one proof chain, no landlord, and no new coin: the
 money is Kaspa's KAS end to end, only the rules are the app's.

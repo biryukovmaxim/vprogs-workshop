@@ -87,8 +87,8 @@ scripts and payloads whose meaning only the proofs enforce.
 - an **exit claim** spends the program's payout commitment and pays a
   user out
 
-Two are plain Kaspa usage (lane entries, deposits); two are the machine's
-own script shapes (settlements, claims). Learn the four and every chapter
+Two are plain Kaspa usage (lane entries, deposits); two carry the
+machine's own scripts (settlements, claims). Learn the four and every chapter
 after this is just consequences. The rest of this chapter walks both
 views: what lands on Kaspa, then what the program makes of it.
 
@@ -128,7 +128,7 @@ These three ride directly in the settlement transaction's script data
 the settlement's outputs chain to the next settlement: output 0 is a P2SH
 continuation that only the *next* valid settlement can spend. So on L1
 itself there grows a single unbroken chain of settlements, each one
-inheriting its predecessor's covenant and committing the next state digest.
+inheriting its predecessor's covenant id and committing the next state digest.
 That chain *is* the program's history; you can walk it on any Kaspa
 explorer.
 
@@ -188,9 +188,10 @@ transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
 a game, joining a game, placing a mark, forfeiting an expired turn. The
-program runs against the L1's own per-block context, block timestamps,
-DAA score, blue score, committed by the chain and carried inside every
-proof window (KIP-21 commits them for exactly this use), so "expired"
+program runs against the L1's own per-block context, timestamps, DAA
+score, blue score, the chain's own time and depth counters, committed
+by the chain and carried inside every proof window (KIP-21 commits them
+for exactly this use), so "expired"
 is a chain fact, not the operator's watch.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
@@ -217,7 +218,7 @@ script that only proven exits can unlock, never at an operator's key.
 The shape is fixed (an L1 output, recognized by the program, proven into
 the state), but the *address policy* is the guest's choice (the *guest* is
 the program's own code running inside the zkVM; chapter 7). tt's deposit
-policy derives one shared deposit address from the covenant; the framework
+policy derives one shared deposit address from the covenant id; the framework
 documents a per-user address scheme as an
 equally valid choice. Same battery, different placement.
 
@@ -306,7 +307,12 @@ on-chain: the covenant's script hash is computed *from* the pinned image
 ids, so anyone can take a claimed rule-set, recompute the hash, and check
 it against the address before depositing. The covenant id itself is
 derived from that same script at bootstrap, so id, address, and rules
-are one package: change the rules and every name changes with them.
+are one package: change the rules and every name changes with them. The
+tooling for that check is a
+script, not a website, today. For a reader who will never run a script,
+the honest version: the check is public and repeatable by anyone, so in
+practice you rely on someone you trust having run it, which is the same
+trust in the code that chapter 3's table already counted.
 
 Settlements are pinned twice over, and the full list is short: the
 covenant id fixes the instance, and the image ids fix the exact code
@@ -314,11 +320,7 @@ and proof stack it runs. The image-id pin is the load-bearing one: a
 guest that changes by one byte no longer matches it, which is why an
 upgrade is an emigration (chapter 8). That pin is a choice, not a law
 of nature; the pin could in principle migrate to new images,
-but no such mechanism ships today. The tooling for that check is a
-script, not a website, today. For a reader who will never run a script,
-the honest version: the check is public and repeatable by anyone, so in
-practice you rely on someone you trust having run it, which is the same
-trust in the code that chapter 3's table already counted. In tt's live deployment the covenant id is
+but no such mechanism ships today. In tt's live deployment the covenant id is
 literally a constant. It is the settlement
 chain's first link: at bootstrap the operator funds an initial output
 locked by the covenant's script at its genesis state, and every

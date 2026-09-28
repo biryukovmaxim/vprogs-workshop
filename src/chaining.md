@@ -32,12 +32,12 @@ proof*; runs of batches compound into *aggregate* proofs; and the one a
 settlement carries, the last aggregate, is the *bundle proof*. Five
 words, one pipeline.
 
-One word in that list needs pinning itself: *block*. Execution does not
+The word *block* needs pinning too. Execution does not
 walk the blockdag's web; it walks Kaspa's selected chain (the virtual
 chain, sometimes called the mega chain), the same single line consensus
 weaves out of the dag. For each chain block, the framework gathers the
 transactions its mergeset merged (the blocks that chain block absorbed,
-whose entries were not counted yet) and calls the lot one block: one
+whose transactions were not counted yet) and calls the lot one block: one
 witness set, one batch, one step of execution. The dag's parallelism is
 flattened into one order before execution ever sees it.
 
@@ -125,7 +125,7 @@ The machine protects *state*; Kaspa's proof-of-work depth protects
 Stand back and look at a single settlement tx on an explorer. It names
 its covenant id. It commits the new state digest, the lane tip, and the block
 it proves to. Its first output can only be spent by the next settlement of
-the same covenant, so the history cannot fork without splitting real
+the same covenant id, so the history cannot fork without splitting real
 money on L1. Where the bundle emitted exits, a permission output commits
 the tree: live, claimable entitlements (a bundle with no exits settles
 without one). And everything inside it, every move of every game,
