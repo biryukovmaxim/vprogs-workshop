@@ -264,13 +264,23 @@ settlement attests three things at once:
   account, every game, every balance) lives off-chain; the lane and the
   chain carry everything needed to rebuild it (chapter 9). What Kaspa
   holds is the fingerprint of all of it at one
-  moment. The proof's central claim is always of the form "state root X
-  became state root Y by executing the rules correctly".
+  moment.
 - a **lane tip**: how far execution had read the program's action lane
   (the lane section above) when the snapshot was taken: "I have processed every
   published action up to here."
 - a **block proof point**: the last L1 block whose data execution
   consumed: "and the L1 world I saw was real up to this block."
+
+Each attestation is backed by a **zk proof**, carried in the same
+transaction. The proof's central claim is always of the form "state
+root X became state root Y by executing the rules correctly": the
+previous settlement's digest, the claimed new digest, and every lane
+entry, deposit, and L1 context item in between, processed by the
+program's pinned code, with nothing skipped and nothing invented. The
+proof is generated off-chain by a zkVM and verified on-chain by every
+Kaspa node as a consensus rule (KIP-16; chapter 7 covers the zkVM). A
+settlement whose proof does not verify is invalid, and no node includes
+it.
 
 These three ride directly in the settlement transaction's script data
 (the bytes its inputs carry to satisfy the covenant's lock), and
