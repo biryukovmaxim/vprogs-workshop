@@ -1,5 +1,7 @@
 # Where things stand
 
+This chapter summarizes what exists, what does not, and what it costs.
+
 ## What is real today
 
 - **The framework.** vprogs (the lane/bridge machinery, the three-stage
@@ -15,9 +17,8 @@
   Kaspa testnet-10: a fresh covenant id, a full match, real GPU-produced
   proofs settling on the public testnet, exits claimed. The KIP-16/20/21
   extensions it leans on are live on Kaspa mainnet; the deployment sits
-  on the testnet because it is a demonstration, and a demonstration
-  belongs where coins are worthless and assumptions are loose (chapter 3
-  says so plainly). Dev-mode stub receipts are strictly for the local
+  on the public testnet as a demonstration choice (chapter 3 gives the
+  details). Dev-mode stub receipts are strictly for the local
   demo; the testnet deployments prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
   pruned nodes (nodes that have discarded old block data); snapshot
@@ -25,7 +26,7 @@
 
 ## What it is not yet
 
-- **Production.** The project states it plainly: early development /
+- **Production.** The project's own status: early development /
   prototype phase; APIs and architecture may change significantly.
 - **Multi-program.** As chapter 10 said: single sovereign apps, at the
   current stage. Composability is future work with a yellow paper
@@ -54,7 +55,8 @@ at this stage the repositories are the project.
 ## Closing
 
 Return to the opening scene: two strangers, a pot of Kaspa, a game with
-no referee. The machine behind it is now fully described: signed
+no casino and no escrow agent. The machine behind it is now fully
+described: signed
 actions into a public lane; execution by rules the program defines and
 a zkVM proves; state as a digest chain anchored settlement by
 settlement into Kaspa; money out through exits that, once committed, no

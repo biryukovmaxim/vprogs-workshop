@@ -6,7 +6,7 @@ here changes the picture; it is the same machine, closer up.
 
 ## Snapshot claims, chained
 
-Read a settlement as a snapshot claim, not a switch. It says: at block Y,
+A settlement records one verified snapshot: at block Y,
 the state digest was D. The proof inside shows how the digest got there,
 root by root, from block X to block Y, where X is the previous
 settlement's proof point. The windows are contiguous, each proof's
@@ -14,8 +14,7 @@ journal continuing exactly where the last one ended, so no block range
 goes unwitnessed. The settlement transaction itself lands at least one
 block after Y, and sometimes later: the gap is proving time plus the
 confirmation window the cited blocks must pass, before the settlement is
-even submitted. Each settlement pins one more provable snapshot; nothing
-starts applying "from now on".
+even submitted. Each settlement commits one more provable snapshot.
 
 ## Can a range be skipped?
 
@@ -34,12 +33,12 @@ fails that check, so a settlement cannot leave a hole.
 The proving pipeline has tiers (chapter 7 lists them), and a reorg kills
 only what stood on the reorganized side. Bundles whose proving base died
 are thrown away and rebuilt against the surviving chain, reusing the
-lower-tier proofs that still chain; a settlement that dies young, before
-burial, is simply resubmitted, and pending bundles whose proving base no
-longer chains are skipped rather than resubmitted as dead bytes. And
-this is rare by construction: the machine only cites blocks already
-behind its confirmation window, so a reorg deep enough to reach a
-citation would have to swallow the settlement resting on it too.
+lower-tier proofs that still chain; a settlement removed by a reorg
+before it is confirmed is simply resubmitted, and pending bundles whose
+proving base no
+longer chains are skipped rather than resubmitted as dead bytes. This is
+rare by construction: the machine only cites blocks already behind its
+confirmation window (chapter 5).
 
 ## The anchor window and the long stall
 

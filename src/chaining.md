@@ -34,7 +34,7 @@ sequenceDiagram
     Note over L1: blocks pass, actions, deposits and settlements interleave
     L1-->>OP: witnesses: confirmed lane data, deposits, chain context
     OP->>OP: execute actions + credit deposits, block by block
-    OP->>P: batch transitions (state root X → Y, lane tip, block context)
+    OP->>P: batch transitions (state root X -> Y, lane tip, block context)
     P-->>OP: batch proofs
     OP->>P: compound into one proof up to block N
     P-->>OP: bundle proof
@@ -45,15 +45,16 @@ sequenceDiagram
 
 ## State digests succeed each other
 
-Inside the machine, time is a sequence of state roots. Every executed block
-produces a journal entry of this form: *previous state root, new
+The program's history is a sequence of state transitions. Every executed
+block produces a journal entry of this form: *previous state root, new
 state root, previous lane tip, new lane tip, the L1 context it saw, and
-the window's deposit and exit commitments when it carried any*. A
-batch proof attests one such transition. An aggregate proof compounds a
-run of them. A settlement then plants the final root on L1. So the
-program's entire history is a chain of 32-byte numbers, each one provably
-reachable from the one before, and that chain is anchored, link by link,
-in the settlement chain living in Kaspa blocks.
+the window's deposit and exit commitments when it carried any*. A batch
+proof attests one such transition; an aggregate proof compounds a run of
+them; a settlement commits the final root on L1. From the L1's point of
+view, then, the program's history is a chain of 32-byte state roots with
+the context of each step alongside them (lane tip, block proof point,
+exit commitments; chapter 4 lists what each settlement carries), and
+every step is provably reachable from the one before.
 
 ## Why multiple L1 blocks?
 
@@ -67,22 +68,22 @@ this lane tip is included, and if you disagree, verify the proof. User
 actions submitted in block 3 and block 40 end up proven together into one
 settled state, with nothing in between silently dropped: the node's
 lane commitments ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)) give the lane one canonical history, and
-the proof binds its tip. The bind is checked on-chain whenever a node
-validates the settlement transaction: block headers carry a commitment
-to every active lane, and the settlement script requires the proof's
-journal to commit the same value the chain carries for the block it
-names, so a proof about a fictional or stale L1 world cannot satisfy a
-node that follows the real chain (the appendix has the mechanics,
-including why no range can be skipped). The machine only cites
-blocks already behind the confirmation window, so a cited block always
-sits deeper than the settlement resting on it: a reorg deep enough to
-kill the one would have to swallow the other, and past that depth both
-are as permanent as any Kaspa payment. The opcode does
-enforce one bound of its own: it reads commitments only from roughly the
-last twelve hours of blocks. What a machine stalled longer than that
-does, prove its way forward to a recent block before it can settle
-again, is the [appendix](appendix-settlements.md)'s story; the chaining
-shape is what makes that bridge possible.
+the proof binds its tip. Every block header carries a commitment to
+every active lane. When a node validates a settlement, the settlement
+script requires the proof's journal to commit the same value the header
+carries for the block the settlement names, so a proof about a fictional
+or stale L1 world cannot satisfy a node that follows the real chain (the
+appendix has the mechanics, including why no range can be skipped).
+
+The machine only cites blocks already behind the confirmation window,
+so a cited block always sits deeper than the settlement resting on it.
+A reorg deep enough to remove the cited block would also remove the
+settlement, and past that depth both are as permanent as any Kaspa
+payment. The opcode does enforce one bound of its own: it reads
+commitments only from roughly the last twelve hours of blocks. A machine
+stalled longer than that must first prove a window that reaches a recent
+block, then settle; the chaining shape makes that possible (the appendix
+covers the recovery).
 
 ## Deposits and exits use the same proof path
 
@@ -103,9 +104,9 @@ confirmations, widened adaptively when the network looks reorg-prone, and
 treats a block as solid only inside it. If the chain reorganizes anyway,
 blocks the machine was watching simply vanish from its view as rollbacks:
 bundles that stood on the reorganized side are dropped and rebuilt
-against the surviving chain, and a settlement that dies young, before
-burial, is simply resubmitted (the appendix has the recovery detail,
-including which proving work gets reused). The settlement chain, immutable
+against the surviving chain, and a settlement removed by a reorg before
+it is confirmed is simply resubmitted (the appendix has the recovery
+detail, including which proving work gets reused). The settlement chain, immutable
 once Kaspa has it, is never reinterpreted. The short version: the
 machine never trusts a dead block, and never needs to.
 
@@ -127,6 +128,6 @@ without one). And everything inside it, every move of every game,
 every deposit, every balance, is a 32-byte root away, verified by a proof
 anyone can check. What L1 does *not* enforce is freshness: nothing on-chain
 forces a settlement to advance the tip to today's lane head; the tip moves
-when the operator settles, and an operator can stall (chapter 6 is honest
-about this). The rest of this book covers who runs the machine, what
+when the operator settles, and an operator can stall (chapter 6 lists
+the stall cases). The rest of this book covers who runs the machine, what
 proves it, and what building on it is like.

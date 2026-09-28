@@ -24,7 +24,7 @@ exits.
   withdrawals, exits, a web frontend, live on a testnet with real proofs.
   Any application whose state fits inside one program (games, escrows,
   marketplaces where the market *is* the program) fits the shape.
-- **You cannot build "the DeFi stack" as one weave.** Lending here,
+- **You cannot build "the DeFi stack" as one system.** Lending here,
   DEX there, sharing balances atomically: that requires either one
   monolithic program (which works, but then composability is just
   internal function calls) or cross-program mechanisms the shape doesn't
@@ -41,9 +41,8 @@ that owns everything it touches can be proved end-to-end with one proof
 chain, exited through one permission tree, audited as one artifact. The
 hard problems vprogs solves first (proof chaining across blocks, reorg
 survival, trustless exits) are exactly the problems an isolated app
-needs solved. Shared-world mechanisms built on top of that foundation
-have something solid to stand on; built before it, they would have no
-foundation.
+needs solved. Shared-world mechanisms can build on that foundation;
+built before it, they have nothing to build on.
 
 Where it goes from here, multi-program worlds and cross-covenant
 calls, is future work with design behind it: a yellow paper sketches

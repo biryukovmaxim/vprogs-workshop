@@ -1,13 +1,13 @@
 # The machinery
 
-Chapter 5 followed one settlement through time. This chapter describes
-who runs what. Five roles cover the whole machine.
+Chapter 5 showed how proofs tie the pieces together across L1 blocks.
+This chapter describes who runs what. Five roles cover the whole machine.
 
 ```mermaid
 flowchart TB
     BR["Bridge: watches confirmed L1, feeds witnesses from lane and deposits"]
     EX["Executor: runs the program's rules over actions and deposits"]
-    PR["Provers: transaction → batch → aggregate proofs"]
+    PR["Provers: transaction -> batch -> aggregate proofs"]
     ST["Settler: builds and submits settlement txs"]
     DA["DA / index: serves program state to apps"]
     BR --> EX --> PR --> ST
@@ -15,7 +15,7 @@ flowchart TB
 ```
 
 **The bridge** is the machine's view of L1. It follows the Kaspa chain
-behind the confirmation window and turns confirmed lane actions and
+behind the confirmation window and turns confirmed lane entries and
 deposits into the inputs execution consumes. Users submit to the lane
 themselves; the bridge only reads. Every fact the machine believes about
 L1 arrives through it.
@@ -76,7 +76,7 @@ sides spend the same continuation output, so each link is a mempool
 race: whoever confirms first wins, the loser's settlement dies with its
 input, and its proving work is wasted. The honest side can be baited
 into losing races the same way. Nothing on-chain punishes any of this;
-cost is the only brake, paid by both sides. What the griefer cannot
+cost is the only limit; both sides pay it. What the griefer cannot
 touch is safety: state stays unforgeable, committed exits stay
 claimable. What stalls is movement.
 

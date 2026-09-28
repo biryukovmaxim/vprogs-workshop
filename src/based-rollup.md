@@ -2,17 +2,19 @@
 
 ## The one-sentence version
 
-A based rollup moves a program *off* the L1 (its state, its rules, its
-execution) but keeps its *enforcement* on the L1: every state change
+A based rollup moves a program *off* the L1: its state, its rules, and
+its execution. It keeps *enforcement* on the L1: every state change
 worth trusting is proved and settled back to Kaspa. That off-chain half
 is the **L2**: the program's own world, using Kaspa for what it must not
 provide itself.
 
-What each side carries follows from that. Ordering, verification, and
-enforcement are the L1's: users publish straight to the program's lane
-and the chain's own order is the order, consensus checks every
-settlement's proof before it counts, and payouts move only through
-scripts Kaspa itself enforces. The state itself is the one thing the L1
+What each side carries follows from that. Ordering is the L1's: users
+publish straight to the program's lane, and the chain's own order is
+the order. Verification is the L1's: consensus checks every
+settlement's proof before it counts. Enforcement is the L1's: payouts
+move only through scripts Kaspa itself executes. That is the whole
+sense of *based* here: the app runs directly on its L1, with nothing in
+between. The state itself is the one thing the L1
 does not carry: it holds a single 32-byte fingerprint of it (chapter 4),
 so the full data behind that fingerprint, every account, balance, and
 game, is stored and served by an L2 provider, the operator's node. The
@@ -35,7 +37,7 @@ The shape of the whole system fits in one diagram:
 
 ```mermaid
 flowchart LR
-    U["Users (signed actions)"] -- "actions → lane (subnetwork)" --> L1["Kaspa L1"]
+    U["Users (signed actions)"] -- "actions -> lane (subnetwork)" --> L1["Kaspa L1"]
     U -. "state reads (index)" .-> OP["Program instance (operator)"]
     OP --> PR["Provers"]
     PR -- "proofs" --> OP
@@ -102,7 +104,8 @@ settlement you can watch today is a testnet fact; what separates the
 demo from a mainnet deployment is operational work, not protocol
 activation.
 
-With these three extensions, a based rollup removes both limits: the
+With these three extensions (KIP-16 from above, plus KIP-20 and
+KIP-21), a based rollup removes both limits: the
 program's state lives in the proved world, in whatever shape the program
 likes, and the rules can be arbitrary code, because the chain never runs
 them; it verifies a compact proof and moves money according to the
@@ -135,15 +138,11 @@ and it is why the pinning in chapter 4 matters.
 What remains is a different kind of trust: **liveness** and **data
 availability** (you can see the state you need to act). Liveness: a
 settlement only exists if someone executes actions and settles proofs,
-and today that someone is the operator. No operator key is needed
-anywhere in the machine: the on-chain scripts check proofs, never
-signatures, so in principle anyone can run the stack and settle. But no
-permissionless escape-hatch flow is shipped yet either. If every
-operator of an instance stops before your balance has become a committed
-exit, your funds wait until someone resumes the stack. The lane, the
-chain, and the proofs are all public, so becoming that "someone" is
-cheap in principle, but not automatic. Chapters 6 and 9 return to both
-points.
+and today that someone is the operator. No permissionless escape-hatch
+flow is shipped yet either: if every operator of an instance stops
+before your balance has become a committed exit, your funds wait until
+someone resumes the stack. Chapters 6 and 9 cover who can resume, at
+what cost, and what a griefer can and cannot do.
 
 ## The shape and the rules
 

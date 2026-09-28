@@ -44,23 +44,24 @@ behind two habits: *sign locally, read the index*.
 Users pay ordinary Kaspa fees for their own lane actions and deposits;
 each action rides a normal transaction funded from the user's own UTXOs,
 and an exit claim is likewise the claimant's own transaction, its fee
-carried by one of the claimer's own coins (chapter 4 sketches the shape).
+carried by one of the claimer's own coins (the appendix has the shape).
 The operator pays the settlement transactions' fees and the proving
 compute. tt itself charges nothing inside the program today; an in-program
 fee model (debiting accounts to fund the operator) is a battery a real
-deployment would place, not something the shape forces or forbids. Which
-also answers the spam question, by half: anyone can publish garbage
-actions to the lane, but garbage pays its own L1 fees, and the program is
-free to reject it at near-zero execution cost. The other half is honest
-too: garbage bytes still ride the batch into the proving pipeline, so
-volume spam burns operator proving cycles until the fee battery is
-placed. And there is no pre-proof filter to stop it, deliberately:
-whoever filters decides what counts as garbage, and the lane's promise
-is that inclusion is not anyone's decision. Skipping an entry cannot
-hide; it shows up as a stalled lane tip, chapter 6's stall, honest and
-visible. Both costs are real; only one is priced today: running the
-stack is pure cost in tt, so the "someone will resume it" story rests on
-enthusiasm until that battery is placed.
+deployment would place, not something the shape forces or forbids.
+
+Spam has a partial answer: anyone can publish garbage actions to the
+lane, but garbage pays its own L1 fees, and the program rejects it at
+near-zero execution cost. The rest of the answer is cost: garbage bytes
+still ride the batch into the proving pipeline, so volume spam burns
+operator proving cycles until the fee battery is placed.
+
+There is no pre-proof filter, deliberately: whoever filters decides what
+counts as garbage, and the lane's promise is that inclusion is not
+anyone's decision. Skipping an entry cannot hide; it shows up as a
+stalled lane tip, chapter 6's stall, visible rather than silent. Running
+the stack is pure cost in tt, so the "someone will resume it" story
+rests on enthusiasm until that battery is placed.
 
 ## Indexes are convenience, not authority
 
@@ -72,7 +73,7 @@ proof-chained state on Kaspa, and every exit goes through the permission
 tree that the settlement chain itself commits. The index can be wrong,
 hostile, or down; it cannot steal. A skeptical app could verify state
 digests against L1 and even verify proofs itself; the endpoints are a
-performance optimization over truth, not the truth's gatekeeper.
+performance optimization, not the source of truth.
 
 A lying index cannot steal; it can only waste your time.
 Your wallet builds actions from what it can see, so garbage

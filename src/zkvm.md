@@ -1,8 +1,8 @@
 # The zkVM, briefly
 
 The engine under everything is a **zero-knowledge virtual machine**, a
-zkVM. This chapter is the minimum you need; the cryptography stays in its
-box.
+zkVM. This chapter is the minimum you need; it does not cover the
+cryptography.
 
 A zkVM runs an ordinary program (normal instructions, normal toolchain),
 but alongside the result it produces a **receipt**: a small artifact that
@@ -43,15 +43,16 @@ and every proof names the exact images it executed, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
 because each bundle's journal continues the previous one. That is what
-makes the digest chain a chain. It also shapes latency: a prover that
-keeps up stays a fixed distance behind the chain, and one that cannot
-falls behind without bound, so settlements wait and exits wait to be
-committed: the same liveness exposure chapter 6 names. Recovery is
-catching up, and the shape allows it: a proof window can span many
-blocks, so a backlog drains in bigger bites at the price of later
-snapshots (a machine stalled past the twelve-hour anchor window must
-prove such a span before it can settle again; the appendix has that
-story).
+makes the digest chain a chain.
+
+The sequence also shapes latency. A prover that keeps up stays a fixed
+distance behind the chain; one that cannot keep up falls behind without
+bound, so settlements wait and exits wait to be committed: the same
+liveness exposure chapter 6 names.
+
+Recovery is catching up: a stalled machine proves a larger window that
+reaches a recent block, then settles again. The anchor-window limit and
+that recovery are the appendix's subject.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
 engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata); the

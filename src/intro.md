@@ -35,9 +35,9 @@ A live demo of tt runs alongside this material.
 
 Two things to state up front. First, everything the machine needs is
 live on Kaspa mainnet; the demo itself runs on the public testnet, a
-demonstration network with looser security assumptions (chapter 3 says
-so plainly). Second, safety and liveness are different guarantees. The
+demonstration network with looser security assumptions (chapter 3 gives
+the details). Second, safety and liveness are different guarantees. The
 chain guarantees that no one can falsify state or steal funds, but
 moving money requires the machine to keep running. Who runs it, what can
 stall it, and what happens when nobody does are covered in chapters 6,
-8, and 9.
+7, and 9.

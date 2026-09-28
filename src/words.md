@@ -7,12 +7,14 @@ words; the rest of the book assumes these.
   KAS. What matters here is its blockdag and its UTXO model, both below.
 - **Blockdag**: the shape of Kaspa's history. On most chains each block
   names one parent, so the history is a single line; on Kaspa a block may
-  name several parents, and the history is a web. Consensus rules weave
-  that web into one agreed order of transactions, roughly a block per
-  second, and the weaving is why Kaspa is fast and why shallow reorg
-  churn (the Reorg entry below) is normal and expected, not an
-  emergency.
+  name several parents, and the history is a web. Consensus rules order
+  that web into one agreed sequence of transactions, roughly one block
+  per second. That ordering is why Kaspa is fast, and why shallow reorg
+  churn (the Reorg entry below) is normal and expected.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
+- **DAA score, blue score**: the chain's per-block depth counters
+  (difficulty-adjusted and DAG depth); the program reads them as its
+  clock (chapter 4).
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
 - **L2**: "layer 2": a system that does its work off the L1 while leaning
@@ -48,14 +50,20 @@ words; the rest of the book assumes these.
   Settlements commit it on L1. Chapter 4 builds it.
 - **Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
-  bundled into one name.
+  bundled into one name. The book often says *the covenant* for the
+  instance this id names.
 - **Guest**: the program's own code, running inside the proving machine
   (the zkVM), as opposed to the framework around it.
+- **Image id**: the cryptographic hash of one guest program binary.
+  Pinning image ids fixes the exact code and proof stack an instance
+  runs (chapters 4 and 7).
 - **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
   transactions carrying users' signed actions. Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
 - **Mempool**: the set of transactions announced to the network but not
   yet included in a block.
+- **Witness**: confirmed L1 data (lane entries, deposits, block context)
+  fed to execution; chapter 5 builds the pipeline around it.
 - **Journal**: the fixed-format record inside each proof: the state
   before, the state after, how far the lane had been read, and which L1
   blocks the execution saw. Used from chapter 5 on.
@@ -65,12 +73,18 @@ words; the rest of the book assumes these.
   Chapter 8 is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on
   one block order, then switches to another; the switched-away blocks
-  "vanish". Shallow churn like this is routine weather; deeply buried
+  "vanish". Shallow churn like this is normal and expected; deeply buried
   blocks essentially never reorganize, which is why the machine waits out
   a confirmation window before trusting fresh blocks (chapter 5).
+- **Confirmation window**: the number of blocks of depth the machine
+  waits before treating an L1 block as final; widened adaptively when the
+  network looks reorg-prone (chapter 5).
 - **Liveness**: the guarantee that things keep moving: someone keeps
   executing, proving, and settling. Safety says no one can steal;
   liveness says the machine does not stop. Chapter 6 owns it.
 - **Data availability**: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, not just trust
   someone's summary of it.
+- **Dust**: outputs too small to be worth spending. The network's
+  minimum-relay rules floor how small an output may be, which limits how
+  far the deposit pile can be split.

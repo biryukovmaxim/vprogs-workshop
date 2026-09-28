@@ -1,10 +1,9 @@
 # The transaction vocabulary
 
-Before this machine can have a transaction vocabulary, it needs the plain
-one: what a Kaspa transaction is. Then the compression trick that lets a
-whole off-chain world ride inside one. Only then the four transaction
-types the machine is built from, which is where the L2, the program's own
-world, actually appears.
+This chapter first covers what a Kaspa transaction is, then the
+compression step that fits the off-chain state into 32 bytes, and then
+the four transaction types the machine is built from, which is where the
+L2, the program's own world, appears.
 
 ## The Kaspa transaction itself
 
@@ -23,8 +22,8 @@ your change. Every transaction in this book, payment or machine, plays by
 those rules. There are no accounts and
 no shared stored state on this chain, only coins at locks, each spendable
 exactly once, and whatever anyone builds on Kaspa is expressed in these
-bytes. The one-shot rule is the first wall from the last chapter; here it
-is just the raw material.
+bytes. The spend-once rule is the first limit from chapter 3; this chapter
+builds directly on it.
 
 The shape itself, annotated:
 
@@ -86,9 +85,9 @@ That is what makes membership cheap: proving that one account was inside
 takes a short branch of hashes and reveals nothing else. Change one sompi
 (the smallest unit of KAS) anywhere and the digest is a completely
 different number; there is no way to move the state without moving the
-fingerprint. One chain-held number commits to an entire off-chain world,
-and that is the core trick of this book: the chain never
-stores the world, it checks fingerprints of it. Digest, root, state
+fingerprint. One chain-held number commits to the entire off-chain
+state; that is the core mechanism of this book: the chain never stores
+the state, it checks fingerprints of it. Digest, root, state
 root: this book uses the words interchangeably for the same 32 bytes.
 (This structure is standard equipment far beyond this book; [Kelvin
 Fichter's "What's a Sparse Merkle Tree?"](https://medium.com/@kelvinfichter/whats-a-sparse-merkle-tree-acda70aeb837)
@@ -99,10 +98,10 @@ is the classic short introduction, with pictures in the same shape.)
 Those two pieces are what the L1 offers: a transaction format that can
 carry anything, and a way to compress a world into a number a
 transaction can carry. The L2 is what you build with them: the program
-executes off-chain, over the full state, and publishes the compressed
-digest, using ordinary Kaspa
-transactions for everything that must be trusted, carrying users' intent
-in, ordering it, committing state back, paying value out. The machine
+executes off-chain, over the full state, and publishes the digest.
+Everything that must be trusted rides ordinary Kaspa transactions: they
+carry users' intent in, order it, commit state back, and pay value out.
+The machine
 publishes four kinds of transaction, and from the L1's side, from
 Kaspa's side, they all have exactly the same shape: same fields, same
 validation, nothing marked out in protocol. The split into four is not
@@ -113,8 +112,8 @@ proofs enforce.
 - a **lane entry** is an ordinary transaction tagged for the program's
   subnetwork, carrying a signed action
 - a **deposit** is an ordinary payment to the program's deposit address
-- an **exit claim** spends the program's payout commitment and pays a
-  user out
+- an **exit claim** spends one of the program's exit commitments and
+  pays a user out
 - a **settlement** spends the output only a valid settlement can spend,
   and commits the new state digest
 
@@ -140,11 +139,11 @@ the lane contained up to any block.
 What is a lane, physically? Ordinary Kaspa transactions. A lane entry is a
 real transaction, paying a real Kaspa fee from the user's own funds, mined
 by the network's miners like any payment. The subnetwork is a label the
-node's consensus tracks: it gossips, orders, and accounts for lane traffic
-alongside ordinary payments, and carrying registered lanes is a consensus
-rule with a per-lane, per-block capacity limit, not an opt-in a miner
-could quietly refuse: entries over the limit wait for later blocks,
-nothing is dropped or refused. And the node
+node's consensus tracks: it gossips, orders, and accounts for lane
+traffic alongside ordinary payments. Carrying registered lanes is a
+consensus rule, not an opt-in a miner could quietly refuse. Each lane
+has a per-block capacity limit; entries over the limit wait for later
+blocks, and nothing is dropped or refused. And the node
 itself will hand anyone a cryptographic proof of what the lane contained up
 to any confirmed block. There is no lane operator to refuse an entry;
 entry happens through the Kaspa mempool, the network's shared waiting
@@ -213,10 +212,9 @@ A user claims with one ordinary Kaspa transaction that spends that
 commitment. The claim's unlock data reveals the leaf and its branch in
 the tree; the script checks the branch against the committed root, takes
 the amount and the destination lock from the leaf, and requires the
-payment to match both. Whatever the claim pulls from the program's
-deposit pile to fund the payout, the untouched remainder is re-locked
-for the people still in line, and a fresh commitment with this leaf
-deducted hands the next claimant a tree with one less leaf. So the same
+payment to match both. The payout is funded from the program's deposit
+pile; the untouched remainder is re-locked at the same script. A fresh
+commitment with this leaf deducted serves the next claimant. So the same
 exit can never be paid twice: the leaf lives in one commitment, the UTXO
 spent is gone, and the new commitment no longer contains it. Claims on
 one commitment queue like any two spends of one coin; claims on
@@ -241,11 +239,10 @@ transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
 a game, joining a game, placing a mark, forfeiting an expired turn. The
-program runs against the L1's own per-block context, timestamps, DAA
-score, blue score, the chain's own time and depth counters, committed
-by the chain and carried inside every proof window (KIP-21 commits them
-for exactly this use), so "expired"
-is determined by the chain, not by the operator.
+program sees the chain's own time and depth counters (timestamp, DAA
+score, blue score), committed by the chain inside every proof window
+(KIP-21 commits them for exactly this use), so "expired" is determined
+by the chain, not by the operator.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
 signature, which state it may touch, how much stake a game locks, what
@@ -304,7 +301,7 @@ has them.
 | State is a digest; settlements chain digests on L1 | What lives in the state (resources, balances, boards) |
 | Value enters by L1 deposit, leaves by proven exit | The deposit address policy |
 | Settlements prove execution against L1 blocks | The exit mechanism (permission tree is the standard part) |
-|  | Locks, unlockers, signers: how users authorize |
+| Actions require authorization | Locks, unlockers, signers: how users authorize |
 
 That last row deserves its own sentence: **locks, unlockers, and signers are
 guest preferences too**. The framework provides common implementations: a
@@ -326,7 +323,7 @@ and check the address before depositing; the tooling is a script today,
 not a website, so in practice you rely on someone you trust having run
 it, the same trust in the code that chapter 3's table already counted.
 An image id that changes by one byte no longer matches its pin, which is
-why an upgrade is an emigration (chapter 8); the pin could in principle
+why an upgrade means moving to a new instance (chapter 8); the pin could in principle
 migrate to new images, but no such mechanism ships today.
 
 In tt's live deployment the covenant id is literally a constant. It is

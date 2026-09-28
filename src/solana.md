@@ -39,8 +39,8 @@ runtime there is. Resource derivation lives in the app too: tt decides
 its resource kinds, its hash domains, its id derivations (the framework
 hands you the pattern; the app picks the keyspace). Transaction validity,
 lock semantics, what a "turn timer" means: all rollup program logic,
-executed and proved like any other line of guest code. There is no fixed
-house; every program assembles its own from the framework's parts.
+executed and proved like any other line of guest code. There is no shared runtime; every program assembles its own from the
+framework's parts.
 
 This is a direct consequence of the zkVM: since the guest is an
 ordinary program, whatever it computes
@@ -64,8 +64,9 @@ the application.
   the rules is changing the program (covenant ids pin image ids precisely
   so this is explicit: a new rules version is a new identity, not a
   surprise). The money moves the honest way: a new image id is a new
-  covenant id, so an upgrade is an emigration. Users exit through the old
-  instance's permission tree and deposit into the new one; in-place
+  covenant id, so an upgrade means moving to a new instance: users exit
+  through the old instance's permission tree and deposit into the new
+  one. In-place
   migration does not ship, and draining the old instance still needs its
   stack to keep settling (chapter 6's liveness trust, pointed at the
   instance with the least reason to stay alive).
