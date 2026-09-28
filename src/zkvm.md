@@ -54,7 +54,7 @@ snapshots, and a machine stalled past the twelve-hour anchor window of
 chapter 5 must prove such a span before it can settle again.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
-engine ships a zk-verify opcode (KIP-16, live on testnet-10); the
+engine ships a zk-verify opcode (KIP-16, activated with Toccata); the
 settlement's script calls it with the receipt, and every Kaspa node
 executing that transaction runs the check. A bad-proof settlement is not
 a controversial settlement, it is an invalid one, rejected like a bad

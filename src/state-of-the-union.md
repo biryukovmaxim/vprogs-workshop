@@ -14,10 +14,12 @@ Where does all this stand, honestly?
   verifies. The full loop (deposit, play, settle, exit) runs locally
   against an in-process simnet L1 in minutes.
 - **Testnet with real proofs.** The same stack has run end-to-end on
-  Kaspa testnet-10: a fresh covenant, a full match, real GPU-produced
-  proofs settling on the public testnet, exits claimed. That testnet is
-  where the KIP-16/20/21 script and lane extensions are live; mainnet
-  activation is pending (chapter 3 says plainly what that means). Dev-mode
+  Kaspa testnet-10: a fresh covenant id, a full match, real GPU-produced
+  proofs settling on the public testnet, exits claimed. The KIP-16/20/21
+  extensions it leans on are live on Kaspa mainnet; the deployment sits
+  on the testnet because it is a demonstration, and a demonstration
+  belongs where coins are worthless and assumptions are loose (chapter 3
+  says so plainly). Dev-mode
   stub receipts are strictly for the local demo; the testnet deployments
   prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
@@ -30,8 +32,9 @@ Where does all this stand, honestly?
 - **Production.** The project states it plainly: early development /
   prototype phase; APIs and architecture may change significantly. Treat
   everything accordingly.
-- **Multi-program.** As chapter 10 said: single sovereign apps. The
-  composability question is open future work.
+- **Multi-program.** As chapter 10 said: single sovereign apps, at the
+  current stage. Composability is future work with a yellow paper
+  behind it; nothing is implemented yet.
 - **Multi-zkVM.** RISC0 today; the backend seam exists (chapter 7), the
   migrations don't yet.
 

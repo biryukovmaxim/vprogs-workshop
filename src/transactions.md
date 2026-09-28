@@ -26,6 +26,24 @@ exactly once, and whatever anyone builds on Kaspa is expressed in these
 bytes. The one-shot rule is the first wall from the last chapter; here it
 is just the raw material.
 
+The shape itself, annotated:
+
+```text
+a Kaspa transaction
+├── inputs: earlier outputs being spent, each named by its
+│   transaction id and position, each carrying the unlock data
+│   its SPK demands
+├── outputs: new coins, each an amount in sompi plus the SPK
+│   (the lock) they now sit at
+├── version and lock time: housekeeping, ignorable in this book
+└── subnetwork id and payload: a label and a data field; plain
+    payments leave them default, and the machine's lane tag
+    rides them (the lane section below)
+```
+
+Everything the machine publishes, deposits included, is built from this
+one shape.
+
 ## State compression: a world in 32 bytes
 
 The program in this book keeps accounts, games and balances, and none of
@@ -55,9 +73,11 @@ executes off-chain, over the full state, and publishes the compressed
 digest, using ordinary Kaspa
 transactions for everything that must be trusted, carrying users' intent
 in, ordering it, committing state back, paying value out. Kaspa sees
-four kinds of transaction from this machine, and none looks special
-on-chain: they are ordinary transactions with particular scripts and
-payloads. What those bytes *mean* is program meaning, supplied by the L2.
+four kinds of transaction from this machine, and from the L1's side they
+all have exactly the same shape: same fields, same validation, nothing
+marked out in protocol. The split into four is not an L1 distinction at
+all; it is semantics from the L2, the program's perspective: particular
+scripts and payloads whose meaning only the proofs enforce.
 
 - a **settlement** spends the output only a valid settlement can spend,
   and commits the new state digest
@@ -143,6 +163,24 @@ from there and a verifier *knows* nothing was left out. The lane is
 identified by a **lane key**, the hash of its subnetwork id, and every
 proof names the lane it settles.
 
+How the lane becomes state, in one picture: execution watches confirmed
+blocks, filters each one down to this lane's entries, and wraps a whole
+run of them, several blocks' worth, into a single proved transition;
+where that run emitted exits, the settlement carries the
+permission-tree commitment alongside.
+
+```mermaid
+flowchart LR
+    subgraph L1["confirmed L1 blocks (mixed traffic)"]
+        B1["block N<br/>payments + 3 lane entries"]
+        B2["block N+1<br/>payments only"]
+        B3["block N+2<br/>payments + 2 lane entries"]
+    end
+    L1 -- "filter by lane key" --> E["this lane's entries,<br/>in chain order"]
+    E --> T["one state transition"]
+    T --> S["settlement: state digest + lane tip,<br/>plus the permission-tree commitment<br/>when the window emitted exits"]
+```
+
 ## User action txs
 
 Everything a user does inside the program is a signed action: in tt that's
@@ -150,9 +188,10 @@ transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
 a game, joining a game, placing a mark, forfeiting an expired turn. The
-clocks inside the program are L1 block timestamps, carried in the L1
-context the proof commits, so "expired" is a chain fact, not the
-operator's watch.
+program runs against the L1's own per-block context, block timestamps,
+DAA score, blue score, committed by the chain and carried inside every
+proof window (KIP-21 commits them for exactly this use), so "expired"
+is a chain fact, not the operator's watch.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
 signature, which state it may touch, how much stake a game locks, what
@@ -261,18 +300,26 @@ One term is left, and it names the whole thing: a **covenant id**: the
 32-byte identity of one program instance. Deposits pay into it, settlements
 chain within it, exits reference it, and at bootstrap it is pinned together
 with the exact guest program binaries, by their cryptographic image ids
-(chapter 7); the covenant is "this
+(chapter 7); the covenant id is "this
 program, these exact rules, this instance". The pinned rule-set is public
 on-chain: the covenant's script hash is computed *from* the pinned image
 ids, so anyone can take a claimed rule-set, recompute the hash, and check
 it against the address before depositing. The covenant id itself is
 derived from that same script at bootstrap, so id, address, and rules
-are one package: change the rules and every name changes with them. The tooling for that check is a
+are one package: change the rules and every name changes with them.
+
+Settlements are pinned twice over, and the full list is short: the
+covenant id fixes the instance, and the image ids fix the exact code
+and proof stack it runs. The image-id pin is the load-bearing one: a
+guest that changes by one byte no longer matches it, which is why an
+upgrade is an emigration (chapter 8). That pin is a choice, not a law
+of nature; the pin could in principle migrate to new images,
+but no such mechanism ships today. The tooling for that check is a
 script, not a website, today. For a reader who will never run a script,
 the honest version: the check is public and repeatable by anyone, so in
 practice you rely on someone you trust having run it, which is the same
-trust in the code that chapter 3's table already counted. In tt's live deployment the covenant is
-literally a constant the operator funds. That constant is the settlement
+trust in the code that chapter 3's table already counted. In tt's live deployment the covenant id is
+literally a constant. It is the settlement
 chain's first link: at bootstrap the operator funds an initial output
 locked by the covenant's script at its genesis state, and every
 settlement descends from it.

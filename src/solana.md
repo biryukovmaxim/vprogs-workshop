@@ -61,13 +61,13 @@ the application.
   pot that splits on a draw: no need to fit these into a shared
   execution model, because there is no shared execution model.
 - **New rules, new identity.** "The protocol" is the guest ELF; changing
-  the rules is changing the program (covenants pin image ids precisely so
-  this is explicit: a new rules version is a new identity, not a
-  surprise, and an upgrade is an emigration). The money moves the honest way: a new image id is a new
-  covenant, so an upgrade is an emigration. Users exit through the old
+  the rules is changing the program (covenant ids pin image ids precisely
+  so this is explicit: a new rules version is a new identity, not a
+  surprise). The money moves the honest way: a new image id is a new
+  covenant id, so an upgrade is an emigration. Users exit through the old
   instance's permission tree and deposit into the new one. In-place
   migration does not ship today. And the window is honest about its own
-  limits: draining the old covenant needs its stack to keep settling,
+  limits: draining the old instance needs its stack to keep settling,
   the same liveness trust as ever, pointed at the instance with the least
   reason to stay alive. Announce, drain, then walk away is operational
   discipline, not a protocol guarantee; a straggler who sleeps through
@@ -77,8 +77,8 @@ the application.
 
 - **No free composability.** Solana programs share one state machine, so
   one program can call another atomically. Each vprogs program is its own
-  proved world; cross-program calls aren't a feature of the shape
-  (chapter 10 lives entirely inside this limitation).
+  proved world; cross-program calls are future work, sketched but not
+  shipped (chapter 10 lives inside this limitation).
 - **The runtime is your responsibility.** Nobody else guarantees your
   rules make sense. The framework's batteries (locks, unlockers, signers)
   are the strong default, and `runtime.rs`'s job is largely
@@ -98,7 +98,7 @@ short:
 | Sequencer failure? | There is no sequencer; whoever settles picks how far the tip moves, and anyone with a valid proof can settle |
 | Exit latency? | Confirmation window plus proving plus L1 inclusion (chapter 5); no measured numbers published yet |
 | Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block (chapter 4) |
-| Preconfirmations? | None: a state is known when its settlement is buried, not before |
+| Preconfirmations? | None as a protocol promise; anyone can run a node in execution mode, replay the lane, and read the pending state, anchored to the latest settlement |
 
 Same shape, different landlord. In a Solana program you rent the runtime;
 in a vprogs rollup you own it, assembled from good parts, and proved.

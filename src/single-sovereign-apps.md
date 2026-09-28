@@ -5,17 +5,17 @@ Chapter 8 named the cost of the design; this chapter sizes it. What
 
 ## One covenant, one world
 
-Each program instance is one covenant: one lane, one state tree, one
+Each program instance is one covenant id: one lane, one state tree, one
 settlement chain, one set of pinned guest images, one operator stack.
-Every proof in the system names its covenant and settles into it; the
+Every proof in the system names its covenant id and settles into it; the
 identity is welded into the batch journal itself. The consequence:
 
 **A vprogs program is a sovereign app.** It rules its own world
 completely (its rules, its state, its exits) and shares nothing with
-any other program. There is, in the current implementation, no mechanism
+any other program. There is, at the current stage, no mechanism
 by which program A reads or calls program B's state. Composability, the
 thing that makes a smart-contract chain feel like one financial system,
-does not exist here. Each app is an island: a well-built one, with its
+does not exist here yet. Each app is an island: a well-built one, with its
 own money in and money out, but an island.
 
 ## What that means in practice
@@ -45,9 +45,11 @@ needs solved. Shared-world mechanisms built on top of that foundation
 have something solid to stand on; built before it, they'd be bridges on
 fog.
 
-Where it goes from here, multi-program worlds, shared sequencing,
-cross-covenant messages, is future work, and honestly marked as such.
-The current shape is a deliberate first step, not the destination.
+Where it goes from here, multi-program worlds and cross-covenant
+calls, is future work with design behind it: a yellow paper sketches
+composability, cross-program invocation between covenants, and none of
+it is implemented yet. The current shape is a deliberate first step,
+not the destination.
 
 For now, the mental model to take away: **vprogs today lets you stand up a
 small, self-contained chain for a single application, based on Kaspa.**

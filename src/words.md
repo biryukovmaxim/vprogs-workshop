@@ -22,10 +22,6 @@ words; the rest of the book assumes these.
   one.
 - **KIP**: Kaspa Improvement Proposal: the process by which the network
   proposes, reviews, and activates protocol changes.
-- **Hash, fingerprint**: a hash is a scrambler: any data in, a
-  fixed-length number out. Same input always gives the same number;
-  change anything, even one character, and the number is unrecognizably
-  different. This book usually says *fingerprint* for the same idea.
 - **Output (UTXO)**: a piece of KAS at a lock. Every Kaspa transaction
   consumes earlier outputs (as its inputs) and creates new outputs; one
   that no transaction has consumed yet is an *unspent transaction
@@ -45,7 +41,7 @@ words; the rest of the book assumes these.
   time.
 - **Settlement**: the transaction that commits one new state digest to
   Kaspa and chains to the settlement before it. Chapter 4 is about it.
-- **Covenant**: the 32-byte identity of one program instance: its deposit
+- **Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
   bundled into one name.
 - **Guest**: the program's own code, running inside the proving machine

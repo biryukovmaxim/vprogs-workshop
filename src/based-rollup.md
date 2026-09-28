@@ -6,12 +6,18 @@ A based rollup moves a program *off* the L1 (its state, its rules, its
 execution) but keeps its *enforcement* on the L1: every state change worth
 trusting is proved and settled back to Kaspa. That off-chain half is the
 **L2**: the program's own world, leaning on Kaspa for what it must not
-provide itself. Ordering and data
-availability come from the program's lane on Kaspa; enforcement and
-payouts land on Kaspa; no external committee, no data-availability
+provide itself. Ordering, verification, and enforcement are all
+properties of the L1: the chain's own order is the order, because users
+publish straight to the program's lane; consensus verifies every
+settlement's proof before it counts; payouts move only through scripts
+Kaspa itself enforces. The raw state is the one thing the L1 does not
+carry: it holds a single 32-byte digest, the root of the state tree, so
+the preimage data, every account, balance, and game that root commits
+to, must be stored and served by an L2 provider, the operator's node
+(the actions and deposits themselves do sit fully on the chain, in the
+lane). No external committee, no data-availability
 service, and no bridge token (no new coin standing in for the locked
-KAS) sits in between: the data-availability layer is the program's lane
-on Kaspa itself.
+KAS) sits in between.
 
 A note for readers from the Ethereum world (others can skip this
 paragraph): in Ethereum discourse "based" means L1 proposers do the
@@ -75,8 +81,8 @@ lock and check, not to *be* an application.
 Those walls are not accidents to be fixed; they are design choices: the
 price of a chain that stays fast and simple to reason about. But the
 walls came with hinges, added through Kaspa's own proposal process (KIPs,
-the network's improvement proposals) and activated on testnet-10 by the
-Toccata hard fork, a coordinated upgrade. KIP-16 gave the script
+the network's improvement proposals) and activated on Kaspa mainnet by
+the Toccata hard fork, a coordinated upgrade. KIP-16 gave the script
 engine a zk-verify precompile, a ready-made checking routine: one script
 instruction that checks a zk receipt, so a script can make the chain
 trust a computation it never ran. KIP-20 added covenant ids, so scripts can bind
@@ -92,13 +98,15 @@ version to trust are not choices made at spend time; they are baked into
 the covenant's script hash itself, which chapter 4 opens up.
 
 Where this lives today deserves its own sentences. Those extensions are
-**implemented and activated on Kaspa's public testnet-10** (the network
-the live demo settles on, mined by its public miners) and **not yet on
-Kaspa mainnet**. Until mainnet activates them, every vprogs settlement is
-a testnet fact, and the mainnet path is the standard
-proposal-and-activation process, not a promise. "Kaspa holds the money"
-is a statement about the design and about the testnet of today; mainnet is
-still the road ahead.
+**implemented and activated on Kaspa mainnet**: the chain can already
+verify zk proofs in script, bind outputs to covenant ids, and commit
+lanes. The live demo settles on **public testnet-10** (mined by its
+public miners), and that is a deployment choice, not a protocol gap: a
+demonstration belongs on a demonstration network, where the coins are
+worthless and the security assumptions are deliberately looser. Every
+vprogs settlement you can watch today is a testnet fact; what separates
+the demo from a mainnet deployment is operational work, not protocol
+activation.
 
 A based rollup is what the three hinges make, and it dissolves both walls
 at once: the program's state lives in the proved world, shared and owned
@@ -139,7 +147,7 @@ actions and settles proofs, and today that someone is the operator. No
 operator key is needed anywhere in the machine: the on-chain scripts check
 proofs, never signatures, so in principle anyone can run the stack and
 settle. But no permissionless escape-hatch flow is shipped yet either. If
-every operator of a covenant stops before your balance has become a
+every operator of an instance stops before your balance has become a
 committed exit, your funds wait until someone resumes the stack. The
 machine is built to make "someone" cheap to become (the lane, the chain,
 and the proofs are all public), but cheap is not automatic. We'll meet
