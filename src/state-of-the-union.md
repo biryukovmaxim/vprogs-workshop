@@ -1,8 +1,6 @@
-# State of the union
+# Where things stand
 
-Where does all this stand, honestly?
-
-## What's real today
+## What is real today
 
 - **The framework.** vprogs (the lane/bridge machinery, the three-stage
   proving pipeline, the settlement construction, the permission-tree
@@ -19,19 +17,16 @@ Where does all this stand, honestly?
   extensions it leans on are live on Kaspa mainnet; the deployment sits
   on the testnet because it is a demonstration, and a demonstration
   belongs where coins are worthless and assumptions are loose (chapter 3
-  says so plainly). Dev-mode
-  stub receipts are strictly for the local demo; the testnet deployments
-  prove for real.
+  says so plainly). Dev-mode stub receipts are strictly for the local
+  demo; the testnet deployments prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
   pruned nodes (nodes that have discarded old block data); snapshot
-  bootstrap, resume, and catch-up modes exist
-  because they've had to.
+  bootstrap, resume, and catch-up modes exist because they have had to.
 
-## What it isn't yet
+## What it is not yet
 
 - **Production.** The project states it plainly: early development /
-  prototype phase; APIs and architecture may change significantly. Treat
-  everything accordingly.
+  prototype phase; APIs and architecture may change significantly.
 - **Multi-program.** As chapter 10 said: single sovereign apps, at the
   current stage. Composability is future work with a yellow paper
   behind it; nothing is implemented yet.
@@ -41,32 +36,31 @@ Where does all this stand, honestly?
 ## What it costs, and how long it takes
 
 No published numbers yet, and this book won't invent them. What is
-structural: every user action is an ordinary Kaspa transaction (user-paid,
-included at L1 speed); settlement latency is the confirmation window plus
-proving plus L1 inclusion; exit claims add their own confirmations. The
-window is a deployment choice, widened adaptively when the network looks
-reorg-prone. Measured end-to-end figures belong in the runbooks, and will
-be added there when they exist.
+structural: every user action is an ordinary Kaspa transaction
+(user-paid, included at L1 speed); settlement latency is the
+confirmation window plus proving plus L1 inclusion; exit claims add
+their own confirmations. The window is a deployment choice, widened
+adaptively when the network looks reorg-prone. Measured end-to-end
+figures belong in the runbooks and will be added there when they exist.
 
 ## Where to follow and join
 
 The two repositories are the source of truth; code, runbooks, and
 issues live there: **vprogs** (the framework) and **vprog-tictactoe**
 (the example application and its deployment runbooks, including the
-multi-machine testnet walkthrough). No token, no sale, no foundation to
-join: at this stage the repositories are the project.
+multi-machine testnet walkthrough). There is no token and no foundation;
+at this stage the repositories are the project.
 
-## The closing loop
+## Closing
 
-Return, one last time, to the opening scene: two strangers, a pot of
-Kaspa, a game with no referee. You now know the entire machine that
-makes it boring, and boring is the compliment: signed actions into a
-public lane; execution by rules the program itself defines and a zkVM
-proves; state as a digest chain anchored settlement by settlement into
-Kaspa itself; money out through exits that, once committed, no operator
-can withhold (until committed, chapter 6's stalls apply: robbed and
-delayed are different failures, and only the first is solved). The
-rollup fixed the shape; the program picked the rules;
-the L1 holds the money. If the live demo is running next door, go lose a
-game of tic-tac-toe knowing exactly why you can't be robbed on the way
-out, and exactly what has to keep running so you can walk out.
+Return to the opening scene: two strangers, a pot of Kaspa, a game with
+no referee. The machine behind it is now fully described: signed
+actions into a public lane; execution by rules the program defines and
+a zkVM proves; state as a digest chain anchored settlement by
+settlement into Kaspa; money out through exits that, once committed, no
+operator can withhold (until committed, chapter 6's stalls apply:
+robbery and delay are different failures, and only the first is
+solved). The rollup fixes the shape; the program picks the rules; the
+L1 holds the money. If the live demo is running next door, lose a game
+knowing why you cannot be robbed on the way out, and what has to keep
+running so you can leave.

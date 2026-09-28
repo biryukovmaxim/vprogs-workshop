@@ -8,16 +8,15 @@ A zkVM runs an ordinary program (normal instructions, normal toolchain),
 but alongside the result it produces a **receipt**: a small artifact that
 proves "this exact program, on this exact input, produced this exact
 output". Anyone can verify the receipt in milliseconds, without re-running
-the program and without trusting whoever ran it. The magic, such as it is:
+the program and without trusting whoever ran it. The key property:
 verification cost is nearly independent of execution cost. A program may
-run for an hour; its receipt still checks in a blink. Think of it as a
-notarized execution transcript, except the notary is mathematics, and the
-transcript is a few kilobytes.
+run for an hour; its receipt still checks in milliseconds and is only a
+few kilobytes.
 
 ```mermaid
 flowchart LR
     E["guest execution"] --> Q{"proving mode"}
-    Q -- "dev mode" --> S["stub receipt<br/>(no proof, local demos only,<br/>worthless on a public network)"]
+    Q -- "dev mode" --> S["stub receipt<br/>(local demos only)"]
     Q -- "real proving" --> R["zk proof<br/>(verifiable by anyone)"]
     R --> V["L1-verified settlements"]
 ```
@@ -44,27 +43,26 @@ and every proof names the exact images it executed, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
 because each bundle's journal continues the previous one. That is what
-makes the digest chain a chain. It also shapes latency: because each
-proof continues the last instead of restarting, a prover that keeps up
-stays a fixed distance behind the chain; a prover that cannot keep up
-falls behind without bound. While it is behind, settlements wait, so
-exits wait to be committed: the same liveness exposure chapter 6 names.
-Recovery is catching up, and the shape allows it: a proof window can span
-many blocks, so a backlog drains in bigger bites at the price of later
-snapshots, and a machine stalled past the twelve-hour anchor window of
-chapter 5 must prove such a span before it can settle again.
+makes the digest chain a chain. It also shapes latency: a prover that
+keeps up stays a fixed distance behind the chain, and one that cannot
+falls behind without bound, so settlements wait and exits wait to be
+committed: the same liveness exposure chapter 6 names. Recovery is
+catching up, and the shape allows it: a proof window can span many
+blocks, so a backlog drains in bigger bites at the price of later
+snapshots (a machine stalled past the twelve-hour anchor window must
+prove such a span before it can settle again; the appendix has that
+story).
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
-engine ships a zk-verify opcode (KIP-16, activated with Toccata); the
+engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata); the
 settlement's script calls it with the receipt, and every Kaspa node
-executing that transaction runs the check. A bad-proof settlement is not
-a controversial settlement, it is an invalid one, rejected like a bad
-signature. The verifier identity (which image ids, which proof system)
+executing that transaction runs the check. The verifier identity (which
+image ids, which proof system)
 is baked into the covenant's script hash, so "which rules am I trusting?"
 and "which address did I pay?" are the same question. And the receipt
-cannot be paired with mismatched claims: the script itself hashes the
+cannot be paired with mismatched claims. The script itself hashes the
 settlement's named values (state digests, lane tip, block point,
-commitments) into the journal digest the receipt commits, so a proof for
+commitments) into the journal digest the receipt commits. A proof for
 one state simply fails against script data naming another.
 
 Two modes matter in practice:
@@ -77,10 +75,6 @@ Two modes matter in practice:
 - **Real proving**: actual cryptographic proofs, GPU-produced. tt's
   testnet deployments settle with real proofs.
 
-The same guest and the same settlement layout, but not the same
-security: a dev settlement's script skips the on-chain proof verification
-entirely, which is why dev mode is never anything more than a local demo.
-
 ## What may come
 
 The zkVM landscape is young and moving. vprogs' proving stack sits behind
@@ -88,10 +82,10 @@ a backend interface: execution, proving, and verification each sit behind
 one standard interface, and
 RISC0 is currently the one implementation behind them. That seam is what
 makes "another zkVM tomorrow" a migration rather than a rewrite:
-*outlook, not promise*. The door is a real, existing interface, not a
-hope.
+*outlook, not promise*. The interface exists today; a second
+implementation does not.
 
-One more thing the zkVM buys, easily underrated: since the guest is an
-ordinary program, the program's *rules and its runtime* ride inside the
-same proof. Which is exactly where the next chapter picks up, because on
-smart-contract platforms, that is precisely what you cannot do.
+One more property: since the guest is an ordinary program, the program's
+*rules and its runtime* ride inside the same proof. On smart-contract
+platforms that is precisely what you cannot do, which is the next
+chapter's subject.

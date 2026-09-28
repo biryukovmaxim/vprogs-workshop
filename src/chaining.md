@@ -1,9 +1,26 @@
 # How it all chains
 
-This chapter is the spine of the whole book. Every piece from the last
-chapter (settlements, the lane, user actions, deposits, the permission
-tree) now moves at once, across multiple L1 blocks, tied together by
+This chapter puts the pieces together: every piece from the last
+chapter (the lane, deposits, exits, user actions, settlements) moves
+at once, across multiple L1 blocks, tied together by
 proofs.
+
+Vocabulary check before it piles up: a *witness* is confirmed L1 data fed
+to execution; a *batch* is the work over one block; its proof is a *batch
+proof*; runs of batches compound into *aggregate* proofs; and the one a
+settlement carries, the last aggregate, is the *bundle proof*. The guest
+program that does the compounding is the *aggregator* (chapter 7). Five
+words, one pipeline.
+
+The word *block* needs pinning too. Execution does not
+walk the blockdag's web; it walks the single line consensus has already
+ordered: Kaspa's selected chain, also called the virtual chain or the
+mega chain. When a block on that line absorbs other blocks (its
+*mergeset*), the transactions those blocks carry are counted as part of
+that step. One chain block plus its mergeset's uncounted transactions is
+one block to the machine: one witness set, one batch, one step of
+execution, and the dag's parallelism is flattened before execution ever
+sees it.
 
 ```mermaid
 sequenceDiagram
@@ -26,26 +43,12 @@ sequenceDiagram
     L1-->>U: exit entitlements live, user claims via permission spend
 ```
 
-Vocabulary check before it piles up: a *witness* is confirmed L1 data fed
-to execution; a *batch* is the work over one block; its proof is a *batch
-proof*; runs of batches compound into *aggregate* proofs; and the one a
-settlement carries, the last aggregate, is the *bundle proof*. Five
-words, one pipeline.
-
-The word *block* needs pinning too. Execution does not
-walk the blockdag's web; it walks Kaspa's selected chain (the virtual
-chain, sometimes called the mega chain), the same single line consensus
-weaves out of the dag. For each chain block, the framework gathers the
-transactions its mergeset merged (the blocks that chain block absorbed,
-whose transactions were not counted yet) and calls the lot one block: one
-witness set, one batch, one step of execution. The dag's parallelism is
-flattened into one order before execution ever sees it.
-
 ## State digests succeed each other
 
 Inside the machine, time is a sequence of state roots. Every executed block
-produces a journal entry of exactly this form: *previous state root, new
-state root, previous lane tip, new lane tip, the L1 context it saw*. A
+produces a journal entry of this form: *previous state root, new
+state root, previous lane tip, new lane tip, the L1 context it saw, and
+the window's deposit and exit commitments when it carried any*. A
 batch proof attests one such transition. An aggregate proof compounds a
 run of them. A settlement then plants the final root on L1. So the
 program's entire history is a chain of 32-byte numbers, each one provably
@@ -54,50 +57,43 @@ in the settlement chain living in Kaspa blocks.
 
 ## Why multiple L1 blocks?
 
-Because the world doesn't hold still while you play. A match takes
-minutes: moves arrive, deposits confirm, other users act, the L1 keeps
-producing blocks the whole time. A proof that froze the world at one block
-would be stale before it landed. Instead, each proof covers a *window* of
+A match takes minutes: moves arrive, deposits confirm, other users act,
+and the L1 keeps producing blocks the whole time. A proof that froze the
+world at one block would be stale before it landed. Instead, each proof
+covers a *window* of
 L1 history (all lane entries and deposits up to a named block), and the
 settlement says so explicitly: this state is proven against L1 block N,
 this lane tip is included, and if you disagree, verify the proof. User
 actions submitted in block 3 and block 40 end up proven together into one
 settled state, with nothing in between silently dropped: the node's
-lane commitments (KIP-21) give the lane one canonical history, and
+lane commitments ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)) give the lane one canonical history, and
 the proof binds its tip. The bind is checked on-chain whenever a node
-validates the settlement transaction. Kaspa's block headers already
-carry, in one committed value, the state of every active lane (KIP-21),
-and the Toccata script set includes an opcode that hands a script exactly
-that commitment for a block it names. The settlement script names its
-prove-to block, fetches that block's lane commitment through the opcode,
-and requires the proof's journal to commit the same value, so a proof
-about a fictional or stale L1 world cannot satisfy
-a node that follows the real chain. The machine only cites
+validates the settlement transaction: block headers carry a commitment
+to every active lane, and the settlement script requires the proof's
+journal to commit the same value the chain carries for the block it
+names, so a proof about a fictional or stale L1 world cannot satisfy a
+node that follows the real chain (the appendix has the mechanics,
+including why no range can be skipped). The machine only cites
 blocks already behind the confirmation window, so a cited block always
-sits deeper than the settlement resting on it; a reorg deep enough to
-kill the one would have to swallow the other. Past that depth, both are
-as permanent as any Kaspa payment. Citing deep blocks is the machine's
-own discipline, and it is self-interested: a shallow citation and the
-settlement resting on it sink together in a reorg. The opcode does
+sits deeper than the settlement resting on it: a reorg deep enough to
+kill the one would have to swallow the other, and past that depth both
+are as permanent as any Kaspa payment. The opcode does
 enforce one bound of its own: it reads commitments only from roughly the
-last twelve hours of blocks, so a settlement cannot lean on an ancient
-anchor. A machine stalled longer than that must first prove its way
-forward to a recent block, then settle; the chaining shape is what makes
-the bridge possible.
+last twelve hours of blocks. What a machine stalled longer than that
+does, prove its way forward to a recent block before it can settle
+again, is the [appendix](appendix-settlements.md)'s story; the chaining
+shape is what makes that bridge possible.
 
-## Deposits and the permission tree ride the same train
+## Deposits and exits use the same proof path
 
 Deposits are L1 outputs, so they're witnessed the same way lane actions
-are: each batch's journal carries a commitment to the deposit address its
-credited outputs paid, and the proof checks every credited deposit against
-the L1 data it covers. Deposits also bind on-chain through their address:
-the journal commits the deposit address the bundle credited, and the
-settlement script re-derives that address from the covenant id and
-requires the proof to name exactly it. Exits flow the other way but on the same rails:
-when execution debits a user and emits an exit, the entitlement lands in
-the permission tree, and the settlement that includes it carries the
-tree's commitment. One proof cycle carries the whole ledger of
-who-entered and who-may-leave.
+are, and bound twice: the proof's journal commits the deposit address it
+credited, and the settlement script re-derives that address from the
+covenant id and requires the proof to name exactly it. Exits flow the
+other way on the same rails: when execution debits a user and emits an
+exit, the entitlement lands in the permission tree, and the settlement
+carries the tree's commitment. One proof cycle carries the whole ledger
+of who-entered and who-may-leave.
 
 ## Waiting for finality, and surviving reorgs
 
@@ -105,12 +101,11 @@ Kaspa orders blocks fast (roughly one per second), but "a block" is not yet "a f
 follows the chain behind a confirmation window, a configurable number of
 confirmations, widened adaptively when the network looks reorg-prone, and
 treats a block as solid only inside it. If the chain reorganizes anyway,
-blocks the machine was watching simply vanish from its view as rollbacks;
-bundles whose proving base died on the reorganized side are dropped and
-rebuilt against the surviving chain, a settlement that dies young, before
-burial, is simply resubmitted, and the settler skips pending bundles whose
-proving base no longer chains rather than resubmitting dead bytes. The
-settlement chain, immutable
+blocks the machine was watching simply vanish from its view as rollbacks:
+bundles that stood on the reorganized side are dropped and rebuilt
+against the surviving chain, and a settlement that dies young, before
+burial, is simply resubmitted (the appendix has the recovery detail,
+including which proving work gets reused). The settlement chain, immutable
 once Kaspa has it, is never reinterpreted. The short version: the
 machine never trusts a dead block, and never needs to.
 
@@ -122,7 +117,7 @@ The machine protects *state*; Kaspa's proof-of-work depth protects
 
 ## What one settlement buys you
 
-Stand back and look at a single settlement tx on an explorer. It names
+Look at a single settlement tx on an explorer. It names
 its covenant id. It commits the new state digest, the lane tip, and the block
 it proves to. Its first output can only be spent by the next settlement of
 the same covenant id, so the history cannot fork without splitting real
@@ -133,5 +128,5 @@ every deposit, every balance, is a 32-byte root away, verified by a proof
 anyone can check. What L1 does *not* enforce is freshness: nothing on-chain
 forces a settlement to advance the tip to today's lane head; the tip moves
 when the operator settles, and an operator can stall (chapter 6 is honest
-about this). That is the machine. The rest of this book is about who runs
-it, what proves it, and what it's like to build on.
+about this). The rest of this book covers who runs the machine, what
+proves it, and what building on it is like.

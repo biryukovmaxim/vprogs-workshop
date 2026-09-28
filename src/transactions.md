@@ -54,15 +54,45 @@ node is the fingerprint of its children, all the way up to one root).
 The tree is the whole state hashed into a structure where every possible
 position exists. "Sparse" means the empty positions are not stored
 anywhere: the tree is a rule for computing what an empty spot would hash
-to, so where a thing sits never depends on what else is present. That is
-what makes membership cheap: proving that one account was inside takes a
-short branch of hashes and reveals nothing else. Change one sompi (the
-smallest unit of KAS) anywhere and the digest is a completely different
-number; there is no way to move the state without moving the
+to, so where a thing sits never depends on what else is present.
+
+Eight leaf slots out of an unbounded sheet of them, each addressed by
+position:
+
+```mermaid
+flowchart TD
+    R["root - the state digest"] --> N0["node"]
+    R --> N1["node"]
+    N0 --> M00["node"]
+    N0 --> M01["node"]
+    N1 --> M10["node"]
+    N1 --> M11["node"]
+    M00 --> L0["slot 0 - empty"]
+    M00 --> L1["slot 1 - an account"]
+    M01 --> L2["slot 2 - empty"]
+    M01 --> L3["slot 3 - empty"]
+    M10 --> L4["slot 4 - a game"]
+    M10 --> L5["slot 5 - empty"]
+    M11 --> L6["slot 6 - empty"]
+    M11 --> L7["slot 7 - an account"]
+    classDef empty fill:#eee,stroke:#999,stroke-dasharray: 4 3
+    class L0,L2,L3,L5,L6 empty
+```
+
+The empty slots are the "sparse" part done cheaply: an empty slot's hash
+comes from the fixed rule, not from storage, and an entirely empty
+subtree collapses to one computed value, so emptiness costs nothing.
+That is what makes membership cheap: proving that one account was inside
+takes a short branch of hashes and reveals nothing else. Change one sompi
+(the smallest unit of KAS) anywhere and the digest is a completely
+different number; there is no way to move the state without moving the
 fingerprint. One chain-held number commits to an entire off-chain world,
-and that is the load-bearing trick of this whole book: the chain never
+and that is the core trick of this book: the chain never
 stores the world, it checks fingerprints of it. Digest, root, state
 root: this book uses the words interchangeably for the same 32 bytes.
+(This structure is standard equipment far beyond this book; [Kelvin
+Fichter's "What's a Sparse Merkle Tree?"](https://medium.com/@kelvinfichter/whats-a-sparse-merkle-tree-acda70aeb837)
+is the classic short introduction, with pictures in the same shape.)
 
 ## The four transactions
 
@@ -72,73 +102,35 @@ transaction can carry. The L2 is what you build with them: the program
 executes off-chain, over the full state, and publishes the compressed
 digest, using ordinary Kaspa
 transactions for everything that must be trusted, carrying users' intent
-in, ordering it, committing state back, paying value out. Kaspa sees
-four kinds of transaction from this machine, and from the L1's side they
-all have exactly the same shape: same fields, same validation, nothing
-marked out in protocol. The split into four is not an L1 distinction at
-all; it is semantics from the L2, the program's perspective: particular
-scripts and payloads whose meaning only the proofs enforce.
+in, ordering it, committing state back, paying value out. The machine
+publishes four kinds of transaction, and from the L1's side, from
+Kaspa's side, they all have exactly the same shape: same fields, same
+validation, nothing marked out in protocol. The split into four is not
+an L1 distinction at all; it is semantics from the L2, the program's
+perspective: particular scripts and payloads whose meaning only the
+proofs enforce.
 
-- a **settlement** spends the output only a valid settlement can spend,
-  and commits the new state digest
 - a **lane entry** is an ordinary transaction tagged for the program's
   subnetwork, carrying a signed action
 - a **deposit** is an ordinary payment to the program's deposit address
 - an **exit claim** spends the program's payout commitment and pays a
   user out
+- a **settlement** spends the output only a valid settlement can spend,
+  and commits the new state digest
 
 Two are plain Kaspa usage (lane entries, deposits); two carry the
-machine's own scripts (settlements, claims). Learn the four and every chapter
-after this is just consequences. The rest of this chapter walks both
-views: what lands on Kaspa, then what the program makes of it.
-
-## The state transition (settlement)
-
-The settlement is the tx that matters: it is the only thing that advances the
-program's authoritative state, and it does so on Kaspa itself. A settlement
-attests three things at once:
-
-- a **state digest**: the program's new state root, the 32-byte
-  fingerprint from the compression section above. The full state (every
-  account, every game, every balance) lives off-chain, served by the
-  operator's index: a convenience, not a gatekeeper, because the lane and
-  chain carry everything needed to rebuild it (chapter 9). What Kaspa
-  holds is the fingerprint of all of it at one
-  moment. The proof's central claim is always of the form "state root X
-  became state root Y by executing the rules correctly".
-- a **lane tip**: how far execution had read the program's action lane
-  (next section) when the snapshot was taken: "I have processed every
-  published action up to here."
-- a **block proof point**: the last L1 block whose data execution
-  consumed: "and the L1 world I saw was real up to this block."
-
-Read a settlement as a snapshot claim, not a switch. It says: at block Y,
-the state digest was D. The proof inside shows how the digest got there,
-root by root, from block X to block Y, where X is the previous
-settlement's proof point; the windows are contiguous, each proof's
-journal continuing exactly where the last one ended, so no block range
-goes unwitnessed. The settlement transaction itself
-lands at least one block after Y, and sometimes later: the gap is proving
-time plus the confirmation window the cited blocks must pass, before the
-settlement is even submitted. Each settlement
-pins one more provable snapshot; nothing starts applying "from now on".
-
-These three ride directly in the settlement transaction's script data
-(the bytes its inputs carry to satisfy the covenant's lock), and
-the settlement's outputs chain to the next settlement: output 0 is a P2SH
-continuation that only the *next* valid settlement can spend. So on L1
-itself there grows a single unbroken chain of settlements, each one
-inheriting its predecessor's covenant id and committing the next state digest.
-That chain *is* the program's history; you can walk it on any Kaspa
-explorer.
+machine's own scripts (settlements, claims). The rest of the book
+follows from these four. This chapter takes them in the order things
+flow: the lane they ride, value in, value out, the actions between, and
+the settlement that commits it all.
 
 ## The lane (subnetwork) and its key
 
-User actions can't just be whispered to the operator, because then nobody
+User actions cannot be sent privately to the operator, because then nobody
 could prove what was submitted, when, or in what order. Instead, each
 program instance owns a **lane**: an L1 subnetwork where its users' actions
 are published as ordinary Kaspa transactions. The entries are ordered by
-the node's own commitment machinery (KIP-21): no sequencer decides, the
+the node's own commitment machinery ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)): no sequencer decides, the
 chain's own order is the order, and Kaspa's consensus can prove, up to
 any block, exactly what it
 contained. So the lane has a single
@@ -150,16 +142,17 @@ real transaction, paying a real Kaspa fee from the user's own funds, mined
 by the network's miners like any payment. The subnetwork is a label the
 node's consensus tracks: it gossips, orders, and accounts for lane traffic
 alongside ordinary payments, and carrying registered lanes is a consensus
-rule with its own per-lane capacity limit, not an opt-in a miner could
-quietly refuse. And (this is the load-bearing part) the node
+rule with a per-lane, per-block capacity limit, not an opt-in a miner
+could quietly refuse: entries over the limit wait for later blocks,
+nothing is dropped or refused. And the node
 itself will hand anyone a cryptographic proof of what the lane contained up
 to any confirmed block. There is no lane operator to refuse an entry;
 entry happens through the Kaspa mempool, the network's shared waiting
 room for transactions not yet in blocks.
 
-The lane is the program's front door and its data availability in one:
-publish there and the operator *must* eventually see your action; prove
-from there and a verifier *knows* nothing was left out. The lane is
+The lane is both the program's entry point and its data availability:
+publish there and the operator must eventually see your action; prove
+from there and a verifier knows nothing was left out. The lane is
 identified by a **lane key**, the hash of its subnetwork id, and every
 proof names the lane it settles.
 
@@ -180,25 +173,6 @@ flowchart LR
     E --> T["one state transition"]
     T --> S["settlement: state digest + lane tip,<br/>plus the permission-tree commitment<br/>when the window emitted exits"]
 ```
-
-## User action txs
-
-Everything a user does inside the program is a signed action: in tt that's
-transferring balance, rotating your lock (switching the key that
-authorizes your account, the move you want if a key leaks), depositing,
-withdrawing, creating
-a game, joining a game, placing a mark, forfeiting an expired turn. The
-program runs against the L1's own per-block context, timestamps, DAA
-score, blue score, the chain's own time and depth counters, committed
-by the chain and carried inside every proof window (KIP-21 commits them
-for exactly this use), so "expired"
-is a chain fact, not the operator's watch.
-An action carries its author's authorization (more on locks and signers
-below) and is published to the lane. What makes an action *valid* (whose
-signature, which state it may touch, how much stake a game locks, what
-happens when your turn timer expires) is not L1 law. It is the program's
-own logic, checked inside the proof. The L1 neither knows nor cares what a
-"game" is; it only carries the action to the machine that does.
 
 ## Deposits
 
@@ -235,50 +209,82 @@ output (a settlement with no new exits carries none). Each commitment
 covers only its own settlement's exits, so an entitlement lives in
 exactly one commitment, ever.
 
-A user claims by spending that commitment on L1, and the claim works
-like making change. Your claim transaction pulls in the commitment
-itself, up to eight whole coins from the program's deposit pile (only
-this script shape can unlock them; your wallet picks which), and one
-ordinary coin of your own to carry the fee. The script checks on-chain
-that what was pulled from the pile covers your amount. Then the outputs:
-your leaf's value paid to you, the pile's untouched change re-locked at
-the same script for the people still in line, a fresh commitment with
-your leaf deducted for the next claimant, and the unspent part of your
-fee coin back to you. The commitment is a self-updating UTXO: each claim
-spends it and hands the next claimant a tree with one less leaf.
-
-```mermaid
-flowchart LR
-    A["the commitment<br/>(this settlement's exits)"] --> C["one claim transaction"]
-    B["up to 8 coins from<br/>the deposit pile"] --> C
-    F["one of the claimer's own coins<br/>(carries the fee)"] --> C
-    C --> P["payment to the claimer"]
-    C --> N["new commitment,<br/>this leaf deducted"]
-    C --> R["pile change, re-locked"]
-    C --> X["fee-payer's change"]
-```
-
-The same exit cannot be claimed twice over, and the reasons are
-structural: your leaf exists in one commitment only, the UTXO you spent
-is gone, and the new commitment no longer contains your leaf. Claims
-against the same commitment queue behind each other, exactly like any two
-spends of one coin: heavy exit traffic lines up, and two claims racing in
-the mempool conflict like any double-spend. One wins; the other's
-transaction can no longer confirm (its input is gone), and the wallet
-rebuilds it against the new commitment once it sees the winner. Claims
-against different settlements' commitments are independent transactions
-and pay out in parallel. The machine watches landed claims for its own
-books (the exit list an app reads), not as a second line of defense. A
-malformed claim fails its own validation; it cannot jam anyone behind
-it. What does not ship is a sweeper for the pile itself: every claim
-splits what it sweeps, the network's dust rules floor how small the
-pieces can get, and keeping the pile in healthy coins is operational
+A user claims with one ordinary Kaspa transaction that spends that
+commitment. The claim's unlock data reveals the leaf and its branch in
+the tree; the script checks the branch against the committed root, takes
+the amount and the destination lock from the leaf, and requires the
+payment to match both. Whatever the claim pulls from the program's
+deposit pile to fund the payout, the untouched remainder is re-locked
+for the people still in line, and a fresh commitment with this leaf
+deducted hands the next claimant a tree with one less leaf. So the same
+exit can never be paid twice: the leaf lives in one commitment, the UTXO
+spent is gone, and the new commitment no longer contains it. Claims on
+one commitment queue like any two spends of one coin; claims on
+different commitments pay out in parallel. What does not ship is a
+sweeper for the pile itself: claims split what they sweep and dust rules
+floor the pieces, so keeping the pile in healthy coins is operational
 work.
+
+The claim transaction's full anatomy (which coins it pulls, how the fee
+rides, what each output is) and what happens when two claims race are
+[appendix](appendix-settlements.md) material.
 
 Like the deposit policy, the permission tree is a ready-made part: the
 framework ships the accumulator, the L1 commitment format, and the claim
 flow. A program with different needs could, in principle, ship its own exit
 design; the settlement shape would not change.
+
+## User actions
+
+Everything a user does inside the program is a signed action: in tt that's
+transferring balance, rotating your lock (switching the key that
+authorizes your account, the move you want if a key leaks), depositing,
+withdrawing, creating
+a game, joining a game, placing a mark, forfeiting an expired turn. The
+program runs against the L1's own per-block context, timestamps, DAA
+score, blue score, the chain's own time and depth counters, committed
+by the chain and carried inside every proof window (KIP-21 commits them
+for exactly this use), so "expired"
+is determined by the chain, not by the operator.
+An action carries its author's authorization (more on locks and signers
+below) and is published to the lane. What makes an action *valid* (whose
+signature, which state it may touch, how much stake a game locks, what
+happens when your turn timer expires) is not L1 law. It is the program's
+own logic, checked inside the proof. The L1 does not know what a
+"game" is; it carries the action to the program, which does.
+
+## The settlement
+
+The settlement is the committing transaction: the only one that advances
+the program's authoritative state, and it does so on Kaspa itself. A
+settlement attests three things at once:
+
+- a **state digest**: the program's new state root, the 32-byte
+  fingerprint from the compression section above. The full state (every
+  account, every game, every balance) lives off-chain; the lane and the
+  chain carry everything needed to rebuild it (chapter 9). What Kaspa
+  holds is the fingerprint of all of it at one
+  moment. The proof's central claim is always of the form "state root X
+  became state root Y by executing the rules correctly".
+- a **lane tip**: how far execution had read the program's action lane
+  (the lane section above) when the snapshot was taken: "I have processed every
+  published action up to here."
+- a **block proof point**: the last L1 block whose data execution
+  consumed: "and the L1 world I saw was real up to this block."
+
+These three ride directly in the settlement transaction's script data
+(the bytes its inputs carry to satisfy the covenant's lock), and
+the settlement's outputs chain to the next settlement: output 0 is a P2SH
+continuation that only the *next* valid settlement can spend. So on L1
+itself there grows a single unbroken chain of settlements, each one
+inheriting its predecessor's covenant id and committing the next state digest.
+That chain *is* the program's history; you can walk it on any Kaspa
+explorer.
+
+How the windows behind one settlement chain together, why no block range
+can be skipped, and what happens when cited blocks reorganize are
+mechanics worth their own page: the [appendix](appendix-settlements.md)
+has them.
 
 ## Shape versus rules
 
@@ -297,34 +303,26 @@ it, an unlocker pairs them. A program can compose or replace them.
 Every battery above is real, shipped code in vprogs today; "replaceable"
 means the *shape* doesn't depend on which one you use.
 
-One term is left, and it names the whole thing: a **covenant id**: the
-32-byte identity of one program instance. Deposits pay into it, settlements
-chain within it, exits reference it, and at bootstrap it is pinned together
-with the exact guest program binaries, by their cryptographic image ids
-(chapter 7); the covenant id is "this
-program, these exact rules, this instance". The pinned rule-set is public
-on-chain: the covenant's script hash is computed *from* the pinned image
-ids, so anyone can take a claimed rule-set, recompute the hash, and check
-it against the address before depositing. The covenant id itself is
-derived from that same script at bootstrap, so id, address, and rules
-are one package: change the rules and every name changes with them. The
-tooling for that check is a
-script, not a website, today. For a reader who will never run a script,
-the honest version: the check is public and repeatable by anyone, so in
-practice you rely on someone you trust having run it, which is the same
-trust in the code that chapter 3's table already counted.
+One term is left, and it names the whole thing: a **covenant id**, the
+32-byte identity of one program instance. Deposits pay into it,
+settlements chain within it, exits reference it. And the full list of
+what a settlement chain is pinned to is short: the covenant id fixes the
+instance, and the image ids of the exact guest binaries (chapter 7) fix
+the code and proof stack it runs. The pins chain together: the
+covenant's script hash is computed from the pinned image ids, and both
+the deposit address and the covenant id derive from that script, so
+rules, id, and address change together. Anyone can recompute the hash
+and check the address before depositing; the tooling is a script today,
+not a website, so in practice you rely on someone you trust having run
+it, the same trust in the code that chapter 3's table already counted.
+An image id that changes by one byte no longer matches its pin, which is
+why an upgrade is an emigration (chapter 8); the pin could in principle
+migrate to new images, but no such mechanism ships today.
 
-Settlements are pinned twice over, and the full list is short: the
-covenant id fixes the instance, and the image ids fix the exact code
-and proof stack it runs. The image-id pin is the load-bearing one: a
-guest that changes by one byte no longer matches it, which is why an
-upgrade is an emigration (chapter 8). That pin is a choice, not a law
-of nature; the pin could in principle migrate to new images,
-but no such mechanism ships today. In tt's live deployment the covenant id is
-literally a constant. It is the settlement
-chain's first link: at bootstrap the operator funds an initial output
-locked by the covenant's script at its genesis state, and every
-settlement descends from it.
+In tt's live deployment the covenant id is literally a constant. It is
+the settlement chain's first link: at bootstrap the operator funds an
+initial output locked by the covenant's script at its genesis state, and
+every settlement descends from it.
 
 With the vocabulary in hand: how do proofs tie all four tx types together
 across multiple L1 blocks?

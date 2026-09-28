@@ -54,21 +54,18 @@ actions to the lane, but garbage pays its own L1 fees, and the program is
 free to reject it at near-zero execution cost. The other half is honest
 too: garbage bytes still ride the batch into the proving pipeline, so
 volume spam burns operator proving cycles until the fee battery is
-placed. Why prove garbage at all instead of filtering it first? Because
-a pre-proof filter is also a censorship seam: whoever filters decides
-what counts as garbage, and the lane's promise is that inclusion is not
-anyone's decision. The proof path cannot quietly skip an entry; skipping
-shows up as a stalled lane tip, which is chapter 6's stall, honest and
-visible, not a hidden filter. Both costs are real; only one is priced today. And the economics
-are deliberately unanswered in tt: running the stack is pure cost, which
-means the "someone will resume it" liveness story currently rests on
-enthusiasm. Pricing actions to fund the operator is exactly what that
-battery is for.
+placed. And there is no pre-proof filter to stop it, deliberately:
+whoever filters decides what counts as garbage, and the lane's promise
+is that inclusion is not anyone's decision. Skipping an entry cannot
+hide; it shows up as a stalled lane tip, chapter 6's stall, honest and
+visible. Both costs are real; only one is priced today: running the
+stack is pure cost in tt, so the "someone will resume it" story rests on
+enthusiasm until that battery is placed.
 
 ## Indexes are convenience, not authority
 
-Here is the part worth internalizing, because it is the difference between
-this and trusting a backend. If the index lies to you, shows you a board
+This section is the difference between an index and a trusted backend.
+If the index lies to you, shows you a board
 that isn't real, a balance that isn't yours, what have you lost? A
 moment of confusion. The money is not in the index. The money is in the
 proof-chained state on Kaspa, and every exit goes through the permission
@@ -77,8 +74,8 @@ hostile, or down; it cannot steal. A skeptical app could verify state
 digests against L1 and even verify proofs itself; the endpoints are a
 performance optimization over truth, not the truth's gatekeeper.
 
-A lying index has one real weapon left, and it isn't theft: it can waste
-your time. Your wallet builds actions from what it can see, so garbage
+A lying index cannot steal; it can only waste your time.
+Your wallet builds actions from what it can see, so garbage
 state produces actions that fail at proof time, an annoyance, and an
 argument for the skeptical path: everything needed to reconstruct state is
 public on L1, the node software is open, and running your own instance
@@ -90,6 +87,5 @@ settled digest is public, so the index could hand your wallet a short
 inclusion proof for your account, checkable against L1 with no full node
 at all. tt doesn't serve one yet; nothing about the shape prevents it.
 
-That inversion, reads untrusted and writes self-certifying, is what makes
-the app layer refreshingly boring. Boring is what you want at the top of a
-stack like this.
+That inversion, reads untrusted and writes self-certifying, is what keeps
+the app layer simple.

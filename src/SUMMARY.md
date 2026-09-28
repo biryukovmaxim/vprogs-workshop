@@ -1,6 +1,6 @@
 # Summary
 
-- [The hook: tic-tac-toe with stakes](./intro.md)
+- [Tic-tac-toe with stakes](./intro.md)
 - [The words you need](./words.md)
 - [Based rollup on Kaspa](./based-rollup.md)
 - [The transaction vocabulary](./transactions.md)
@@ -10,4 +10,5 @@
 - [Solana: the real difference](./solana.md)
 - [Building an app on it](./building-an-app.md)
 - [Single sovereign apps](./single-sovereign-apps.md)
-- [State of the union](./state-of-the-union.md)
+- [Where things stand](./state-of-the-union.md)
+- [Appendix: settlement and exit mechanics](./appendix-settlements.md)

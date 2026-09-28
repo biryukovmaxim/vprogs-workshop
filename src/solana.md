@@ -13,7 +13,7 @@ Both systems are, at heart, the same picture:
 
 | | Solana | a vprogs rollup |
 |---|---|---|
-| State shape | accounts, addressed by keys, holding data and lamports | resources, addressed by derived ids, holding data and balances |
+| State shape | accounts, addressed by keys, holding data and lamports (Solana's smallest unit) | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
 | Concurrency discipline | non-conflicting txs run in parallel; a losing tx fails and is resubmitted | the same split: work touching the same state never runs in parallel; bundle proving is sequential by construction |
@@ -21,17 +21,17 @@ Both systems are, at heart, the same picture:
 
 A Solana developer reading tt's guest code will feel at home: there are
 user accounts with balances, locks authorizing spends, a minimum-balance
-floor on accounts, an index of "who owns what". The shape rhymes
-deliberately; it's a good shape.
+floor on accounts, an index of "who owns what". The similarity is
+deliberate.
 
 ## The difference: whose runtime is it?
 
-On Solana, the runtime is **the chain**. Sealevel's scheduling model, the
-account model, rent and fee rules, what makes a transaction well-formed:
-all of that is protocol, identical for every program, enforced by every
-validator, changeable only by a network upgrade. Programs are guests in a
-fixed house: they orchestrate accounts, but the rules of the house are not
-theirs to define.
+On Solana, the runtime is **the chain**. Sealevel (Solana's parallel
+transaction scheduler), the account model, rent and fee rules, what makes
+a transaction well-formed: all of that is protocol, identical for every
+program, enforced by every validator, changeable only by a network
+upgrade. Programs run inside a runtime they cannot change: they
+orchestrate accounts, but the rules are set by the network.
 
 In a vprogs rollup, the runtime is **the program**. tt's guest literally
 ships a `runtime.rs`, and inside the proved world it is the *only*
@@ -40,11 +40,10 @@ its resource kinds, its hash domains, its id derivations (the framework
 hands you the pattern; the app picks the keyspace). Transaction validity,
 lock semantics, what a "turn timer" means: all rollup program logic,
 executed and proved like any other line of guest code. There is no fixed
-house; every program builds, or rather assembles from batteries, its
-own.
+house; every program assembles its own from the framework's parts.
 
-This is not a small philosophical point; it is the direct consequence of
-the zkVM: since the guest is an ordinary program, whatever it computes
+This is a direct consequence of the zkVM: since the guest is an
+ordinary program, whatever it computes
 *about its own rules* is covered by the same proof that covers the rules
 themselves. On a chain, the runtime must be fixed because every validator
 must agree on it before running your code. In a proved world, agreement is
@@ -55,7 +54,8 @@ the application.
 
 - **Resource derivation as a design surface.** tt gives games their own
   keyspace derived from the creator's lock and a counter; a Solana
-  program would express that as PDA conventions. Here it is just code,
+  program would express that with PDAs (program-derived addresses,
+  accounts controlled by a program). Here it is just code,
   with domain separation to keep keyspaces from colliding.
 - **Rules that can be arbitrary.** A turn timer that forfeits a round, a
   pot that splits on a draw: no need to fit these into a shared
@@ -65,13 +65,10 @@ the application.
   so this is explicit: a new rules version is a new identity, not a
   surprise). The money moves the honest way: a new image id is a new
   covenant id, so an upgrade is an emigration. Users exit through the old
-  instance's permission tree and deposit into the new one. In-place
-  migration does not ship today. And the window is honest about its own
-  limits: draining the old instance needs its stack to keep settling,
-  the same liveness trust as ever, pointed at the instance with the least
-  reason to stay alive. Announce, drain, then walk away is operational
-  discipline, not a protocol guarantee; a straggler who sleeps through
-  the announcement waits with the old covenant, not the new.
+  instance's permission tree and deposit into the new one; in-place
+  migration does not ship, and draining the old instance still needs its
+  stack to keep settling (chapter 6's liveness trust, pointed at the
+  instance with the least reason to stay alive).
 
 ## What it costs
 
@@ -87,8 +84,8 @@ the application.
 
 ## The Ethereum reader's checklist
 
-The Solana comparison above rhymes on accounts and runtimes; the reader
-from EVM rollups has a different checklist, and the honest answers are
+The Solana comparison above covers accounts and runtimes; the reader
+from EVM rollups has a different checklist, and the answers are
 short:
 
 | The question | Here |
@@ -100,5 +97,6 @@ short:
 | Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block (chapter 4) |
 | Preconfirmations? | None as a protocol promise; anyone can run a node in execution mode, replay the lane, and read the pending state, anchored to the latest settlement |
 
-Same shape, different landlord. In a Solana program you rent the runtime;
-in a vprogs rollup you own it, assembled from good parts, and proved.
+In Solana the runtime belongs to the network; in a vprogs rollup it
+belongs to the program, assembled from framework parts and covered by
+the proof.

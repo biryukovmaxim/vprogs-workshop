@@ -10,18 +10,20 @@ words; the rest of the book assumes these.
   name several parents, and the history is a web. Consensus rules weave
   that web into one agreed order of transactions, roughly a block per
   second, and the weaving is why Kaspa is fast and why shallow reorg
-  churn (the Reorg entry below) is routine weather rather than an
+  churn (the Reorg entry below) is normal and expected, not an
   emergency.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
-- **L1**: "layer 1", the Kaspa network itself. The thing that actually
-  holds the money.
+- **L1**: "layer 1", the Kaspa network itself. The layer that holds the
+  funds.
 - **L2**: "layer 2": a system that does its work off the L1 while leaning
   on the L1 for what must be trusted: ordering, data availability, and
   settlement. A *rollup* is the common L2 shape: execute off-chain, then
   prove or commit the results back on-chain. The machine in this book is
   one.
 - **KIP**: Kaspa Improvement Proposal: the process by which the network
-  proposes, reviews, and activates protocol changes.
+  proposes, reviews, and activates protocol changes. The proposals
+  themselves live in the
+  [KIP repository](https://github.com/kaspanet/kips).
 - **Output (UTXO)**: a piece of KAS at a lock. Every Kaspa transaction
   consumes earlier outputs (as its inputs) and creates new outputs; one
   that no transaction has consumed yet is an *unspent transaction
@@ -41,6 +43,9 @@ words; the rest of the book assumes these.
   time.
 - **Settlement**: the transaction that commits one new state digest to
   Kaspa and chains to the settlement before it. Chapter 4 is about it.
+- **State digest**: a short fingerprint of the program's whole off-chain
+  state: one 32-byte number that changes whenever the state does.
+  Settlements commit it on L1. Chapter 4 builds it.
 - **Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
   bundled into one name.
@@ -49,23 +54,23 @@ words; the rest of the book assumes these.
 - **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
   transactions carrying users' signed actions. Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
-- **Mempool**: the network's shared waiting room: transactions that have
-  been announced but not yet included in a block.
+- **Mempool**: the set of transactions announced to the network but not
+  yet included in a block.
 - **Journal**: the fixed-format record inside each proof: the state
   before, the state after, how far the lane had been read, and which L1
-  blocks the execution saw. Chapter 5 leans on it.
+  blocks the execution saw. Used from chapter 5 on.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
-- **Runtime**: the layer of code that checks and applies each action; the
-  rules of the house. Chapter 8 is about who owns it.
+- **Runtime**: the layer of code that checks and applies each action.
+  Chapter 8 is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on
   one block order, then switches to another; the switched-away blocks
-  "vanish". Shallow churn like this is routine and expected; deeply buried
-  blocks essentially never reorganize, and "essentially" is why the
-  machine also waits out a confirmation window before trusting fresh
-  blocks. How deep is deep enough is a deployment choice, and the machine
-  widens its window when the network looks reorg-prone. Money that moved
-  long ago is as safe as Kaspa itself.
+  "vanish". Shallow churn like this is routine weather; deeply buried
+  blocks essentially never reorganize, which is why the machine waits out
+  a confirmation window before trusting fresh blocks (chapter 5).
+- **Liveness**: the guarantee that things keep moving: someone keeps
+  executing, proving, and settling. Safety says no one can steal;
+  liveness says the machine does not stop. Chapter 6 owns it.
 - **Data availability**: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, not just trust
   someone's summary of it.
