@@ -239,10 +239,11 @@ transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
 a game, joining a game, placing a mark, forfeiting an expired turn. The
-program sees the chain's own time and depth counters (timestamp, DAA
-score, blue score), committed by the chain inside every proof window
-(KIP-21 commits them for exactly this use), so "expired" is determined
-by the chain, not by the operator.
+program sees the chain's per-block context, timestamp, DAA score, and
+blue score, committed by the chain inside every proof window (KIP-21
+commits them for exactly this use). Deadlines such as tt's turn timer
+are measured in block height, not wall-clock time, so "expired" is
+determined by the chain, not by the operator.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
 signature, which state it may touch, how much stake a game locks, what

@@ -13,8 +13,9 @@ words; the rest of the book assumes these.
   churn (the Reorg entry below) is normal and expected.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
 - **DAA score, blue score**: the chain's per-block depth counters
-  (difficulty-adjusted and DAG depth); the program reads them as its
-  clock (chapter 4).
+  (difficulty-adjusted and DAG depth); alongside the timestamp they form
+  the per-block context, and deadlines are measured in block height
+  rather than wall-clock time (chapter 4).
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
 - **L2**: "layer 2": a system that does its work off the L1 while leaning
