@@ -1,6 +1,6 @@
 # The words you need
 
-Blockchain writing leans on a small vocabulary. Here is all of it, in plain
+Blockchain writing uses a small vocabulary. Here is all of it, in plain
 words; the rest of the book assumes these.
 
 - **Kaspa**: the proof-of-work network this book runs on; its coin is
@@ -18,7 +18,7 @@ words; the rest of the book assumes these.
   rather than wall-clock time (chapter 4).
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
-- **L2**: "layer 2": a system that does its work off the L1 while leaning
+- **L2**: "layer 2": a system that does its work off the L1 while depending
   on the L1 for what must be trusted: ordering, data availability, and
   settlement. A *rollup* is the common L2 shape: execute off-chain, then
   prove or commit the results back on-chain. The machine in this book is
@@ -49,6 +49,9 @@ words; the rest of the book assumes these.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
   Settlements commit it on L1. Chapter 4 builds it.
+- **World**: the program's state and rules as one unit, also called *the
+  proved world*; *the L1 world* is the chain data a proof window consumed.
+  The L1 holds only a fingerprint of the program's world (see State digest).
 - **Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
   bundled into one name. The book often says *the covenant* for the
@@ -80,12 +83,13 @@ words; the rest of the book assumes these.
 - **Confirmation window**: the number of blocks of depth the machine
   waits before treating an L1 block as final; widened adaptively when the
   network looks reorg-prone (chapter 5).
-- **Liveness**: the guarantee that things keep moving: someone keeps
-  executing, proving, and settling. Safety says no one can steal;
+- **Liveness**: the guarantee that someone keeps
+  executing, proving, and settling, so actions and exits keep processing.
+  Safety says no one can steal;
   liveness says the machine does not stop. Chapter 6 owns it.
 - **Data availability**: the guarantee that you can fetch the full record
-  of what was published, yourself, from the network, not just trust
-  someone's summary of it.
+  of what was published, yourself, from the network, rather than
+  trusting someone's summary of it.
 - **Dust**: outputs too small to be worth spending. The network's
   minimum-relay rules floor how small an output may be, which limits how
   far the deposit pile can be split.

@@ -18,9 +18,9 @@ it holds is decided at proof time by the program's own rules.
 
 ## The read side: indexes
 
-Actions go in; how does your UI know the current board, the user's
-balance, the open games? Replaying proofs is not something a frontend
-wants to do. So the operator runs a **DA/index layer**: a service that
+Actions go in; how does your UI read the current board, the user's
+balance, the open games? Replaying proofs is too heavy for a frontend.
+So the operator runs a **DA/index layer**: a service that
 follows the program's execution and serves queries over the resulting
 state. tt's node exposes exactly the API a tic-tac-toe app needs:
 
@@ -36,7 +36,7 @@ state. tt's node exposes exactly the API a tic-tac-toe app needs:
 The web app is then a perfectly ordinary frontend: fetch state, render a
 board, post signed actions. There is no Anchor-style IDL or generated
 client yet: the WASM wire library is the client SDK, and the endpoints
-above are hand-written. All the exotic machinery from chapters 3–6 is
+above are hand-written. All the exotic machinery from chapters 3 to 6 is
 behind two habits: *sign locally, read the index*.
 
 ## Who pays for what
@@ -61,7 +61,7 @@ counts as garbage, and the lane's promise is that inclusion is not
 anyone's decision. Skipping an entry cannot hide; it shows up as a
 stalled lane tip, chapter 6's stall, visible rather than silent. Running
 the stack is pure cost in tt, so the "someone will resume it" story
-rests on enthusiasm until that battery is placed.
+depends on enthusiasm until that battery is placed.
 
 ## Indexes are convenience, not authority
 
@@ -81,8 +81,8 @@ state produces actions that fail at proof time, an annoyance, and an
 argument for the skeptical path: everything needed to reconstruct state is
 public on L1, the node software is open, and running your own instance
 re-executes the same deterministic path over the same public data. A
-purpose-built light client (a small program that checks only the pieces
-it cares about) doesn't ship today; re-execution does. The data structure
+purpose-built light client (a small program that verifies only the data
+it needs) doesn't ship today; re-execution does. The data structure
 makes the middle path obvious, too: state is a sparse Merkle tree and the
 settled digest is public, so the index could hand your wallet a short
 inclusion proof for your account, checkable against L1 with no full node

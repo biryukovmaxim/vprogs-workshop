@@ -19,8 +19,8 @@ mega chain. When a block on that line absorbs other blocks (its
 *mergeset*), the transactions those blocks carry are counted as part of
 that step. One chain block plus its mergeset's uncounted transactions is
 one block to the machine: one witness set, one batch, one step of
-execution, and the dag's parallelism is flattened before execution ever
-sees it.
+execution, and the dag's parallelism is flattened before execution
+begins.
 
 ```mermaid
 sequenceDiagram
@@ -59,8 +59,8 @@ every step is provably reachable from the one before.
 ## Why multiple L1 blocks?
 
 A match takes minutes: moves arrive, deposits confirm, other users act,
-and the L1 keeps producing blocks the whole time. A proof that froze the
-world at one block would be stale before it landed. Instead, each proof
+and the L1 keeps producing blocks the whole time. A proof covering a
+single block would be stale before it landed. Instead, each proof
 covers a *window* of
 L1 history (all lane entries and deposits up to a named block), and the
 settlement says so explicitly: this state is proven against L1 block N,
@@ -71,7 +71,7 @@ lane commitments ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021
 the proof binds its tip. Every block header carries a commitment to
 every active lane. When a node validates a settlement, the settlement
 script requires the proof's journal to commit the same value the header
-carries for the block the settlement names, so a proof about a fictional
+carries for the block the settlement names, so a proof about a fabricated
 or stale L1 world cannot satisfy a node that follows the real chain (the
 appendix has the mechanics, including why no range can be skipped).
 
@@ -91,7 +91,7 @@ Deposits are L1 outputs, so they're witnessed the same way lane actions
 are, and bound twice: the proof's journal commits the deposit address it
 credited, and the settlement script re-derives that address from the
 covenant id and requires the proof to name exactly it. Exits flow the
-other way on the same rails: when execution debits a user and emits an
+other way through the same path: when execution debits a user and emits an
 exit, the entitlement lands in the permission tree, and the settlement
 carries the tree's commitment. One proof cycle carries the whole ledger
 of who-entered and who-may-leave.
@@ -107,16 +107,15 @@ bundles that stood on the reorganized side are dropped and rebuilt
 against the surviving chain, and a settlement removed by a reorg before
 it is confirmed is simply resubmitted (the appendix has the recovery
 detail, including which proving work gets reused). The settlement chain, immutable
-once Kaspa has it, is never reinterpreted. The short version: the
-machine never trusts a dead block, and never needs to.
+once Kaspa has it, is never reinterpreted.
 
 Money that already moved follows Kaspa's own rule. An exit claim is an
-ordinary Kaspa transaction; once it is buried as deep as the network's own
-habits require, undoing it means rewriting Kaspa, not rewriting the rollup.
+ordinary Kaspa transaction; once it is buried as deep as any ordinary Kaspa
+payment requires, undoing it means rewriting Kaspa, not rewriting the rollup.
 The machine protects *state*; Kaspa's proof-of-work depth protects
 *payments*, payouts included.
 
-## What one settlement buys you
+## Reading one settlement
 
 Look at a single settlement tx on an explorer. It names
 its covenant id. It commits the new state digest, the lane tip, and the block

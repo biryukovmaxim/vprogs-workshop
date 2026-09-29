@@ -27,7 +27,7 @@ paragraph): in Ethereum discourse "based" means L1 proposers do the
 sequencing. Here nobody sequences at all; ordering is not a service:
 users publish actions straight to the lane, and the L1's own order *is*
 the order. One Ethereum connotation does not transfer: there, based also
-buys forced inclusion, an L1 path that makes the rollup process your
+comes with forced inclusion, an L1 path that makes the rollup process your
 transaction even if the sequencer refuses. This machine ships no such
 forced path; the liveness limits are chapter 6's. Readers who prefer the
 established name for this shape will find it in chapter 10: a sovereign
@@ -107,7 +107,7 @@ activation.
 With these three extensions (KIP-16 from above, plus KIP-20 and
 KIP-21), a based rollup removes both limits: the
 program's state lives in the proved world, in whatever shape the program
-likes, and the rules can be arbitrary code, because the chain never runs
+defines, and the rules can be arbitrary code, because the chain never runs
 them; it verifies a compact proof and moves money according to the
 result. The L1 stays simple; the applications do not have to be.
 
@@ -126,12 +126,12 @@ Moving down the table removes trust in *people* one layer at a time.
 The zk-proven model's key property is that "did the execution follow the
 rules?" stops being a question about anyone's honesty: the operator can
 be anyone and still cannot produce a settlement for a state the
-program's rules don't allow. The proof either checks out on Kaspa or
+program's rules don't allow. The proof either verifies on Kaspa or
 the settlement doesn't happen.
 
 One more point the table compresses: the deposit pile is pooled custody
 at a script, and its safety is exactly the safety of the pinned code,
-bugs included. A rule-set bug that pays the wrong hands drains the pile
+bugs included. A rule-set bug that pays the wrong recipient drains the pile
 through perfectly valid proofs. That is what "trusting the code" means,
 and it is why the pinning in chapter 4 matters.
 
@@ -151,8 +151,8 @@ One idea runs through the rest of the book:
 > **The rollup fixes the shape; the program picks the rules.**
 
 The framework fixes the *shape* of the machine: user actions are signed,
-state changes are proved, settlements land on Kaspa, money exits through
-enforced doors. But the *rules* (what a deposit requires, who may move
+state changes are proved, settlements land on Kaspa, money leaves only
+through enforced exits. But the *rules* (what a deposit requires, who may move
 which funds, how the state is derived, even how exits work) are choices
 made by each program. vprogs ships working implementations of all of
 them (deposit logic, lockers and signers, the permission tree, the exit

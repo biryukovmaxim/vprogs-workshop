@@ -78,13 +78,12 @@ Two modes matter in practice:
 
 ## What may come
 
-The zkVM landscape is young and moving. vprogs' proving stack sits behind
+The zkVM field is new and still changing. vprogs' proving stack sits behind
 a backend interface: execution, proving, and verification each sit behind
 one standard interface, and
 RISC0 is currently the one implementation behind them. That seam is what
-makes "another zkVM tomorrow" a migration rather than a rewrite:
-*outlook, not promise*. The interface exists today; a second
-implementation does not.
+makes "another zkVM tomorrow" a migration rather than a rewrite. The
+interface exists today; a second implementation does not.
 
 One more property: since the guest is an ordinary program, the program's
 *rules and its runtime* ride inside the same proof. On smart-contract

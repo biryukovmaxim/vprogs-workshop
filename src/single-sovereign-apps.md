@@ -31,7 +31,7 @@ exits.
   ship yet.
 - **Trust is per-app.** Each program has its own operator liveness and
   its own rules; using three programs means three of each. There is no
-  global validator set to lean on, by design, since the L1 never runs
+  global validator set behind them, by design, since the L1 never runs
   the programs.
 
 ## Why start here?
@@ -47,8 +47,7 @@ built before it, they have nothing to build on.
 Where it goes from here, multi-program worlds and cross-covenant
 calls, is future work with design behind it: a yellow paper sketches
 composability, cross-program invocation between instances, and none of
-it is implemented yet. The current shape is a deliberate first step,
-not the destination.
+it is implemented yet. The current shape is a deliberate first step.
 
 For now, the mental model to take away: **vprogs today lets you stand
 up a small, self-contained chain for a single application, based on

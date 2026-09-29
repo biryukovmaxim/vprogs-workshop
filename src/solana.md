@@ -9,7 +9,7 @@ place they differ explains everything else about the design.
 
 ## The similarities are real
 
-Both systems are, at heart, the same picture:
+Both systems share the same core shape:
 
 | | Solana | a vprogs rollup |
 |---|---|---|
@@ -46,8 +46,8 @@ This is a direct consequence of the zkVM: since the guest is an
 ordinary program, whatever it computes
 *about its own rules* is covered by the same proof that covers the rules
 themselves. On a chain, the runtime must be fixed because every validator
-must agree on it before running your code. In a proved world, agreement is
-bought by the receipt, so the runtime can be as application-specific as
+must agree on it before running your code. In a proved world, agreement
+comes from the receipt, so the runtime can be as application-specific as
 the application.
 
 ## What it buys
@@ -63,13 +63,13 @@ the application.
 - **New rules, new identity.** "The protocol" is the guest ELF; changing
   the rules is changing the program (covenant ids pin image ids precisely
   so this is explicit: a new rules version is a new identity, not a
-  surprise). The money moves the honest way: a new image id is a new
+  surprise). The money path is explicit: a new image id is a new
   covenant id, so an upgrade means moving to a new instance: users exit
   through the old instance's permission tree and deposit into the new
   one. In-place
   migration does not ship, and draining the old instance still needs its
   stack to keep settling (chapter 6's liveness trust, pointed at the
-  instance with the least reason to stay alive).
+  instance least likely to be kept running).
 
 ## What it costs
 

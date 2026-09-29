@@ -16,13 +16,14 @@ This chapter summarizes what exists, what does not, and what it costs.
 - **Testnet with real proofs.** The same stack has run end-to-end on
   Kaspa testnet-10: a fresh covenant id, a full match, real GPU-produced
   proofs settling on the public testnet, exits claimed. The KIP-16/20/21
-  extensions it leans on are live on Kaspa mainnet; the deployment sits
+  extensions it depends on are live on Kaspa mainnet; the deployment sits
   on the public testnet as a demonstration choice (chapter 3 gives the
   details). Dev-mode stub receipts are strictly for the local
   demo; the testnet deployments prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
   pruned nodes (nodes that have discarded old block data); snapshot
-  bootstrap, resume, and catch-up modes exist because they have had to.
+  bootstrap, resume, and catch-up modes exist because operations demanded
+  them.
 
 ## What it is not yet
 
@@ -54,7 +55,7 @@ at this stage the repositories are the project.
 
 ## Closing
 
-Return to the opening scene: two strangers, a pot of Kaspa, a game with
+Return to the opening setup: two strangers, a pot of Kaspa, a game with
 no casino and no escrow agent. The machine behind it is now fully
 described: signed
 actions into a public lane; execution by rules the program defines and
@@ -64,5 +65,5 @@ operator can withhold (until committed, chapter 6's stalls apply:
 robbery and delay are different failures, and only the first is
 solved). The rollup fixes the shape; the program picks the rules; the
 L1 holds the money. If the live demo is running next door, lose a game
-knowing why you cannot be robbed on the way out, and what has to keep
+knowing why the pot cannot be stolen, and what has to keep
 running so you can leave.

@@ -2,7 +2,7 @@
 
 Chapter 4 kept the settlement and the exit to what they attest and pay;
 this page carries the mechanics a careful reader asks about next. Nothing
-here changes the picture; it is the same machine, closer up.
+here changes the design; it is the same machine, closer up.
 
 ## Snapshot claims, chained
 
@@ -21,7 +21,7 @@ even submitted. Each settlement commits one more provable snapshot.
 No. Each proof's journal picks up exactly where the previous one ended,
 at its lane tip, and the settlement names the tip it proves to. Skip a
 stretch of the lane and the two tips no longer meet: the next proof
-would claim a tip it never walked to. The bind is checked on-chain:
+would claim a tip it never reached. The bind is checked on-chain:
 Kaspa's block headers carry a commitment to every active lane
 ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)),
 and the settlement script requires the proof's journal to commit the
@@ -30,13 +30,14 @@ fails that check, so a settlement cannot leave a hole.
 
 ## What if cited blocks reorganize?
 
-The proving pipeline has tiers (chapter 7 lists them), and a reorg kills
-only what stood on the reorganized side. Bundles whose proving base died
-are thrown away and rebuilt against the surviving chain, reusing the
+The proving pipeline has tiers (chapter 7 lists them), and a reorg
+invalidates only what stood on the reorganized side. Bundles whose
+proving base was rolled back are thrown away and rebuilt against the
+surviving chain, reusing the
 lower-tier proofs that still chain; a settlement removed by a reorg
 before it is confirmed is simply resubmitted, and pending bundles whose
 proving base no
-longer chains are skipped rather than resubmitted as dead bytes. This is
+longer chains are skipped rather than resubmitted. This is
 rare by construction: the machine only cites blocks already behind its
 confirmation window (chapter 5).
 
@@ -44,10 +45,10 @@ confirmation window (chapter 5).
 
 The opcode that reads lane commitments has a reach limit: it serves
 commitments only from roughly the last twelve hours of blocks, so a
-settlement cannot lean on an ancient anchor. A machine stalled longer
+settlement cannot cite an anchor older than that. A machine stalled longer
 than that must first prove its way forward to a recent block, then
-settle. The chaining shape is what makes that bridge possible: a proof
-window can span many blocks, so the backlog drains in bigger bites, at
+settle. The chaining shape is what makes that recovery possible: a proof
+window can span many blocks, so the backlog drains in larger windows, at
 the price of later snapshots.
 
 ## An exit claim, up close
@@ -58,7 +59,7 @@ coins from the program's deposit pile (only the exit script can unlock
 them; the wallet picks which), and one ordinary coin of the claimer's
 own to carry the fee. The outputs: the leaf's value paid to the lock the
 leaf names, the pile's untouched change re-locked at the same script for
-the people still in line, a fresh commitment with this leaf deducted for
+the remaining claimants, a fresh commitment with this leaf deducted for
 the next claimant, and the unspent part of the fee coin back. The
 commitment is a self-updating UTXO: each claim spends it and hands the
 next claimant a tree with one less leaf.
@@ -74,7 +75,7 @@ flowchart LR
     C --> X["fee-payer's change"]
 ```
 
-## Exit contention and pile hygiene
+## Exit contention and pile maintenance
 
 Claims against the same commitment are spends of one coin, so they
 conflict: two claims racing in the mempool behave like any double-spend.
@@ -82,9 +83,9 @@ One wins; the other's transaction can no longer confirm (its input is
 gone), and the wallet rebuilds it against the new commitment once it
 sees the winner. Claims against different settlements' commitments are
 independent and pay out in parallel. The machine watches landed claims
-for its own books (the exit list an app reads), not as a second line of
-defense, and a malformed claim fails its own validation without jamming
-anyone behind it. What does not ship is a sweeper for the pile itself:
+for its own books (the exit list an app reads), not as an additional
+safety check, and a malformed claim fails its own validation without
+blocking later claims. What does not ship is a sweeper for the pile itself:
 every claim splits what it sweeps, the network's dust rules floor how
-small the pieces can get, and keeping the pile in healthy coins is
+small the pieces can get, and keeping the pile in spendable coins is
 operational work.

@@ -17,7 +17,7 @@ flowchart TB
 **The bridge** is the machine's view of L1. It follows the Kaspa chain
 behind the confirmation window and turns confirmed lane entries and
 deposits into the inputs execution consumes. Users submit to the lane
-themselves; the bridge only reads. Every fact the machine believes about
+themselves; the bridge only reads. Every fact the machine holds about
 L1 arrives through it.
 
 **The executor** applies the program's rules, the guest code, to the
@@ -49,12 +49,12 @@ bigger deployment could scale each separately.
 With the roles named, the trust question from chapter 3 gets concrete.
 The bridge can't invent L1 facts; the proofs check everything against
 the real chain. The executor can't cheat; its output is proven. The
-settler can't settle fiction; Kaspa verifies the proof before accepting
+settler can't settle a fabricated state; Kaspa verifies the proof before accepting
 the tx, and the settlement chain can't fork without splitting real
 money on L1. What the operator *can* do is stop: stop executing, stop
 proving, stop settling, or keep settling against an old lane tip so
 your action is never included. That is the liveness trust: **safety
-needs no operator; movement does, until someone else takes over.**
+needs no operator; liveness does, until someone else takes over.**
 
 Two properties make "someone else" possible. First, nothing in the
 machine is operator-keyed: the settlement script checks proofs and ends
@@ -68,17 +68,17 @@ service anyone promises. Second, exits already committed to the
 permission tree are claimable by their holders alone; no operator sits
 in that loop.
 
-Permissionless settlement cuts both ways. A griefer with a proving
+Permissionless settlement is also open to griefers. A griefer with a proving
 stack can settle empty extensions: bundles that execute nothing new and
 leave the lane tip behind its true head, so pending actions (yours,
 perhaps) stay unsettled for as long as the griefer keeps winning. Both
 sides spend the same continuation output, so each link is a mempool
 race: whoever confirms first wins, the loser's settlement dies with its
-input, and its proving work is wasted. The honest side can be baited
+input, and its proving work is wasted. The honest side can be drawn
 into losing races the same way. Nothing on-chain punishes any of this;
 cost is the only limit; both sides pay it. What the griefer cannot
 touch is safety: state stays unforgeable, committed exits stay
-claimable. What stalls is movement.
+claimable. What stalls is liveness.
 
 What is *not* shipped today is an escape hatch: a flow that lets a user
 force a settlement through without first running the machine. Until one

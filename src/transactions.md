@@ -8,7 +8,7 @@ L2, the program's own world, appears.
 ## The Kaspa transaction itself
 
 Every Kaspa transaction, whether it pays a friend or runs this machine,
-has the same anatomy. It consumes earlier outputs (its *inputs*) and
+has the same shape. It consumes earlier outputs (its *inputs*) and
 creates new ones (its *outputs*). An output is an amount of KAS plus a
 lock: the *SPK*, a small program stored inside the output. A later
 transaction spends that output by supplying input data that satisfies its
@@ -55,7 +55,7 @@ position exists. "Sparse" means the empty positions are not stored
 anywhere: the tree is a rule for computing what an empty spot would hash
 to, so where a thing sits never depends on what else is present.
 
-Eight leaf slots out of an unbounded sheet of them, each addressed by
+Eight leaf slots out of an unbounded number of them, each addressed by
 position:
 
 ```mermaid
@@ -146,8 +146,8 @@ has a per-block capacity limit; entries over the limit wait for later
 blocks, and nothing is dropped or refused. And the node
 itself will hand anyone a cryptographic proof of what the lane contained up
 to any confirmed block. There is no lane operator to refuse an entry;
-entry happens through the Kaspa mempool, the network's shared waiting
-room for transactions not yet in blocks.
+entry happens through the Kaspa mempool, the network's shared set of
+transactions not yet in blocks.
 
 The lane is both the program's entry point and its data availability:
 publish there and the operator must eventually see your action; prove
@@ -220,10 +220,10 @@ spent is gone, and the new commitment no longer contains it. Claims on
 one commitment queue like any two spends of one coin; claims on
 different commitments pay out in parallel. What does not ship is a
 sweeper for the pile itself: claims split what they sweep and dust rules
-floor the pieces, so keeping the pile in healthy coins is operational
+floor the pieces, so keeping the pile in spendable coins is operational
 work.
 
-The claim transaction's full anatomy (which coins it pulls, how the fee
+The claim transaction's full shape (which coins it pulls, how the fee
 rides, what each output is) and what happens when two claims race are
 [appendix](appendix-settlements.md) material.
 
@@ -248,8 +248,8 @@ An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
 signature, which state it may touch, how much stake a game locks, what
 happens when your turn timer expires) is not L1 law. It is the program's
-own logic, checked inside the proof. The L1 does not know what a
-"game" is; it carries the action to the program, which does.
+own logic, checked inside the proof. The L1 has no concept of a
+"game"; it carries the action to the program, which does.
 
 ## The settlement
 
