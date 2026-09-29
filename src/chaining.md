@@ -72,7 +72,7 @@ the proof binds its tip. Every block header carries a commitment to
 every active lane. When a node validates a settlement, the settlement
 script requires the proof's journal to commit the same value the header
 carries for the block the settlement names, so a proof about a fabricated
-or stale L1 world cannot satisfy a node that follows the real chain (the
+or stale L1 history cannot satisfy a node that follows the real chain (the
 appendix has the mechanics, including why no range can be skipped).
 
 The machine only cites blocks already behind the confirmation window,

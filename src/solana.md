@@ -34,7 +34,7 @@ upgrade. Programs run inside a runtime they cannot change: they
 orchestrate accounts, but the rules are set by the network.
 
 In a vprogs rollup, the runtime is **the program**. tt's guest literally
-ships a `runtime.rs`, and inside the proved world it is the *only*
+ships a `runtime.rs`, and inside the proof it is the *only*
 runtime there is. Resource derivation lives in the app too: tt decides
 its resource kinds, its hash domains, its id derivations (the framework
 hands you the pattern; the app picks the keyspace). Transaction validity,
@@ -46,7 +46,7 @@ This is a direct consequence of the zkVM: since the guest is an
 ordinary program, whatever it computes
 *about its own rules* is covered by the same proof that covers the rules
 themselves. On a chain, the runtime must be fixed because every validator
-must agree on it before running your code. In a proved world, agreement
+must agree on it before running your code. In a rollup, agreement
 comes from the receipt, so the runtime can be as application-specific as
 the application.
 
@@ -75,7 +75,7 @@ the application.
 
 - **No free composability.** Solana programs share one state machine, so
   one program can call another atomically. Each vprogs program is its own
-  proved world; cross-program calls are future work, sketched but not
+  proved system; cross-program calls are future work, sketched but not
   shipped (chapter 10 lives inside this limitation).
 - **The runtime is your responsibility.** Nobody else guarantees your
   rules make sense. The framework's batteries (locks, unlockers, signers)

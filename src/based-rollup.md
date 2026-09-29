@@ -5,7 +5,7 @@
 A based rollup moves a program *off* the L1: its state, its rules, and
 its execution. It keeps *enforcement* on the L1: every state change
 worth trusting is proved and settled back to Kaspa. That off-chain half
-is the **L2**: the program's own world, using Kaspa for what it must not
+is the **L2**: the program itself, using Kaspa for what it must not
 provide itself.
 
 What each side carries follows from that. Ordering is the L1's: users
@@ -22,7 +22,7 @@ actions and deposits do sit fully on the chain, in the lane. No external
 committee, no data-availability service, and no bridge token (no new
 coin standing in for the locked KAS) sits in between.
 
-A note for readers from the Ethereum world (others can skip this
+A note for readers from the Ethereum ecosystem (others can skip this
 paragraph): in Ethereum discourse "based" means L1 proposers do the
 sequencing. Here nobody sequences at all; ordering is not a service:
 users publish actions straight to the lane, and the L1's own order *is*
@@ -106,7 +106,7 @@ activation.
 
 With these three extensions (KIP-16 from above, plus KIP-20 and
 KIP-21), a based rollup removes both limits: the
-program's state lives in the proved world, in whatever shape the program
+program's state lives inside the proof, in whatever shape the program
 defines, and the rules can be arbitrary code, because the chain never runs
 them; it verifies a compact proof and moves money according to the
 result. The L1 stays simple; the applications do not have to be.

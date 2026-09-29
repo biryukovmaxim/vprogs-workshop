@@ -49,9 +49,6 @@ words; the rest of the book assumes these.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
   Settlements commit it on L1. Chapter 4 builds it.
-- **World**: the program's state and rules as one unit, also called *the
-  proved world*; *the L1 world* is the chain data a proof window consumed.
-  The L1 holds only a fingerprint of the program's world (see State digest).
 - **Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
   bundled into one name. The book often says *the covenant* for the

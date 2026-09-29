@@ -3,7 +3,7 @@
 This chapter first covers what a Kaspa transaction is, then the
 compression step that fits the off-chain state into 32 bytes, and then
 the four transaction types the machine is built from, which is where the
-L2, the program's own world, appears.
+L2, the program's off-chain half, appears.
 
 ## The Kaspa transaction itself
 
@@ -43,7 +43,7 @@ a Kaspa transaction
 Everything the machine publishes, deposits included, is built from this
 one shape.
 
-## State compression: a world in 32 bytes
+## State compression: the whole state in 32 bytes
 
 The program in this book keeps accounts, games and balances, and none of
 that fits inside one-shot outputs. So the full state lives off-chain, and
@@ -96,7 +96,7 @@ is the classic short introduction, with pictures in the same shape.)
 ## The four transactions
 
 Those two pieces are what the L1 offers: a transaction format that can
-carry anything, and a way to compress a world into a number a
+carry anything, and a way to compress the whole state into a number a
 transaction can carry. The L2 is what you build with them: the program
 executes off-chain, over the full state, and publishes the digest.
 Everything that must be trusted rides ordinary Kaspa transactions: they
@@ -267,7 +267,7 @@ settlement attests three things at once:
   (the lane section above) when the snapshot was taken: "I have processed every
   published action up to here."
 - a **block proof point**: the last L1 block whose data execution
-  consumed: "and the L1 world I saw was real up to this block."
+  consumed: "and the L1 data I saw was real up to this block."
 
 Each attestation is backed by a **zk proof**, carried in the same
 transaction. The proof's central claim is always of the form "state
