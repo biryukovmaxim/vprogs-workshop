@@ -13,7 +13,7 @@ creates new ones (its *outputs*). An output is an amount of KAS plus a
 lock: the *SPK*, a small program stored inside the output. A later
 transaction spends that output by supplying input data that satisfies its
 lock, and once spent, the output is gone; no other transaction can
-reference it again. That is the whole format. The books balance: a
+reference it again. That is the whole format. The balance rule: a
 transaction's inputs must be worth at least its outputs, and the
 difference is the fee, paid to whoever mines the block that includes it.
 Paying 3 KAS out of a single 10 KAS output means building two outputs in
@@ -40,8 +40,8 @@ a Kaspa transaction
     rides them (the lane section below)
 ```
 
-Everything the machine publishes, deposits included, is built from this
-one shape.
+Everything the machine publishes, and every deposit feeding it, is
+built from this one shape.
 
 ## State compression: the whole state in 32 bytes
 
@@ -118,7 +118,9 @@ proofs enforce.
   and commits the new state digest
 
 Two are plain Kaspa usage (lane entries, deposits); two carry the
-machine's own scripts (settlements, claims). The rest of the book
+machine's own scripts (settlements, claims). The kinds overlap in
+practice: in tt the deposit is also a lane entry, one transaction doing
+both jobs. The rest of the book
 follows from these four. This chapter takes them in the order things
 flow: the lane they ride, value in, value out, the actions between, and
 the settlement that commits it all.
@@ -175,18 +177,30 @@ flowchart LR
 
 ## Deposits
 
-A deposit is how value enters: an ordinary L1 output, paid to the program's
-**deposit address** (derived from the *covenant id*, the 32-byte identity
-of this program instance from the glossary; this chapter pins it properly
-at the end),
-and credited to a user by the program's rules. In tt the deposit
-*is* the action: the Kaspa transaction you publish to the lane carries your
-signed deposit action (naming the account to credit, and your lock if the
-account is new) and, in the same transaction, an output paying the deposit
-address. The proof checks that the output exists, pays the covenant-derived
-script, and credits exactly the account your signature named. Nobody can
-steer your deposit to a different account, and the landed coins sit at a
-script that only proven exits can unlock, never at an operator's key.
+A deposit is how value enters, and it is one transaction seen from two
+sides. From the L1 side, money moves to the program's script: an
+output paying the **deposit address**, derived from the *covenant id*
+(the 32-byte identity of this program instance from the glossary; this
+chapter pins it properly at the end), and spendable by proven exits
+only. From the L2 side, the payload names the owner: the signed
+deposit action carried in the same transaction says which account the
+program must credit, and which lock authorizes that account when it is
+new. In tt the deposit *is* the action: one lane transaction carries
+both.
+
+```text
+a tt deposit, one ordinary Kaspa transaction
+├── payload: the signed deposit action, "credit account X",
+│   plus X's lock if the account is new
+└── outputs: one output paying the program's deposit address;
+    only proven exits can ever spend it
+```
+
+The proof binds the two sides: it checks that the output exists, pays
+the covenant-derived script, and credits exactly the account the
+signature named. Nobody can steer a deposit to a different account,
+and the landed coins sit at a script that only proven exits can
+unlock, never at an operator's key.
 
 The shape is fixed (an L1 output, recognized by the program, proven into
 the state), but the *address policy* is the guest's choice (the *guest* is
@@ -208,6 +222,25 @@ output (a settlement with no new exits carries none). Each commitment
 covers only its own settlement's exits, so an entitlement lives in
 exactly one commitment, ever.
 
+The mental model is one list per settlement, not one account per
+user: a settlement that emitted exits locks the list of exactly those
+exits into one commitment output, and a leaf is one line of the list,
+an L1 lock plus an amount. The tree itself lives off-chain; L1 holds
+only its root, inside the commitment's script, and a claimant brings
+the leaf and its branch when claiming.
+
+The full journey of one withdrawal:
+
+1. you publish a signed *withdraw* action to the lane, naming how much
+   and which L1 lock to pay;
+2. execution debits your L2 balance and emits an exit leaf, "(your L1
+   lock, amount)"; the settlement covering that window carries the
+   commitment;
+3. once that settlement is confirmed, the claim is an ordinary L1
+   transaction: whoever builds it, you, the operator, or anyone
+   offering claims as a service, spends the commitment, reveals your
+   leaf and its branch, and the script pays the lock the leaf names.
+
 A user claims with one ordinary Kaspa transaction that spends that
 commitment. The claim's unlock data reveals the leaf and its branch in
 the tree; the script checks the branch against the committed root, takes
@@ -217,11 +250,18 @@ pile; the untouched remainder is re-locked at the same script. A fresh
 commitment with this leaf deducted serves the next claimant. So the same
 exit can never be paid twice: the leaf lives in one commitment, the UTXO
 spent is gone, and the new commitment no longer contains it. Claims on
-one commitment queue like any two spends of one coin; claims on
-different commitments pay out in parallel. What does not ship is a
+one commitment contend like any two spends of one coin: one wins, the
+loser rebuilds against the fresh commitment; claims on different
+commitments pay out in parallel. What does not ship is a
 sweeper for the pile itself: claims split what they sweep and dust rules
 floor the pieces, so keeping the pile in spendable coins is operational
 work.
+
+Why not fold the deposit pile into one coin while settling? Folding is
+itself an L1 transaction that pays fees, and a single coin would
+serialize every claim behind one spendable output. Many coins let each
+claim sweep its own inputs and pay out in parallel, so the complexity
+lands on the claim side, where claims already pay fees.
 
 The claim transaction's full shape (which coins it pulls, how the fee
 rides, what each output is) and what happens when two claims race are
@@ -242,7 +282,8 @@ a game, joining a game, placing a mark, forfeiting an expired turn. The
 program sees the chain's per-block context, timestamp, DAA score, and
 blue score, committed by the chain inside every proof window (KIP-21
 commits them for exactly this use). Deadlines such as tt's turn timer
-are measured in block height, not wall-clock time, so "expired" is
+are measured in DAA score, one of the chain's depth counters from the
+glossary, not in wall-clock time, so "expired" is
 determined by the chain, not by the operator.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
@@ -294,6 +335,32 @@ can be skipped, and what happens when cited blocks reorganize are
 mechanics worth their own page: the [appendix](appendix-settlements.md)
 has them.
 
+## One coin's round trip
+
+Alice deposits, plays, and withdraws; here is the whole trip with the
+vocabulary attached.
+
+The deposit is one ordinary Kaspa transaction: Alice's coins in, the
+signed deposit action in the payload, one output paying the deposit
+address (the Deposits section above). It confirms; a proof window
+covers it; execution credits Alice's L2 account, and the next
+settlement commits a state digest that includes her balance.
+
+Playing is lane entries. Alice sends signed actions, create a game,
+place a mark; Bob joins and answers. Each action rides an ordinary
+transaction to the lane; execution checks each one against the
+program's rules inside the proof, and the state digest moves with
+every settled window. Bob's turn timer, measured in DAA score,
+expires; the game resolves and the stake lands on Alice's balance.
+
+Leaving is two transactions. On L2, Alice sends a withdraw action;
+the window that processes it debits her balance and emits an exit
+leaf, and its settlement carries the commitment. On L1, once that
+settlement confirms, the claim spends the commitment and pays her
+lock (the Exits section above). That is the full trip: one deposit
+transaction in, a run of lane entries, one settlement with a
+commitment, one claim out.
+
 ## Shape versus rules
 
 | Fixed by the rollup shape | Chosen by the program (batteries included) |
@@ -327,10 +394,10 @@ An image id that changes by one byte no longer matches its pin, which is
 why an upgrade means moving to a new instance (chapter 8); the pin could in principle
 migrate to new images, but no such mechanism ships today.
 
-In tt's live deployment the covenant id is literally a constant. It is
-the settlement chain's first link: at bootstrap the operator funds an
-initial output locked by the covenant's script at its genesis state, and
-every settlement descends from it.
+In tt's live deployment the covenant id is literally a constant. At
+bootstrap the operator funds an initial output locked by the
+covenant's script at its genesis state; that output is the settlement
+chain's first link, and every settlement descends from it.
 
 With the vocabulary in hand: how do proofs tie all four tx types together
 across multiple L1 blocks?

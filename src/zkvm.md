@@ -13,6 +13,15 @@ verification cost is nearly independent of execution cost. A program may
 run for an hour; its receipt still checks in milliseconds and is only a
 few kilobytes.
 
+Verification takes three things: the receipt, the journal (the claimed
+output record), and the image id (the hash of the program binary).
+The exact input is committed inside the receipt itself; the journal is
+the output the outside world checks. Given all three, the zkVM's
+verifier answers one question, did this exact program produce this
+exact output, and it answers by checking the mathematics inside the
+receipt, never by re-running the program. Underneath, that mathematics
+is polynomial arithmetic; this book stays at that level.
+
 ```mermaid
 flowchart LR
     E["guest execution"] --> Q{"proving mode"}
@@ -37,9 +46,15 @@ RISC-V ELF form) with its own
 - the **aggregator** compounds a run of batch proofs into the single proof
   a settlement carries: the bundle proof.
 
+How does one proof cover another? The zkVM exposes verification to
+the guest itself, so the batch guest checks each transaction receipt
+while it runs, and the aggregator checks each batch receipt the same
+way. Each level's proof then covers the checks it did, which is how
+proofs nest.
+
 All three image ids are pinned at bootstrap, alongside the covenant id
 (chapter 4),
-and every proof names the exact images it executed, so "the rules" are
+and every proof names the exact images its guest ran, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
 because each bundle's journal continues the previous one. That is what
@@ -55,7 +70,7 @@ reaches a recent block, then settles again. The anchor-window limit and
 that recovery are the appendix's subject.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
-engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata); the
+engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata, a Kaspa network upgrade); the
 settlement's script calls it with the receipt, and every Kaspa node
 executing that transaction runs the check. The verifier identity (which
 image ids, which proof system)

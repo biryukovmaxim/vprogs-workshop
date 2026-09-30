@@ -1,8 +1,21 @@
 # Appendix: settlement and exit mechanics
 
-Chapter 4 kept the settlement and the exit to what they attest and pay;
-this page carries the mechanics a careful reader asks about next. Nothing
-here changes the design; it is the same machine, closer up.
+Chapter 4 kept the settlement and the exit to what they attest and pay,
+and chapter 5 kept the block model to its simplified form; this page
+carries the mechanics a careful reader asks about next. Nothing here
+changes the design; it is the same machine, closer up.
+
+## What counts as one block
+
+Chapter 5 treats one selected-chain block as one block to the machine.
+The full rule: a block on the selected chain absorbs the parallel
+blocks consensus folds into it, its *mergeset*, and the transactions
+those parallel blocks carry count as part of that step, provided they
+were not counted in an earlier step. One chain block plus its
+mergeset's uncounted transactions is one block to the machine: one
+witness set, one batch, one step of execution. The dag's parallelism
+is flattened before execution begins, which is why the rest of the
+book can speak of a plain sequence of blocks.
 
 ## Snapshot claims, chained
 
@@ -30,21 +43,24 @@ fails that check, so a settlement cannot leave a hole.
 
 ## What if cited blocks reorganize?
 
-The proving pipeline has tiers (chapter 7 lists them), and a reorg
+The proving pipeline has tiers (chapter 7 lists the three guests), and a reorg
 invalidates only what stood on the reorganized side. Bundles whose
 proving base was rolled back are thrown away and rebuilt against the
 surviving chain, reusing the
 lower-tier proofs that still chain; a settlement removed by a reorg
-before it is confirmed is simply resubmitted, and pending bundles whose
-proving base no
-longer chains are skipped rather than resubmitted. This is
+before it is confirmed is simply resubmitted. The invariant under the
+bookkeeping: the bundle covering the canonical chain is the one that
+gets generated and settled, and a canceled bundle is at most saved for
+its reusable parts, or is not generated at all when proof cancellation
+is working. This is
 rare by construction: the machine only cites blocks already behind its
 confirmation window (chapter 5).
 
 ## The anchor window and the long stall
 
 The opcode that reads lane commitments has a reach limit: it serves
-commitments only from roughly the last twelve hours of blocks, so a
+commitments only from a recent window of blocks, roughly the last
+twelve hours' worth, so a
 settlement cannot cite an anchor older than that. A machine stalled longer
 than that must first prove its way forward to a recent block, then
 settle. The chaining shape is what makes that recovery possible: a proof
@@ -56,8 +72,8 @@ the price of later snapshots.
 Chapter 4 kept exits to the leaf and the payout; here is the claim
 transaction itself. It pulls in the commitment UTXO, up to eight whole
 coins from the program's deposit pile (only the exit script can unlock
-them; the wallet picks which), and one ordinary coin of the claimer's
-own to carry the fee. The outputs: the leaf's value paid to the lock the
+them; the claim wallet picks which, and eight is its cap), and one
+ordinary coin of the builder's own to carry the fee. The outputs: the leaf's value paid to the lock the
 leaf names, the pile's untouched change re-locked at the same script for
 the remaining claimants, a fresh commitment with this leaf deducted for
 the next claimant, and the unspent part of the fee coin back. The
@@ -75,6 +91,11 @@ flowchart LR
     C --> X["fee-payer's change"]
 ```
 
+Who builds a claim is economics, not protocol. The user can build it
+and pay the fee; anyone can offer claims as a service; an operator who
+benefits from working exits can subsidize them. The script accepts a
+valid claim from whoever submits one.
+
 ## Exit contention and pile maintenance
 
 Claims against the same commitment are spends of one coin, so they
@@ -83,7 +104,7 @@ One wins; the other's transaction can no longer confirm (its input is
 gone), and the wallet rebuilds it against the new commitment once it
 sees the winner. Claims against different settlements' commitments are
 independent and pay out in parallel. The machine watches landed claims
-for its own books (the exit list an app reads), not as an additional
+for its own books (the exit list a program reads), not as an additional
 safety check, and a malformed claim fails its own validation without
 blocking later claims. What does not ship is a sweeper for the pile itself:
 every claim splits what it sweeps, the network's dust rules floor how

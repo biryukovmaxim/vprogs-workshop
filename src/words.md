@@ -6,16 +6,26 @@ words; the rest of the book assumes these.
 - **Kaspa**: the proof-of-work network this book runs on; its coin is
   KAS. What matters here is its blockdag and its UTXO model, both below.
 - **Blockdag**: the shape of Kaspa's history. On most chains each block
-  names one parent, so the history is a single line; on Kaspa a block may
-  name several parents, and the history is a web. Consensus rules order
-  that web into one agreed sequence of transactions, roughly one block
-  per second. That ordering is why Kaspa is fast, and why shallow reorg
-  churn (the Reorg entry below) is normal and expected.
+  names one parent, so the history is a single line; when two miners
+  find blocks at nearly the same time, one stays on the line and the
+  other is discarded. On Kaspa a block may name several parents, so the
+  history is a web, and blocks mined in parallel all count instead of
+  competing. Consensus rules order that web into one agreed order of
+  its blocks, and so of their transactions, roughly one block per
+  second. That ordering is why
+  Kaspa is fast, and why shallow reorg churn (the Reorg entry below) is
+  normal and expected.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
-- **DAA score, blue score**: the chain's per-block depth counters
-  (difficulty-adjusted and DAG depth); alongside the timestamp they form
-  the per-block context, and deadlines are measured in block height
-  rather than wall-clock time (chapter 4).
+- **DAA score, blue score**: two counters every block carries, both
+  counting blocks in this block's past. The blue score counts the
+  past's blue blocks, the ones consensus counts as well connected; it
+  is the blockdag's version of block height, and Kaspa counts
+  confirmations in it. The DAA score (difficulty adjustment
+  algorithm) counts every block in the past, blue and merged red
+  alike, and the network paces mining difficulty and emission by it.
+  Both only move forward, so the program reads them as its clock:
+  its deadlines are differences in DAA score, not in wall-clock time
+  (chapter 4).
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
 - **L2**: "layer 2": a system that does its work off the L1 while depending
@@ -44,8 +54,10 @@ words; the rest of the book assumes these.
   is how this machine puts its own rules onto Kaspa: the program is
   committed from the moment the output exists, but only seen at spend
   time.
-- **Settlement**: the transaction that commits one new state digest to
-  Kaspa and chains to the settlement before it. Chapter 4 is about it.
+- **Settlement**: the transaction that commits one new state digest of
+  the program's off-chain (L2) state to Kaspa, spends the output only
+  a valid settlement can spend, and chains to the settlement before
+  it. Chapter 4 is about it.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
   Settlements commit it on L1. Chapter 4 builds it.
@@ -63,11 +75,16 @@ words; the rest of the book assumes these.
   other payment; there is no gatekeeper to refuse an entry.
 - **Mempool**: the set of transactions announced to the network but not
   yet included in a block.
-- **Witness**: confirmed L1 data (lane entries, deposits, block context)
-  fed to execution; chapter 5 builds the pipeline around it.
+- **Execution**: the guest program doing its work: reading confirmed
+  L1 data, checking and applying each action, crediting deposits, and
+  moving the state from one root to the next. It runs off-chain inside
+  the zkVM; the proof is what makes its result trustworthy (chapter 5).
+- **Witness**: the confirmed L1 data execution reads: lane entries,
+  deposits, block context. Chapter 5 builds the pipeline around it.
 - **Journal**: the fixed-format record inside each proof: the state
-  before, the state after, how far the lane had been read, and which L1
-  blocks the execution saw. Used from chapter 5 on.
+  before, the state after, how far the lane had been read, which L1
+  blocks execution saw, and the deposit and exit commitments where the
+  step carried any. Used from chapter 5 on.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
 - **Runtime**: the layer of code that checks and applies each action.

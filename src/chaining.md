@@ -5,22 +5,42 @@ chapter (the lane, deposits, exits, user actions, settlements) moves
 at once, across multiple L1 blocks, tied together by
 proofs.
 
-Vocabulary check before it piles up: a *witness* is confirmed L1 data fed
-to execution; a *batch* is the work over one block; its proof is a *batch
-proof*; runs of batches compound into *aggregate* proofs; and the one a
-settlement carries, the last aggregate, is the *bundle proof*. The guest
-program that does the compounding is the *aggregator* (chapter 7). Five
-words, one pipeline.
+Vocabulary check before it piles up; five words, one pipeline:
 
-The word *block* needs pinning too. Execution does not
-walk the blockdag's web; it walks the single line consensus has already
+- a *witness* is confirmed L1 data fed to execution;
+- a *batch* is the work over one block, and its proof is a *batch
+  proof*;
+- runs of batches compound into *aggregate* proofs;
+- the latest aggregate, the one a settlement carries, is the *bundle
+  proof*;
+- the guest program that does the compounding is the *aggregator*
+  (chapter 7).
+
+The wrappings, innermost out: one proof per transaction, compounded
+into one proof per block, compounded into the one proof the settlement
+carries.
+
+```mermaid
+flowchart TD
+    subgraph S["bundle proof, the aggregate the settlement carries"]
+        subgraph B1["batch proof, the work over one block"]
+            T1["tx proof"]
+            T2["tx proof"]
+        end
+        subgraph B2["batch proof, the work over one block"]
+            T3["tx proof"]
+        end
+    end
+```
+
+The word *block* needs pinning too. Execution does not walk the
+blockdag's web; it walks the single line consensus has already
 ordered: Kaspa's selected chain, also called the virtual chain or the
-mega chain. When a block on that line absorbs other blocks (its
-*mergeset*), the transactions those blocks carry are counted as part of
-that step. One chain block plus its mergeset's uncounted transactions is
-one block to the machine: one witness set, one batch, one step of
-execution, and the dag's parallelism is flattened before execution
-begins.
+mega chain. For the machine, one block on that line is one block: one
+witness set, one batch, one step of execution. That is a simplified
+model. In full, a block on that line also absorbs the parallel blocks
+consensus merges into it, and their transactions count as part of the
+same step; the [appendix](appendix-settlements.md) has the detail.
 
 ```mermaid
 sequenceDiagram
@@ -34,7 +54,7 @@ sequenceDiagram
     Note over L1: blocks pass, actions, deposits and settlements interleave
     L1-->>OP: witnesses: confirmed lane data, deposits, chain context
     OP->>OP: execute actions + credit deposits, block by block
-    OP->>P: batch transitions (state root X -> Y, lane tip, block context)
+    OP->>P: batch steps (state root X -> Y, lane tip, block context)
     P-->>OP: batch proofs
     OP->>P: compound into one proof up to block N
     P-->>OP: bundle proof
@@ -45,12 +65,14 @@ sequenceDiagram
 
 ## State digests succeed each other
 
-The program's history is a sequence of state transitions. Every executed
+The program's history, the full ordered record of everything the L2
+did, is a sequence of state transitions. Every executed
 block produces a journal entry of this form: *previous state root, new
-state root, previous lane tip, new lane tip, the L1 context it saw, and
-the window's deposit and exit commitments when it carried any*. A batch
-proof attests one such transition; an aggregate proof compounds a run of
-them; a settlement commits the final root on L1. From the L1's point of
+state root, previous lane tip, new lane tip, and the L1 context it
+saw*; where that step emitted deposits or exits, their commitments
+ride the same entry. A batch
+proof attests one such step; an aggregate proof compounds a run of
+them; a settlement commits the final root of one proved window on L1. From the L1's point of
 view, then, the program's history is a chain of 32-byte state roots with
 the context of each step alongside them (lane tip, block proof point,
 exit commitments; chapter 4 lists what each settlement carries), and
@@ -79,8 +101,9 @@ The machine only cites blocks already behind the confirmation window,
 so a cited block always sits deeper than the settlement resting on it.
 A reorg deep enough to remove the cited block would also remove the
 settlement, and past that depth both are as permanent as any Kaspa
-payment. The opcode does enforce one bound of its own: it reads
-commitments only from roughly the last twelve hours of blocks. A machine
+payment. The commitment-reading opcode does enforce one bound of its
+own: it serves commitments only from a recent window of blocks,
+roughly the last twelve hours' worth. A machine
 stalled longer than that must first prove a window that reaches a recent
 block, then settle; the chaining shape makes that possible (the appendix
 covers the recovery).
