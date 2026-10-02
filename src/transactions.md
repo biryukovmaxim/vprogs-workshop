@@ -319,7 +319,7 @@ previous settlement's digest, the claimed new digest, and every lane
 entry, deposit, and L1 context item in between, processed by the
 program's pinned code, with nothing skipped and nothing invented. The
 proof is generated off-chain by a zkVM and verified on-chain by every
-Kaspa node as a consensus rule (KIP-16; chapter 7 covers the zkVM). A
+Kaspa node as a consensus rule ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md); chapter 7 covers the zkVM). A
 settlement whose proof does not verify is invalid, and no node includes
 it.
 

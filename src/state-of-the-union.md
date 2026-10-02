@@ -15,7 +15,10 @@ This chapter summarizes what exists, what does not, and what it costs.
   against an in-process simnet L1 in minutes.
 - **Testnet with real proofs.** The same stack has run end-to-end on
   Kaspa testnet-10: a fresh covenant id, a full match, real GPU-produced
-  proofs settling on the public testnet, exits claimed. The KIP-16/20/21
+  proofs settling on the public testnet, exits claimed. The
+  [KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md),
+  [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md),
+  and [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)
   extensions it depends on are live on Kaspa mainnet; the deployment sits
   on the public testnet as a demonstration choice (chapter 3 gives the
   details). Dev-mode stub receipts are strictly for the local

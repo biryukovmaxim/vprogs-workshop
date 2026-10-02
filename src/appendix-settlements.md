@@ -60,7 +60,7 @@ confirmation window (chapter 5).
 ## The anchor window and the long stall
 
 The opcode that reads lane commitments (KIP-21's, a different one
-from the KIP-16 opcode that verifies proofs) has a reach limit: it serves
+from the [KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md) opcode that verifies proofs) has a reach limit: it serves
 commitments only from a recent window of blocks, roughly the last
 twelve hours' worth, so a
 settlement cannot cite an anchor older than that. A machine stalled longer
