@@ -16,8 +16,8 @@ Both systems share the same core shape:
 | State shape | accounts, addressed by keys, holding data and lamports (Solana's smallest unit) | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
-| Concurrency discipline | non-conflicting txs run in parallel; a losing tx fails and is resubmitted | the same split: work touching the same state never runs in parallel; bundle proving is sequential by construction |
-| Money | native token, rent (a minimum-balance floor) on accounts | native KAS, fees and storage mass (Kaspa's extra charge for outputs that park data on nodes) |
+| Concurrency discipline | non-conflicting txs run in parallel; a losing tx fails and is resubmitted | proving parallelizes per transaction; batch and bundle proofs chain sequentially by construction |
+| Money | native token, rent (a minimum-balance floor) on accounts | native KAS, fees and storage mass (an extra charge for creating small outputs, since every full node stores the unspent set; the Kaspa appendix has the formula) |
 
 A Solana developer reading tt's guest code will feel at home: there are
 user accounts with balances, locks authorizing spends, a minimum-balance
@@ -42,6 +42,30 @@ lock semantics, what a "turn timer" means: all rollup program logic,
 executed and proved like any other line of guest code. There is no shared runtime; every program assembles its own from the
 framework's parts.
 
+The claim needs a boundary, because it is smaller than it sounds. A
+chain's hardest problems are agreement: what order transactions
+happened in, where the data lives, what counts as settled, what is
+final. The program re-solves none of them: it buys ordering, data
+availability, settlement, and finality from Kaspa unchanged (chapters 3
+to 5). What moves into the program is the layer Solana fixes in
+protocol, the system program's duties:
+
+- **Account creation and addressing.** On Solana the system program
+  creates accounts, and PDAs (program-derived addresses) hand programs
+  control of derived accounts. Here derivation is app code: tt gives
+  games their own keyspace, derived from the creator's lock and a
+  counter, with domain separation keeping keyspaces from colliding.
+- **The cost of holding state.** Solana's rent is protocol: holding
+  state costs lamports, enforced by every validator. Nothing meters
+  rollup state per block; state costs what proving and storage cost the
+  operator, so the honest limit is how much you can afford to keep, not
+  how much the protocol lets you. A program can still place floors as
+  rules: tt's minimum-balance floor and its withdrawal minimum are
+  config the app chose, batteries rather than metering.
+- **Transaction well-formedness and balance.** On Solana these are
+  protocol rules, enforced by the runtime and the system program.
+  Here they are program logic, proved with everything else.
+
 This is a direct consequence of the zkVM: since the guest is an
 ordinary program, whatever it computes
 *about its own rules* is covered by the same proof that covers the rules
@@ -52,11 +76,9 @@ the application.
 
 ## What it buys
 
-- **Resource derivation as a design surface.** tt gives games their own
-  keyspace derived from the creator's lock and a counter; a Solana
-  program would express that with PDAs (program-derived addresses,
-  accounts controlled by a program). Here it is just code,
-  with domain separation to keep keyspaces from colliding.
+- **Resource derivation as a design surface.** The keyspace pattern
+  above is plain code: the app picks any derivation it can compute, and
+  the proof pins the result.
 - **Rules that can be arbitrary.** A turn timer that forfeits a round, a
   pot that splits on a draw: no need to fit these into a shared
   execution model, because there is no shared execution model.
@@ -67,9 +89,10 @@ the application.
   covenant id, so an upgrade means moving to a new instance: users exit
   through the old instance's permission tree and deposit into the new
   one. In-place
-  migration does not ship, and draining the old instance still needs its
-  stack to keep settling (chapter 6's liveness trust, pointed at the
-  instance least likely to be kept running).
+  migration does not ship, and draining the old instance still needs
+  someone to keep its stack settling; an instance everyone is leaving
+  is the least likely to keep one, which is chapter 6's liveness trust
+  at its sharpest.
 
 ## What it costs
 
@@ -100,4 +123,5 @@ short:
 
 In Solana the runtime belongs to the network; in a vprogs rollup it
 belongs to the program, assembled from framework parts and covered by
-the proof.
+the proof, on top of an L1 that still owns ordering, data availability,
+and settlement.

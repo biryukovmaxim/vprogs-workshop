@@ -16,6 +16,13 @@ Vocabulary check before it piles up; five words, one pipeline:
 - the guest program that does the compounding is the *aggregator*
   (chapter 7).
 
+One word in that list needs more room. An *aggregate* is any such
+compaction; a *bundle* is one built as a settlement candidate against
+a specific view of the chain. A reorg can invalidate a bundle before
+it settles (the settlement appendix has the recovery); the one that
+settles is the bundle whose view survived, and its proof is the
+bundle proof the settlement carries.
+
 The wrappings, innermost out: one proof per transaction, compounded
 into one proof per block, compounded into the one proof the settlement
 carries.
@@ -70,7 +77,8 @@ did, is a sequence of state transitions. Every executed
 block produces a journal entry of this form: *previous state root, new
 state root, previous lane tip, new lane tip, and the L1 context it
 saw*; where that step emitted deposits or exits, their commitments
-ride the same entry. A batch
+ride the same entry (the deposit commitment is the deposit address the
+step credited, hashed; the exit commitment is the permission tree's). A batch
 proof attests one such step; an aggregate proof compounds a run of
 them; a settlement commits the final root of one proved window on L1. From the L1's point of
 view, then, the program's history is a chain of 32-byte state roots with
@@ -95,7 +103,7 @@ every active lane. When a node validates a settlement, the settlement
 script requires the proof's journal to commit the same value the header
 carries for the block the settlement names, so a proof about a fabricated
 or stale L1 history cannot satisfy a node that follows the real chain (the
-appendix has the mechanics, including why no range can be skipped).
+settlement appendix has the mechanics, including why no range can be skipped).
 
 The machine only cites blocks already behind the confirmation window,
 so a cited block always sits deeper than the settlement resting on it.
@@ -105,7 +113,7 @@ payment. The commitment-reading opcode does enforce one bound of its
 own: it serves commitments only from a recent window of blocks,
 roughly the last twelve hours' worth. A machine
 stalled longer than that must first prove a window that reaches a recent
-block, then settle; the chaining shape makes that possible (the appendix
+block, then settle; the chaining shape makes that possible (the settlement appendix
 covers the recovery).
 
 ## Deposits and exits use the same proof path
@@ -128,7 +136,7 @@ treats a block as solid only inside it. If the chain reorganizes anyway,
 blocks the machine was watching simply vanish from its view as rollbacks:
 bundles that stood on the reorganized side are dropped and rebuilt
 against the surviving chain, and a settlement removed by a reorg before
-it is confirmed is simply resubmitted (the appendix has the recovery
+it is confirmed is simply resubmitted (the settlement appendix has the recovery
 detail, including which proving work gets reused). The settlement chain, immutable
 once Kaspa has it, is never reinterpreted.
 

@@ -185,7 +185,9 @@ chapter pins it properly at the end), and spendable by proven exits
 only. From the L2 side, the payload names the owner: the signed
 deposit action carried in the same transaction says which account the
 program must credit, and which lock authorizes that account when it is
-new. In tt the deposit *is* the action: one lane transaction carries
+new (a lock here is the account's spending rule in program state, not
+the L1 output's lock; the locks section below pins the term). In tt
+the deposit *is* the action: one lane transaction carries
 both.
 
 ```text

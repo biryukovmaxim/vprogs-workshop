@@ -12,3 +12,5 @@
 - [Single sovereign apps](./single-sovereign-apps.md)
 - [Where things stand](./state-of-the-union.md)
 - [Appendix: settlement and exit mechanics](./appendix-settlements.md)
+- [Appendix: Kaspa details behind the simplifications](./appendix-kaspa-depth.md)
+- [Appendix: the state tree](./appendix-state-tree.md)

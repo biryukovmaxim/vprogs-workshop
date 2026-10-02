@@ -48,17 +48,19 @@ invalidates only what stood on the reorganized side. Bundles whose
 proving base was rolled back are thrown away and rebuilt against the
 surviving chain, reusing the
 lower-tier proofs that still chain; a settlement removed by a reorg
-before it is confirmed is simply resubmitted. The invariant under the
-bookkeeping: the bundle covering the canonical chain is the one that
-gets generated and settled, and a canceled bundle is at most saved for
-its reusable parts, or is not generated at all when proof cancellation
-is working. This is
+before it is confirmed is simply resubmitted. Proof cancellation is
+the pipeline stopping work on bundles whose base was rolled back. The
+invariant: only the bundle covering the surviving chain is generated
+and settled; a canceled bundle is at most kept for its still-valid
+parts, and when cancellation is working it is never generated at all.
+This is
 rare by construction: the machine only cites blocks already behind its
 confirmation window (chapter 5).
 
 ## The anchor window and the long stall
 
-The opcode that reads lane commitments has a reach limit: it serves
+The opcode that reads lane commitments (KIP-21's, a different one
+from the KIP-16 opcode that verifies proofs) has a reach limit: it serves
 commitments only from a recent window of blocks, roughly the last
 twelve hours' worth, so a
 settlement cannot cite an anchor older than that. A machine stalled longer
@@ -104,8 +106,9 @@ One wins; the other's transaction can no longer confirm (its input is
 gone), and the wallet rebuilds it against the new commitment once it
 sees the winner. Claims against different settlements' commitments are
 independent and pay out in parallel. The machine watches landed claims
-for its own books (the exit list a program reads), not as an additional
-safety check, and a malformed claim fails its own validation without
+to update its own books, marking exits claimed in program state, not
+as an additional safety check, and a malformed claim fails its own
+validation without
 blocking later claims. What does not ship is a sweeper for the pile itself:
 every claim splits what it sweeps, the network's dust rules floor how
 small the pieces can get, and keeping the pile in spendable coins is

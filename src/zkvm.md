@@ -67,7 +67,7 @@ liveness exposure chapter 6 names.
 
 Recovery is catching up: a stalled machine proves a larger window that
 reaches a recent block, then settles again. The anchor-window limit and
-that recovery are the appendix's subject.
+that recovery are the settlement appendix's subject.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
 engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata, a Kaspa network upgrade); the

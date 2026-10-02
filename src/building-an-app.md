@@ -44,7 +44,8 @@ behind two habits: *sign locally, read the index*.
 Users pay ordinary Kaspa fees for their own lane actions and deposits;
 each action rides a normal transaction funded from the user's own UTXOs,
 and an exit claim is likewise the claimant's own transaction, its fee
-carried by one of the claimer's own coins (the appendix has the shape).
+carried by one of the claimer's own coins (the settlement appendix has
+the shape).
 The operator pays the settlement transactions' fees and the proving
 compute. tt itself charges nothing inside the program today; an in-program
 fee model (debiting accounts to fund the operator) is a battery a real
@@ -66,27 +67,64 @@ depends on enthusiasm until that battery is placed.
 ## Indexes are convenience, not authority
 
 This section is the difference between an index and a trusted backend.
-If the index lies to you, shows you a board
-that isn't real, a balance that isn't yours, what have you lost? A
-moment of confusion. The money is not in the index. The money is in the
-proof-chained state on Kaspa, and every exit goes through the permission
-tree that the settlement chain itself commits. The index can be wrong,
-hostile, or down; it cannot steal. A skeptical app could verify state
-digests against L1 and even verify proofs itself; the endpoints are a
-performance optimization, not the source of truth.
+The money is not in the index. The money is in the proof-chained state
+on Kaspa, and every exit goes through the permission tree that the
+settlement chain itself commits. The index can be wrong, hostile, or
+down; it cannot move funds itself. What it can do is induce you to
+sign: your wallet builds actions from what it can see, so a lying read
+costs you exactly what the resulting action can lose under the
+program's rules. For tt that bound is tight: a fake board produces a
+move that fails at proof time, or at worst loses one game's stake. For
+an app whose actions trade on state, a swap against reserves the index
+misreported, the induced action is valid, executes against the true
+state, and the loss is yours. The defense is two-sided. The program's
+half: actions should carry their own bounds, a swap its minimum
+received, every action its deadline in DAA score, so an action built
+on bad data fails at proof time instead of executing a loss. The
+reader's half: treat the index as a claim and keep a way to check it,
+which is the ladder below. The endpoints are a performance
+optimization, not the source of truth.
 
-A lying index cannot steal; it can only waste your time.
-Your wallet builds actions from what it can see, so garbage
-state produces actions that fail at proof time, an annoyance, and an
-argument for the skeptical path: everything needed to reconstruct state is
-public on L1, the node software is open, and running your own instance
-re-executes the same deterministic path over the same public data. A
-purpose-built light client (a small program that verifies only the data
-it needs) doesn't ship today; re-execution does. The data structure
-makes the middle path obvious, too: state is a sparse Merkle tree and the
-settled digest is public, so the index could hand your wallet a short
-inclusion proof for your account, checkable against L1 with no full node
-at all. tt doesn't serve one yet; nothing about the shape prevents it.
+## How far can you verify a read?
 
-That inversion, reads untrusted and writes self-certifying, is what keeps
-the app layer simple.
+First, what an account is: a resource id plus its state bytes. The
+whole state is one sparse Merkle tree, the id is the key, the leaf
+commits the id and the hash of the bytes, and the settled state digest
+on L1 is the root.
+Every read verification walks the same chain of anchors, and how far
+you can walk it depends on what you run:
+
+| What you run or trust | What you verify | Against what |
+|---|---|---|
+| Nothing (the operator's index, the default app path) | Display only; the board it shows is a claim | Nothing today; the next settlement publishes the digest, but checking an account against it still needs the path that does not ship (below) |
+| An L1 node, your own or an explorer's | The digest chain: each settlement names the digest it moved to, and Kaspa consensus checked the proof binding it | L1 itself |
+| Your own L2 node in execution mode (replay without proving) | The full state: it replays the public lane and takes nothing from the operator | L1, re-executed |
+
+An indexer is a view over one of these nodes; it inherits whatever that
+node is worth trusting. Your own indexer against the operator's node
+buys nicer queries, not independence. One more check the shape allows:
+the settlement's receipt is public data on L1 and verifies in
+milliseconds against the pinned image ids (chapter 7); consensus runs
+that check on every settlement, so running it yourself matters only if
+you do not process the chain yourself.
+
+In the game's terms: the index shows your opponent's move as a new
+board. Checking it means hashing that board, proving the hash is the
+leaf at the game's resource id, and checking the resulting root against
+the settled digest. That middle step is the one the shape allows but no
+API serves today: tt hands out account bytes, not Merkle paths, while
+the proving host (the prover's side outside the zkVM) loads exactly
+those paths for every account a batch
+touches. The [state tree appendix](appendix-state-tree.md) has the
+walk, and where the bytes behind the leaves live. A purpose-built light
+client (a small program that verifies only the data it needs) doesn't
+ship today either; re-execution does.
+
+One gap no endpoint closes, only time or re-execution: state between
+settlements. The last settlement pins a digest; everything after it, up
+to the lane tip the operator claims, is unproved. Either wait for the
+next settlement, whose proof must explain the gap, or replay the suffix
+yourself.
+
+That inversion, reads untrusted and writes self-certifying, is what
+keeps the app layer simple.

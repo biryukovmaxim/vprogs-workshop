@@ -1,31 +1,29 @@
 # The words you need
 
 Blockchain writing uses a small vocabulary. Here is all of it, in plain
-words; the rest of the book assumes these.
+words; the rest of the book assumes these. Entries marked * simplify
+where the full rule would weigh more than the book needs; each links the
+appendix that carries the complete version.
 
 - **Kaspa**: the proof-of-work network this book runs on; its coin is
   KAS. What matters here is its blockdag and its UTXO model, both below.
-- **Blockdag**: the shape of Kaspa's history. On most chains each block
-  names one parent, so the history is a single line; when two miners
-  find blocks at nearly the same time, one stays on the line and the
-  other is discarded. On Kaspa a block may name several parents, so the
-  history is a web, and blocks mined in parallel all count instead of
-  competing. Consensus rules order that web into one agreed order of
-  its blocks, and so of their transactions, roughly one block per
-  second. That ordering is why
-  Kaspa is fast, and why shallow reorg churn (the Reorg entry below) is
-  normal and expected.
+- **Blockdag***: the shape of Kaspa's history: a web, not a line. Where
+  a classic chain discards parallel blocks, a Kaspa block names several
+  parents, so blocks mined at nearly the same time all count, and
+  consensus orders the web into one agreed order of transactions,
+  roughly one block per second. The machine consumes that order; the
+  shallow reorg churn the web leaves behind is why the confirmation
+  window exists (the Reorg entry below). The
+  [appendix](appendix-kaspa-depth.md) has the ordering in full.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
-- **DAA score, blue score**: two counters every block carries, both
-  counting blocks in this block's past. The blue score counts the
-  past's blue blocks, the ones consensus counts as well connected; it
-  is the blockdag's version of block height, and Kaspa counts
-  confirmations in it. The DAA score (difficulty adjustment
-  algorithm) counts every block in the past, blue and merged red
-  alike, and the network paces mining difficulty and emission by it.
-  Both only move forward, so the program reads them as its clock:
-  its deadlines are differences in DAA score, not in wall-clock time
-  (chapter 4).
+- **DAA score***: a depth counter every block carries, counting blocks
+  in its past. It only moves forward, so the program reads it as its
+  clock: deadlines are differences in DAA score, not wall-clock time
+  (chapter 4). Kaspa also paces mining difficulty and emission by it.
+  Its sibling, the **blue score**, is the counter Kaspa counts
+  confirmations in; the program sees it only as block context
+  (chapter 4). The [appendix](appendix-kaspa-depth.md) separates the
+  two exactly.
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
 - **L2**: "layer 2": a system that does its work off the L1 while depending
@@ -104,6 +102,12 @@ words; the rest of the book assumes these.
 - **Data availability**: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, rather than
   trusting someone's summary of it.
+- **Mass**: the weight of a transaction that fees are priced on: the
+  larger of compute mass (verification work) and storage mass (the
+  unspent-set growth the transaction leaves behind; it rises when value
+  is split into many small outputs). The
+  [appendix](appendix-kaspa-depth.md) has the formula and what nodes
+  store.
 - **Dust**: outputs too small to be worth spending. The network's
   minimum-relay rules floor how small an output may be, which limits how
   far the deposit pile can be split.
