@@ -25,6 +25,19 @@ exactly once, and whatever anyone builds on Kaspa is expressed in these
 bytes. The spend-once rule is the first limit from chapter 3; this chapter
 builds directly on it.
 
+The 3 KAS payment above, as a picture:
+
+```mermaid
+flowchart LR
+    subgraph E["an earlier transaction"]
+        O1["its output: 10 KAS<br/>locked at your SPK"]
+    end
+    O1 -- "input: names that output,<br/>carries the unlock data<br/>its SPK demands" --> TX["the new transaction"]
+    TX --> O2["output: 3 KAS<br/>locked at the friend's SPK"]
+    TX --> O3["output: your change,<br/>back at your SPK"]
+    TX -. "the fee: inputs<br/>minus outputs" .-> M["the miner of the<br/>block that includes it"]
+```
+
 The shape itself, annotated:
 
 ```text

@@ -40,14 +40,12 @@ flowchart TD
     end
 ```
 
-The word *block* needs pinning too. Execution does not walk the
-blockdag's web; it walks the single line consensus has already
-ordered: Kaspa's selected chain, also called the virtual chain or the
-mega chain. For the machine, one block on that line is one block: one
-witness set, one batch, one step of execution. That is a simplified
-model. In full, a block on that line also absorbs the parallel blocks
-consensus merges into it, and their transactions count as part of the
-same step; the [appendix](appendix-settlements.md) has the detail.
+The word *block* needs pinning too. Execution does not deal with the
+blockdag's parallel web; it consumes one sequence of blocks, the order
+consensus has already produced, and one block there is one step of
+execution: one witness set, one batch. How the dag collapses into that
+sequence, and what exactly counts as one block, is
+[appendix](appendix-settlements.md) material.
 
 ```mermaid
 sequenceDiagram
@@ -73,18 +71,26 @@ sequenceDiagram
 ## State digests succeed each other
 
 The program's history, the full ordered record of everything the L2
-did, is a sequence of state transitions. Every executed
-block produces a journal entry of this form: *previous state root, new
-state root, previous lane tip, new lane tip, and the L1 context it
-saw*; where that step emitted deposits or exits, their commitments
-ride the same entry (the deposit commitment is the deposit address the
-step credited, hashed; the exit commitment is the permission tree's). A batch
-proof attests one such step; an aggregate proof compounds a run of
-them; a settlement commits the final root of one proved window on L1. From the L1's point of
-view, then, the program's history is a chain of 32-byte state roots with
-the context of each step alongside them (lane tip, block proof point,
-exit commitments; chapter 4 lists what each settlement carries), and
-every step is provably reachable from the one before.
+did, is a sequence of state transitions, one per executed block. The
+machine writes them to its *journal*: every executed block produces
+one entry of this form, *previous state root, new state root, previous
+lane tip, new lane tip, and the L1 context it saw*. The lane entries a
+step consumed are the run between its two lane tips, every published
+action up to the new one; where the step credited deposits or emitted
+exits, their commitments ride the same entry (the deposit commitment
+is the deposit address the step credited, hashed; the exit commitment
+is the permission tree's). A batch proof attests one such step; an
+aggregate proof compounds a run of them.
+
+L1 never sees the journal directly. What lands there is one settlement
+per proved window, and a window spans a range of blocks: the
+settlement commits the final state digest of the range, the lane tip
+execution had read to, the block proof point, and, where the window
+emitted exits, the permission-tree commitment, all backed by the one
+proof that covers the whole range of blocks (chapter 4 lists what each
+settlement carries). From the L1's point of view, then, the program's
+history is a chain of 32-byte state roots, one per settlement, and
+every step inside a window is provably reachable from the one before.
 
 ## Why multiple L1 blocks?
 
