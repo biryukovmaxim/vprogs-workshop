@@ -29,12 +29,12 @@ carries.
 
 ```mermaid
 flowchart TD
-    subgraph S["bundle proof, the aggregate the settlement carries"]
-        subgraph B1["batch proof, the work over one block"]
+    subgraph S["bundle proof"]
+        subgraph B1["batch proof"]
             T1["tx proof"]
             T2["tx proof"]
         end
-        subgraph B2["batch proof, the work over one block"]
+        subgraph B2["batch proof"]
             T3["tx proof"]
         end
     end
