@@ -16,13 +16,13 @@ appendix that carries the complete version.
   window exists (the Reorg entry below). The
   [appendix](appendix-kaspa-depth.md) has the ordering in full.
 - **Sompi**: the smallest unit of KAS; one KAS is 100,000,000 sompi.
-- **DAA score***: a depth counter every block carries, counting blocks
+- <a id="daa-score"></a>**DAA score***: a depth counter every block carries, counting blocks
   in its past. It only moves forward, so the program reads it as its
   clock: deadlines are differences in DAA score, not wall-clock time
-  (chapter 4). Kaspa also paces mining difficulty and emission by it.
+  ([chapter 4](transactions.md)). Kaspa also paces mining difficulty and emission by it.
   Its sibling, the **blue score**, is the counter Kaspa counts
   confirmations in; the program sees it only as block context
-  (chapter 4). The [appendix](appendix-kaspa-depth.md) separates the
+  ([chapter 4](transactions.md)). The [appendix](appendix-kaspa-depth.md) separates the
   two exactly.
 - **L1**: "layer 1", the Kaspa network itself. The layer that holds the
   funds.
@@ -41,7 +41,7 @@ appendix that carries the complete version.
   output*. "Your money" is the set of UTXOs your key can unlock. And an
   output lives in exactly one transaction: once spent it is gone, and no
   other transaction can reference it. That one-way rule is why shared
-  on-chain state is hard here (chapter 3).
+  on-chain state is hard here ([chapter 3](based-rollup.md)).
 - **SPK, P2PK, P2SH**: the locking half of an output is its *SPK*
   (script public key), a small program stored inside the output. A later
   transaction spends that output by supplying input data that satisfies
@@ -55,11 +55,11 @@ appendix that carries the complete version.
 - **Settlement**: the transaction that commits one new state digest of
   the program's off-chain (L2) state to Kaspa, spends the output only
   a valid settlement can spend, and chains to the settlement before
-  it. Chapter 4 is about it.
+  it. [Chapter 4](transactions.md) is about it.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
-  Settlements commit it on L1. Chapter 4 builds it.
-- **Covenant id**: the 32-byte identity of one program instance: its deposit
+  Settlements commit it on L1. [Chapter 4](transactions.md) builds it.
+- <a id="covenant-id"></a>**Covenant id**: the 32-byte identity of one program instance: its deposit
   address, its lane, and the exact rule-set version it proves, all
   bundled into one name. The book often says *the covenant* for the
   instance this id names.
@@ -67,7 +67,7 @@ appendix that carries the complete version.
   (the zkVM), as opposed to the framework around it.
 - **Image id**: the cryptographic hash of one guest program binary.
   Pinning image ids fixes the exact code and proof stack an instance
-  runs (chapters 4 and 7).
+  runs (chapters [4](transactions.md) and [7](zkvm.md)).
 - **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
   transactions carrying users' signed actions. Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
@@ -76,30 +76,30 @@ appendix that carries the complete version.
 - **Execution**: the guest program doing its work: reading confirmed
   L1 data, checking and applying each action, crediting deposits, and
   moving the state from one root to the next. It runs off-chain inside
-  the zkVM; the proof is what makes its result trustworthy (chapter 5).
+  the zkVM; the proof is what makes its result trustworthy ([chapter 5](chaining.md)).
 - **Witness**: the confirmed L1 data execution reads: lane entries,
-  deposits, block context. Chapter 5 builds the pipeline around it.
+  deposits, block context. [Chapter 5](chaining.md) builds the pipeline around it.
 - **Journal**: the fixed-format record inside each proof: the state
   before, the state after, how far the lane had been read, which L1
   blocks execution saw, and the deposit and exit commitments where the
-  step carried any. Used from chapter 5 on.
+  step carried any. Used from [chapter 5](chaining.md) on.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
 - **Runtime**: the layer of code that checks and applies each action.
-  Chapter 8 is about who owns it.
+  [Chapter 8](solana.md) is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on
   one block order, then switches to another; the switched-away blocks
   "vanish". Shallow churn like this is normal and expected; deeply buried
   blocks essentially never reorganize, which is why the machine waits out
-  a confirmation window before trusting fresh blocks (chapter 5).
+  a confirmation window before trusting fresh blocks ([chapter 5](chaining.md)).
 - **Confirmation window**: the number of blocks of depth the machine
   waits before treating an L1 block as final; widened adaptively when the
-  network looks reorg-prone (chapter 5).
-- **Liveness**: the guarantee that someone keeps
+  network looks reorg-prone ([chapter 5](chaining.md)).
+- <a id="liveness"></a>**Liveness**: the guarantee that someone keeps
   executing, proving, and settling, so actions and exits keep processing.
   Safety says no one can steal;
-  liveness says the machine does not stop. Chapter 6 owns it.
-- **Data availability**: the guarantee that you can fetch the full record
+  liveness says the machine does not stop. [Chapter 6](machinery.md) owns it.
+- <a id="data-availability"></a>**Data availability**: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, rather than
   trusting someone's summary of it.
 - **Mass**: the weight of a transaction that fees are priced on: the

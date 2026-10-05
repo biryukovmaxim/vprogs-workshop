@@ -13,7 +13,7 @@ each block's mergeset into *blue* blocks, the ones well connected to
 the selected-parent chain, and *red* ones, which stay in history but
 order outside the blue set. The split orders blocks; it drops no
 transactions: a red block's transactions ride the selected-chain block
-that absorbs it, as the settlement appendix's rule says. Walking
+that absorbs it, as the [settlement appendix](appendix-settlements.md#what-counts-as-one-block)'s rule says. Walking
 selected parents from a tip back to
 genesis gives the *selected chain*, the line the rest of the book
 executes along. A block on that line absorbs its mergeset's
@@ -41,7 +41,7 @@ difficulty from a window of blocks chosen by DAA score, and the
 emission schedule, including the reward halvings, is defined over DAA
 score. Both counters ride every block header, so both only move
 forward; that is what lets the program treat DAA score as a clock
-(chapter 4). The per-block context the program reads inside each proof
+([chapter 4](transactions.md)). The per-block context the program reads inside each proof
 window, timestamp, DAA score, blue score, is committed by the chain
 itself ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)).
 

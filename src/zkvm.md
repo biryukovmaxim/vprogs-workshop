@@ -32,7 +32,7 @@ flowchart LR
 
 ## What vprogs uses today
 
-vprogs is built on **RISC0**, a zkVM for RISC-V programs. The proving
+vprogs is built on **[RISC0](https://risczero.com)**, a zkVM for RISC-V programs. The proving
 pipeline is three guest programs, each an ordinary program binary (in
 RISC-V ELF form) with its own
 *image id*:
@@ -41,9 +41,9 @@ RISC-V ELF form) with its own
   rules, compiled with the framework's runtime processor. It executes one
   transaction's actions against state and produces the per-transaction
   proof.
-- the **batch guest** verifies a block's transaction receipts and
+- the [**batch guest**](https://github.com/kaspanet/vprogs/tree/055ae28a/zk/batch-prover) verifies a block's transaction receipts and
   compounds them into one proof per batch.
-- the **aggregator** compounds a run of batch proofs into the single proof
+- the [**aggregator**](https://github.com/kaspanet/vprogs/tree/055ae28a/zk/aggregate-prover) compounds a run of batch proofs into the single proof
   a settlement carries: the bundle proof.
 
 How does one proof cover another? The zkVM exposes verification to
@@ -53,7 +53,7 @@ way. Each level's proof then covers the checks it did, which is how
 proofs nest.
 
 All three image ids are pinned at bootstrap, alongside the covenant id
-(chapter 4),
+([chapter 4](transactions.md)),
 and every proof names the exact images its guest ran, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
@@ -63,11 +63,11 @@ makes the digest chain a chain.
 The sequence also shapes latency. A prover that keeps up stays a fixed
 distance behind the chain; one that cannot keep up falls behind without
 bound, so settlements wait and exits wait to be committed: the same
-liveness exposure chapter 6 names.
+liveness exposure [chapter 6](machinery.md) names.
 
 Recovery is catching up: a stalled machine proves a larger window that
 reaches a recent block, then settles again. The anchor-window limit and
-that recovery are the settlement appendix's subject.
+that recovery are the [settlement appendix](appendix-settlements.md#the-anchor-window-and-the-long-stall)'s subject.
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
 engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata, a Kaspa network upgrade); the
@@ -85,8 +85,8 @@ Two modes matter in practice:
 
 - **Dev mode**: the prover emits stub receipts instead of real proofs.
   Instant, free, and completely unsafe: fine for a local simnet demo,
-  worthless on a public network. A dev covenant's script omits the proof
-  check, so on a public network its continuation is spendable by anyone,
+  worthless on a public network. A dev covenant's [script omits the proof
+  check](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/covenant/src/script.rs#L249), so on a public network its continuation is spendable by anyone,
   and no one would or should hold money in it.
 - **Real proving**: actual cryptographic proofs, GPU-produced. tt's
   testnet deployments settle with real proofs.
@@ -94,7 +94,7 @@ Two modes matter in practice:
 ## What may come
 
 The zkVM field is new and still changing. vprogs' proving stack sits behind
-a backend interface: execution, proving, and verification each sit behind
+a [backend interface](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/vm/src/backend.rs#L15): execution, proving, and verification each sit behind
 one standard interface, and
 RISC0 is currently the one implementation behind them. That seam is what
 makes "another zkVM tomorrow" a migration rather than a rewrite. The
@@ -102,5 +102,5 @@ interface exists today; a second implementation does not.
 
 One more property: since the guest is an ordinary program, the program's
 *rules and its runtime* ride inside the same proof. On smart-contract
-platforms that is precisely what you cannot do, which is the next
-chapter's subject.
+platforms that is precisely what you cannot do, which is the [next
+chapter](solana.md)'s subject.

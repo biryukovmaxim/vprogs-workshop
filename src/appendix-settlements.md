@@ -1,13 +1,13 @@
 # Appendix: settlement and exit mechanics
 
-Chapter 4 kept the settlement and the exit to what they attest and pay,
-and chapter 5 kept the block model to its simplified form; this page
+[Chapter 4](transactions.md) kept the settlement and the exit to what they attest and pay,
+and [chapter 5](chaining.md) kept the block model to its simplified form; this page
 carries the mechanics a careful reader asks about next. Nothing here
 changes the design; it is the same machine, closer up.
 
 ## What counts as one block
 
-Chapter 5 treats one selected-chain block as one block to the machine.
+[Chapter 5](chaining.md) treats one selected-chain block as one block to the machine.
 The full rule: a block on the selected chain absorbs the parallel
 blocks consensus folds into it, its *mergeset*, and the transactions
 those parallel blocks carry count as part of that step, provided they
@@ -43,7 +43,7 @@ fails that check, so a settlement cannot leave a hole.
 
 ## What if cited blocks reorganize?
 
-The proving pipeline has tiers (chapter 7 lists the three guests), and a reorg
+The proving pipeline has tiers ([chapter 7](zkvm.md) lists the three guests), and a reorg
 invalidates only what stood on the reorganized side. Bundles whose
 proving base was rolled back are thrown away and rebuilt against the
 surviving chain, reusing the
@@ -55,7 +55,7 @@ and settled; a canceled bundle is at most kept for its still-valid
 parts, and when cancellation is working it is never generated at all.
 This is
 rare by construction: the machine only cites blocks already behind its
-confirmation window (chapter 5).
+confirmation window ([chapter 5](chaining.md)).
 
 ## The anchor window and the long stall
 
@@ -71,7 +71,7 @@ the price of later snapshots.
 
 ## An exit claim, up close
 
-Chapter 4 kept exits to the leaf and the payout; here is the claim
+[Chapter 4](transactions.md) kept exits to the leaf and the payout; here is the claim
 transaction itself. It pulls in the commitment UTXO, up to eight whole
 coins from the program's deposit pile (only the exit script can unlock
 them; the claim wallet picks which, and eight is its cap), and one

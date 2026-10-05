@@ -15,7 +15,7 @@ settlement's proof before it counts. Enforcement is the L1's: payouts
 move only through scripts Kaspa itself executes. That is the whole
 sense of *based* here: the app runs directly on its L1, with nothing in
 between. The state itself is the one thing the L1
-does not carry: it holds a single 32-byte fingerprint of it (chapter 4),
+does not carry: it holds a single 32-byte fingerprint of it ([chapter 4](transactions.md)),
 so the full data behind that fingerprint, every account, balance, and
 game, is stored and served by an L2 provider, the operator's node. The
 actions and deposits do sit fully on the chain, in the lane. No external
@@ -29,8 +29,8 @@ users publish actions straight to the lane, and the L1's own order *is*
 the order. One Ethereum connotation does not transfer: there, based also
 comes with forced inclusion, an L1 path that makes the rollup process your
 transaction even if the sequencer refuses. This machine ships no such
-forced path; the liveness limits are chapter 6's. Readers who prefer the
-established name for this shape will find it in chapter 10: a sovereign
+forced path; the liveness limits are [chapter 6](machinery.md)'s. Readers who prefer the
+established name for this shape will find it in [chapter 10](single-sovereign-apps.md): a sovereign
 app.
 
 The shape of the whole system fits in one diagram:
@@ -57,7 +57,7 @@ out to users through exits, enforced by those settled proofs.
 
 One arrow in the diagram needs a note: apps read current state from the
 operator's index (the dashed line), not from Kaspa directly. The index
-is a convenience, not the authority; chapter 9 covers what a skeptic can
+is a convenience, not the authority; [chapter 9](building-an-app.md#how-far-can-you-verify-a-read) covers what a skeptic can
 do without it.
 
 ## The two limits, and the extensions that change them
@@ -93,7 +93,7 @@ invalid, rejected like a bad signature. The check is verification, not
 re-execution: small for every node, and priced into the settlement's own
 transaction like any script work. Which proof system and which program
 version to trust are not choices made at spend time; they are baked into
-the covenant's script hash itself, which chapter 4 opens up.
+the covenant's script hash itself, which [chapter 4](transactions.md) opens up.
 
 Where this lives today: those extensions are **implemented and
 activated on Kaspa mainnet**. The live demo settles on **public
@@ -120,7 +120,7 @@ could steal, and what stops them?
 |---|---|---|---|
 | **Custodial referee** | The operator | Reputation, law | Everything: they can just take it |
 | **Multisig escrow** | A set of signers | M-of-N honesty | The majority of signers, and their liveness |
-| **Zk-proven program** | The L1 itself | Proofs the L1 verifies | The code being proved, the zkVM and verifier opcode underneath it (chapter 7), and that someone keeps the machine running |
+| **Zk-proven program** | The L1 itself | Proofs the L1 verifies | The code being proved, the zkVM and verifier opcode underneath it ([chapter 7](zkvm.md)), and that someone keeps the machine running |
 
 Moving down the table removes trust in *people* one layer at a time.
 The zk-proven model's key property is that "did the execution follow the
@@ -133,15 +133,15 @@ One more point the table compresses: the deposit pile is pooled custody
 at a script, and its safety is exactly the safety of the pinned code,
 bugs included. A rule-set bug that pays the wrong recipient drains the pile
 through perfectly valid proofs. That is what "trusting the code" means,
-and it is why the pinning in chapter 4 matters.
+and it is why the pinning in [chapter 4](transactions.md) matters.
 
-What remains is a different kind of trust: **liveness** and **data
-availability** (you can see the state you need to act). Liveness: a
+What remains is a different kind of trust: **[liveness](words.md#liveness)** and **[data
+availability](words.md#data-availability)** (you can see the state you need to act). Liveness: a
 settlement only exists if someone executes actions and settles proofs,
 and today that someone is the operator. No permissionless escape-hatch
 flow is shipped yet either: if every operator of an instance stops
 before your balance has become a committed exit, your funds wait until
-someone resumes the stack. Chapters 6 and 9 cover who can resume, at
+someone resumes the stack. Chapters [6](machinery.md) and [9](building-an-app.md) cover who can resume, at
 what cost, and what a griefer can and cannot do.
 
 ## The shape and the rules
@@ -159,5 +159,5 @@ them (deposit logic, lockers and signers, the permission tree, the exit
 mechanism); treat each as a battery: a standard part you can use as-is
 and, in principle, replace with a different design.
 
-The next chapter covers the handful of transaction types everything else
+The [next chapter](transactions.md) covers the handful of transaction types everything else
 is built from.

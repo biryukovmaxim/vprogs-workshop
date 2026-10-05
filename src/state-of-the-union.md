@@ -20,7 +20,7 @@ This chapter summarizes what exists, what does not, and what it costs.
   [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md),
   and [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)
   extensions it depends on are live on Kaspa mainnet; the deployment sits
-  on the public testnet as a demonstration choice (chapter 3 gives the
+  on the public testnet as a demonstration choice ([chapter 3](based-rollup.md) gives the
   details). Dev-mode stub receipts are strictly for the local
   demo; the testnet deployments prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
@@ -32,10 +32,10 @@ This chapter summarizes what exists, what does not, and what it costs.
 
 - **Production.** The project's own status: early development /
   prototype phase; APIs and architecture may change significantly.
-- **Multi-program.** As chapter 10 said: single sovereign apps, at the
+- **Multi-program.** As [chapter 10](single-sovereign-apps.md) said: single sovereign apps, at the
   current stage. Composability is future work with a yellow paper
   behind it; nothing is implemented yet.
-- **Multi-zkVM.** RISC0 today; the backend seam exists (chapter 7), the
+- **Multi-zkVM.** RISC0 today; the backend seam exists ([chapter 7](zkvm.md)), the
   migrations don't yet.
 
 ## What it costs, and how long it takes
@@ -51,7 +51,7 @@ figures belong in the runbooks and will be added there when they exist.
 ## Where to follow and join
 
 The two repositories are the source of truth; code, runbooks, and
-issues live there: **vprogs** (the framework) and **vprog-tictactoe**
+issues live there: [**vprogs**](https://github.com/kaspanet/vprogs/tree/055ae28a) (the framework) and [**vprog-tictactoe**](https://github.com/biryukovmaxim/vprog-tictactoe/tree/fe6b0e8)
 (the example application and its deployment runbooks, including the
 multi-machine testnet walkthrough). There is no token and no foundation;
 at this stage the repositories are the project.
@@ -64,7 +64,7 @@ described: signed
 actions into a public lane; execution by rules the program defines and
 a zkVM proves; state as a digest chain anchored settlement by
 settlement into Kaspa; money out through exits that, once committed, no
-operator can withhold (until committed, chapter 6's stalls apply:
+operator can withhold (until committed, [chapter 6](machinery.md)'s stalls apply:
 robbery and delay are different failures, and only the first is
 solved). The rollup fixes the shape; the program picks the rules; the
 L1 holds the money. If the live demo is running next door, lose a game

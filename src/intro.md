@@ -10,8 +10,8 @@ refuse to pay, and the winner cannot claim more than they earned. The
 operator cannot rewrite the scoreboard either, because the scoreboard is
 a proof, not a statement by anyone.
 
-This is **vprog-tictactoe** (we'll call it *tt*), a working example built
-on **vprogs**, a framework for *based computation* on Kaspa (chapter 3
+This is [**vprog-tictactoe**](https://github.com/biryukovmaxim/vprog-tictactoe/tree/fe6b0e8) (we'll call it *tt*), a working example built
+on [**vprogs**](https://github.com/kaspanet/vprogs/tree/055ae28a), a framework for *based computation* on Kaspa ([chapter 3](based-rollup.md)
 explains the word). The game is chosen for size: tic-tac-toe is small
 enough to hold in your head and still exercises every part of the
 framework, a proof of concept, not a claim that this game needs a
@@ -23,21 +23,21 @@ the payout lands on the real Kaspa chain.
 
 The rest of this short book explains the machine:
 
-- what a *based rollup* is, and what it demonstrates Kaspa can do,
-- the small set of transaction types the whole machine is built from,
-- how proofs chain user actions, deposits, and settlements across many
-  blocks of the Kaspa chain (its L1),
-- what a zkVM has to do with it,
-- how this compares to a smart-contract platform like Solana,
-- and what you can build on it today.
+- [what a *based rollup* is](based-rollup.md), and what it demonstrates Kaspa can do,
+- [the small set of transaction types](transactions.md) the whole machine is built from,
+- [how proofs chain user actions, deposits, and settlements across many
+  blocks of the Kaspa chain](chaining.md) (its L1),
+- [what a zkVM has to do with it](zkvm.md),
+- [how this compares to a smart-contract platform like Solana](solana.md),
+- and [what you can build on it today](building-an-app.md).
 
 A live demo of tt runs alongside this material.
 
 Two things to state up front. First, everything the machine needs is
 live on Kaspa mainnet; the demo itself runs on the public testnet, a
-demonstration network with looser security assumptions (chapter 3 gives
+demonstration network with looser security assumptions ([chapter 3](based-rollup.md) gives
 the details). Second, safety and liveness are different guarantees. The
 chain guarantees that no one can falsify state or steal funds, but
 moving money requires the machine to keep running. Who runs it, what can
-stall it, and what happens when nobody does are covered in chapters 6,
-7, and 9.
+stall it, and what happens when nobody does are covered in chapters [6](machinery.md),
+[7](zkvm.md), and [9](building-an-app.md).

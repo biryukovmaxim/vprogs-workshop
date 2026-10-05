@@ -1,6 +1,6 @@
 # The machinery
 
-Chapter 5 showed how proofs tie the pieces together across L1 blocks.
+[Chapter 5](chaining.md) showed how proofs tie the pieces together across L1 blocks.
 This chapter describes who runs what. Five roles cover the whole machine.
 
 ```mermaid
@@ -14,7 +14,7 @@ flowchart TB
     BR --> DA
 ```
 
-**The bridge** is the machine's view of L1. It follows the Kaspa chain
+[**The bridge**](https://github.com/kaspanet/vprogs/tree/055ae28a/l1/bridge) is the machine's view of L1. It follows the Kaspa chain
 behind the confirmation window and turns confirmed lane entries and
 deposits into the inputs execution consumes. Users submit to the lane
 themselves; the bridge only reads. Every fact the machine holds about
@@ -27,26 +27,26 @@ result. What it computes is defined by the program, not by the executor.
 **The provers** produce proofs of the execution, in three stages, one
 guest program each: the transaction guest proves one transaction, the
 batch guest compounds a block of those proofs, and the aggregator
-compounds batches into the single proof a settlement carries (chapter 7
+compounds batches into the single proof a settlement carries ([chapter 7](zkvm.md)
 details the pipeline). Batch proofs chain within a bundle, and bundles
 chain across settlements, so the pipeline is a chain by construction.
 
-**The settler** builds the settlement transaction (state digest, lane
+**The settler** [builds the settlement transaction](https://github.com/kaspanet/vprogs/blob/055ae28a/l1/wallet/src/build/settlement.rs) (state digest, lane
 tip, proof, continuation and permission outputs) and submits it to
 Kaspa.
 
 **The DA/index layer** is the read side: an operator can serve the
 program's current state over an API so apps can query it without
-replaying proofs. Chapter 9 builds on it.
+replaying proofs. [Chapter 9](building-an-app.md) builds on it.
 
 In tt's deployment these roles are in-process components of the single
-`ttd` daemon (the framework's reusable runner engine), plus the web app
+`ttd` daemon (the framework's [reusable runner engine](https://github.com/kaspanet/vprogs/tree/055ae28a/runner)), plus the web app
 reading the DA APIs. The roles are independent of the packaging: a
 bigger deployment could scale each separately.
 
 ## Who are you trusting, again?
 
-With the roles named, the trust question from chapter 3 gets concrete.
+With the roles named, the trust question from [chapter 3](based-rollup.md) gets concrete.
 The bridge can't invent L1 facts; the proofs check everything against
 the real chain. The executor can't cheat; its output is proven. The
 settler can't settle a fabricated state; Kaspa verifies the proof before accepting
@@ -63,7 +63,7 @@ the bridge only reads public chain data, and the lane is public. So
 anyone can, in principle, stand up this same open stack against the
 same lane and continue where the last operator stopped. The limits of
 that claim: resuming means running a proving stack, real work at real
-cost (chapter 9 says who would pay), so it is a capability, not a
+cost ([chapter 9](building-an-app.md) says who would pay), so it is a capability, not a
 service anyone promises. Second, exits already committed to the
 permission tree are claimable by their holders alone; no operator sits
 in that loop.

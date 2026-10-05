@@ -14,12 +14,12 @@ Vocabulary check before it piles up; five words, one pipeline:
 - the latest aggregate, the one a settlement carries, is the *bundle
   proof*;
 - the guest program that does the compounding is the *aggregator*
-  (chapter 7).
+  ([chapter 7](zkvm.md)).
 
 One word in that list needs more room. An *aggregate* is any such
 compaction; a *bundle* is one built as a settlement candidate against
 a specific view of the chain. A reorg can invalidate a bundle before
-it settles (the settlement appendix has the recovery); the one that
+it settles (the [settlement appendix](appendix-settlements.md#what-if-cited-blocks-reorganize) has the recovery); the one that
 settles is the bundle whose view survived, and its proof is the
 bundle proof the settlement carries.
 
@@ -45,7 +45,7 @@ blockdag's parallel web; it consumes one sequence of blocks, the order
 consensus has already produced, and one block there is one step of
 execution: one witness set, one batch. How the dag collapses into that
 sequence, and what exactly counts as one block, is
-[appendix](appendix-settlements.md) material.
+[appendix](appendix-settlements.md#what-counts-as-one-block) material.
 
 ```mermaid
 sequenceDiagram
@@ -73,7 +73,7 @@ sequenceDiagram
 The program's history, the full ordered record of everything the L2
 did, is a sequence of state transitions, one per executed block. The
 machine writes them to its *journal*: every executed block produces
-one entry of this form, *previous state root, new state root, previous
+[one entry of this form](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/batch_processor/journal/batch_transition.rs#L10-L31), *previous state root, new state root, previous
 lane tip, new lane tip, and the L1 context it saw*. The lane entries a
 step consumed are the run between its two lane tips, every published
 action up to the new one; where the step credited deposits or emitted
@@ -87,7 +87,7 @@ per proved window, and a window spans a range of blocks: the
 settlement commits the final state digest of the range, the lane tip
 execution had read to, the block proof point, and, where the window
 emitted exits, the permission-tree commitment, all backed by the one
-proof that covers the whole range of blocks (chapter 4 lists what each
+proof that covers the whole range of blocks ([chapter 4](transactions.md) lists what each
 settlement carries). From the L1's point of view, then, the program's
 history is a chain of 32-byte state roots, one per settlement, and
 every step inside a window is provably reachable from the one before.
@@ -109,7 +109,7 @@ every active lane. When a node validates a settlement, the settlement
 script requires the proof's journal to commit the same value the header
 carries for the block the settlement names, so a proof about a fabricated
 or stale L1 history cannot satisfy a node that follows the real chain (the
-settlement appendix has the mechanics, including why no range can be skipped).
+[settlement appendix](appendix-settlements.md#can-a-range-be-skipped) has the mechanics, including why no range can be skipped).
 
 The machine only cites blocks already behind the confirmation window,
 so a cited block always sits deeper than the settlement resting on it.
@@ -119,7 +119,7 @@ payment. The commitment-reading opcode does enforce one bound of its
 own: it serves commitments only from a recent window of blocks,
 roughly the last twelve hours' worth. A machine
 stalled longer than that must first prove a window that reaches a recent
-block, then settle; the chaining shape makes that possible (the settlement appendix
+block, then settle; the chaining shape makes that possible (the [settlement appendix](appendix-settlements.md#the-anchor-window-and-the-long-stall)
 covers the recovery).
 
 ## Deposits and exits use the same proof path
@@ -142,7 +142,7 @@ treats a block as solid only inside it. If the chain reorganizes anyway,
 blocks the machine was watching simply vanish from its view as rollbacks:
 bundles that stood on the reorganized side are dropped and rebuilt
 against the surviving chain, and a settlement removed by a reorg before
-it is confirmed is simply resubmitted (the settlement appendix has the recovery
+it is confirmed is simply resubmitted (the [settlement appendix](appendix-settlements.md#what-if-cited-blocks-reorganize) has the recovery
 detail, including which proving work gets reused). The settlement chain, immutable
 once Kaspa has it, is never reinterpreted.
 
@@ -164,6 +164,6 @@ without one). And everything inside it, every move of every game,
 every deposit, every balance, is a 32-byte root away, verified by a proof
 anyone can check. What L1 does *not* enforce is freshness: nothing on-chain
 forces a settlement to advance the tip to today's lane head; the tip moves
-when the operator settles, and an operator can stall (chapter 6 lists
+when the operator settles, and an operator can stall ([chapter 6](machinery.md) lists
 the stall cases). The rest of this book covers who runs the machine, what
 proves it, and what building on it is like.

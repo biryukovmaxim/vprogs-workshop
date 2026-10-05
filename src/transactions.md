@@ -22,7 +22,7 @@ your change. Every transaction in this book, payment or machine, plays by
 those rules. There are no accounts and
 no shared stored state on this chain, only coins at locks, each spendable
 exactly once, and whatever anyone builds on Kaspa is expressed in these
-bytes. The spend-once rule is the first limit from chapter 3; this chapter
+bytes. The spend-once rule is the first limit from [chapter 3](based-rollup.md); this chapter
 builds directly on it.
 
 The 3 KAS payment above, as a picture:
@@ -193,7 +193,7 @@ flowchart LR
 A deposit is how value enters, and it is one transaction seen from two
 sides. From the L1 side, money moves to the program's script: an
 output paying the **deposit address**, derived from the *covenant id*
-(the 32-byte identity of this program instance from the glossary; this
+(the 32-byte identity of this program instance from the [glossary](words.md#covenant-id); this
 chapter pins it properly at the end), and spendable by proven exits
 only. From the L2 side, the payload names the owner: the signed
 deposit action carried in the same transaction says which account the
@@ -219,8 +219,8 @@ unlock, never at an operator's key.
 
 The shape is fixed (an L1 output, recognized by the program, proven into
 the state), but the *address policy* is the guest's choice (the *guest* is
-the program's own code running inside the zkVM; chapter 7). tt's deposit
-policy derives one shared deposit address from the covenant id; the framework
+the program's own code running inside the zkVM; [chapter 7](zkvm.md)). [tt's deposit
+policy](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/guest/src/program/deposit_policy.rs#L19-L27) derives one shared deposit address from the covenant id; the framework
 documents a per-user address scheme as an
 equally valid choice. Same battery, different placement.
 
@@ -230,7 +230,7 @@ An exit is how value leaves: the program debits a user and emits an
 entitlement to withdraw on L1. The entitlements land in the
 **permission tree**, an accumulator (a Merkle structure that answers one
 question: is this leaf in?) whose leaves are
-"(L1 script, amount)" pairs: who may claim how much, by L1 lock type.
+["(L1 script, amount)" pairs](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/withdrawal/standard_spk.rs#L28-L34): who may claim how much, by L1 lock type.
 A settlement that emitted exits carries a commitment to exactly those
 exits, the ones its own proof window produced, in a dedicated P2SH
 output (a settlement with no new exits carries none). Each commitment
@@ -280,7 +280,7 @@ lands on the claim side, where claims already pay fees.
 
 The claim transaction's full shape (which coins it pulls, how the fee
 rides, what each output is) and what happens when two claims race are
-[appendix](appendix-settlements.md) material.
+[appendix](appendix-settlements.md#an-exit-claim-up-close) material.
 
 Like the deposit policy, the permission tree is a ready-made part: the
 framework ships the accumulator, the L1 commitment format, and the claim
@@ -289,7 +289,7 @@ design; the settlement shape would not change.
 
 ## User actions
 
-Everything a user does inside the program is a signed action: in tt that's
+Everything a user does inside the program is a signed action: [in tt](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/guest/src/program/action.rs#L34-L69) that's
 transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
@@ -298,7 +298,7 @@ program sees the chain's per-block context, timestamp, DAA score, and
 blue score, committed by the chain inside every proof window (KIP-21
 commits them for exactly this use). Deadlines such as tt's turn timer
 are measured in DAA score, one of the chain's depth counters from the
-glossary, not in wall-clock time, so "expired" is
+[glossary](words.md#daa-score), not in wall-clock time, so "expired" is
 determined by the chain, not by the operator.
 An action carries its author's authorization (more on locks and signers
 below) and is published to the lane. What makes an action *valid* (whose
@@ -311,12 +311,12 @@ own logic, checked inside the proof. The L1 has no concept of a
 
 The settlement is the committing transaction: the only one that advances
 the program's authoritative state, and it does so on Kaspa itself. A
-settlement attests three things at once:
+settlement [attests three things](https://github.com/kaspanet/vprogs/blob/055ae28a/l1/types/src/settlement_info.rs#L15-L28) at once:
 
 - a **state digest**: the program's new state root, the 32-byte
   fingerprint from the compression section above. The full state (every
   account, every game, every balance) lives off-chain; the lane and the
-  chain carry everything needed to rebuild it (chapter 9). What Kaspa
+  chain carry everything needed to rebuild it ([chapter 9](building-an-app.md)). What Kaspa
   holds is the fingerprint of all of it at one
   moment.
 - a **lane tip**: how far execution had read the program's action lane
@@ -332,7 +332,7 @@ previous settlement's digest, the claimed new digest, and every lane
 entry, deposit, and L1 context item in between, processed by the
 program's pinned code, with nothing skipped and nothing invented. The
 proof is generated off-chain by a zkVM and verified on-chain by every
-Kaspa node as a consensus rule ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md); chapter 7 covers the zkVM). A
+Kaspa node as a consensus rule ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md); [chapter 7](zkvm.md) covers the zkVM). A
 settlement whose proof does not verify is invalid, and no node includes
 it.
 
@@ -388,7 +388,7 @@ commitment, one claim out.
 
 That last row deserves its own sentence: **locks, unlockers, and signers are
 guest preferences too**. The framework provides common implementations: a
-lock names who may act (tt uses pubkey locks), a signer proves control of
+lock names who may act ([tt uses pubkey locks](https://github.com/biryukovmaxim/vprog-tictactoe/tree/fe6b0e8/guest/src/runtime)), a signer proves control of
 it, an unlocker pairs them. A program can compose or replace them.
 Every battery above is real, shipped code in vprogs today; "replaceable"
 means the *shape* doesn't depend on which one you use.
@@ -397,16 +397,16 @@ One term is left, and it names the whole thing: a **covenant id**, the
 32-byte identity of one program instance. Deposits pay into it,
 settlements chain within it, exits reference it. And the full list of
 what a settlement chain is pinned to is short: the covenant id fixes the
-instance, and the image ids of the exact guest binaries (chapter 7) fix
+instance, and the image ids of the exact guest binaries ([chapter 7](zkvm.md)) fix
 the code and proof stack it runs. The pins chain together: the
 covenant's script hash is computed from the pinned image ids, and both
 the deposit address and the covenant id derive from that script, so
 rules, id, and address change together. Anyone can recompute the hash
 and check the address before depositing; the tooling is a script today,
 not a website, so in practice you rely on someone you trust having run
-it, the same trust in the code that chapter 3's table already counted.
+it, the same trust in the code that [chapter 3](based-rollup.md)'s table already counted.
 An image id that changes by one byte no longer matches its pin, which is
-why an upgrade means moving to a new instance (chapter 8); the pin could in principle
+why an upgrade means moving to a new instance ([chapter 8](solana.md)); the pin could in principle
 migrate to new images, but no such mechanism ships today.
 
 In tt's live deployment the covenant id is literally a constant. At

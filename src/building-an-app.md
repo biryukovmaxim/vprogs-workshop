@@ -10,7 +10,7 @@ The pattern is one sentence: **signed actions in, indexed state out.**
 Your app's users hold keys. Everything a user does is a signed action,
 and building one is pure, local computation: take the action, encode it
 with the program's wire format, sign it with the user's key. tt compiles
-its guest wire library to WebAssembly so the browser can do exactly this:
+its [guest wire library to WebAssembly](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/encoder-wasm/src/lib.rs) so the browser can do exactly this:
 the same encoders the zkVM verifies, running in the page, producing signed
 actions with zero servers involved. The wallet never asks anyone's
 permission to *construct* a transaction; the L1 carries it, and whether
@@ -22,7 +22,7 @@ Actions go in; how does your UI read the current board, the user's
 balance, the open games? Replaying proofs is too heavy for a frontend.
 So the operator runs a **DA/index layer**: a service that
 follows the program's execution and serves queries over the resulting
-state. tt's node exposes exactly the API a tic-tac-toe app needs:
+state. [tt's node](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/node/src/da.rs) exposes exactly the API a tic-tac-toe app needs:
 
 | Endpoint | What the app reads |
 |---|---|
@@ -36,7 +36,7 @@ state. tt's node exposes exactly the API a tic-tac-toe app needs:
 The web app is then a perfectly ordinary frontend: fetch state, render a
 board, post signed actions. There is no Anchor-style IDL or generated
 client yet: the WASM wire library is the client SDK, and the endpoints
-above are hand-written. All the exotic machinery from chapters 3 to 6 is
+above are hand-written. All the exotic machinery from chapters [3](based-rollup.md) to [6](machinery.md) is
 behind two habits: *sign locally, read the index*.
 
 ## Who pays for what
@@ -44,7 +44,7 @@ behind two habits: *sign locally, read the index*.
 Users pay ordinary Kaspa fees for their own lane actions and deposits;
 each action rides a normal transaction funded from the user's own UTXOs,
 and an exit claim is likewise the claimant's own transaction, its fee
-carried by one of the claimer's own coins (the settlement appendix has
+carried by one of the claimer's own coins (the [settlement appendix](appendix-settlements.md#an-exit-claim-up-close) has
 the shape).
 The operator pays the settlement transactions' fees and the proving
 compute. tt itself charges nothing inside the program today; an in-program
@@ -60,7 +60,7 @@ operator proving cycles until the fee battery is placed.
 There is no pre-proof filter, deliberately: whoever filters decides what
 counts as garbage, and the lane's promise is that inclusion is not
 anyone's decision. Skipping an entry cannot hide; it shows up as a
-stalled lane tip, chapter 6's stall, visible rather than silent. Running
+stalled lane tip, [chapter 6](machinery.md)'s stall, visible rather than silent. Running
 the stack is pure cost in tt, so the "someone will resume it" story
 depends on enthusiasm until that battery is placed.
 
@@ -104,7 +104,7 @@ An indexer is a view over one of these nodes; it inherits whatever that
 node is worth trusting. Your own indexer against the operator's node
 buys nicer queries, not independence. One more check the shape allows:
 the settlement's receipt is public data on L1 and verifies in
-milliseconds against the pinned image ids (chapter 7); consensus runs
+milliseconds against the pinned image ids ([chapter 7](zkvm.md)); consensus runs
 that check on every settlement, so running it yourself matters only if
 you do not process the chain yourself.
 
