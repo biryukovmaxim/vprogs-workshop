@@ -93,5 +93,13 @@ set to sit inside that reach, so a fresh node can always verify the
 current lane commitments. Replaying lane entries older than the
 pruning window, say to rebuild state from deployment, needs block
 bodies, which by then only archival nodes serve. The machine meets
-this reality with its start modes, bootstrap, resume, and catch-up
+this reality with three start modes: *bootstrap* funds a new
+covenant's first output; *resume* continues your own instance from
+its persisted identity; *catch-up* joins an existing covenant by
+replaying from its deploy block (a nearer seed would miss lane
+history the state already absorbed, so the deploy block is required,
+not a convenience). And the archival data authenticates the same way
+everything here does: every block's content is committed by its
+header, and headers verify by proof of work, so an archival peer
+cannot serve you a forged past, only withhold it
 ([Where things stand](state-of-the-union.md)).
