@@ -110,7 +110,7 @@ that check on every settlement, so running it yourself matters only if
 you do not process the chain yourself.
 
 In the game's terms: the index shows your opponent's move as a new
-board. Checking it means hashing that board, proving the hash is the
+board. Checking it means hashing that board, checking the hash is the
 leaf at the game's resource id, and checking the resulting root against
 the settled digest. That middle step is the one the shape allows but no
 API serves today: tt hands out account bytes, not Merkle paths, while

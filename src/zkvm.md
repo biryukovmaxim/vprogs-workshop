@@ -17,7 +17,8 @@ output record), and the image id (the hash of the program binary).
 The input is not one of them: a receipt pairs with the image id and
 the journal and nothing else, so two runs with different inputs that
 produce the same journal look identical from the outside. That suits
-this machine: the proving host assembles each guest's input
+this machine: the proving host (the prover's side outside the zkVM)
+assembles each guest's input
 privately, and everything the settlement must pin travels in the
 journal. Given the three, the zkVM's
 verifier answers one question, did this exact program produce this

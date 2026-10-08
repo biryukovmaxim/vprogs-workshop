@@ -53,12 +53,12 @@ settler can't settle a fabricated state; Kaspa verifies the proof before accepti
 the tx, and the settlement chain can't fork without splitting real
 money on L1. What the operator *can* do is stop: stop executing, stop
 proving, stop settling, or keep settling against an old lane tip so
-your action is never included. That is the liveness trust: **safety
+your action is never processed. That is the liveness trust: **safety
 needs no operator; liveness does, until someone else takes over.**
 
 Two properties make "someone else" possible. First, nothing in the
-machine is operator-keyed: the settlement script checks proofs and ends
-without any signature (a valid proof from anyone extends the chain),
+machine is operator-keyed: the settlement script requires no
+signature, only a valid proof (a valid proof from anyone extends the chain),
 the bridge only reads public chain data, and the lane is public. So
 anyone can, in principle, stand up this same open stack against the
 same lane and continue where the last operator stopped. The limits of

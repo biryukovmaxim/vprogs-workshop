@@ -63,6 +63,11 @@ appendix that carries the complete version.
   subnetwork) of ordinary transactions carrying users' signed actions.
   Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
+- **Covenant**: Kaspa's mechanism ([KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md))
+  for scripts that bind outputs to one program instance: a covenant
+  transaction carries the instance's id, consensus enforces the
+  binding, and a script can demand that its spender run under a named
+  covenant. Settlements and exit claims are covenant transactions.
 - <a id="covenant-id"></a>**Covenant id**: the blake2b hash of the covenant's redeem script.
   That one script pins everything the instance is: the guest image
   ids (the exact rule-set version), the lane, and the state digest
@@ -86,9 +91,12 @@ appendix that carries the complete version.
 - **Journal**: the fixed-format record inside each proof: the state
   before, the state after, how far the lane had been read, which L1
   blocks execution saw, and the deposit and exit commitments where the
-  step carried any. Used from [How it all chains](chaining.md) on.
+  step carried any. vprogs writes three levels of them, transaction,
+  batch, bundle; [The zkVM, briefly](zkvm.md) lays them side by side.
+  Used from [How it all chains](chaining.md) on.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
-  without re-running the program, that a claimed execution really happened.
+  without re-running the program, that a specific guest produced a
+  specific journal.
 - **Runtime**: the layer of code that checks and applies each action.
   [Solana: the real difference](solana.md) is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on
@@ -99,6 +107,9 @@ appendix that carries the complete version.
 - **Confirmation window**: the number of blocks of depth the machine
   waits before treating an L1 block as final; widened adaptively when the
   network looks reorg-prone ([How it all chains](chaining.md)).
+- **Safety**: the guarantee that nothing invalid ever becomes settled
+  state: no one can forge, steal, or pay twice, whatever the operator
+  does.
 - <a id="liveness"></a>**Liveness**: the guarantee that someone keeps
   executing, proving, and settling, so actions and exits keep processing.
   Safety says no one can steal;

@@ -8,7 +8,7 @@ vprogs program today, and what isn't it yet?
 Each program instance is one covenant id: one lane, one state tree, one
 settlement chain, one set of pinned guest images, one operator stack.
 Every proof in the system names its covenant id and settles into it;
-the identity is part of the batch journal itself. The consequence:
+the identity is part of the settlement journal itself. The consequence:
 
 **A vprogs program is a sovereign app.** It sets its own rules,
 state, and exits, and shares nothing with
