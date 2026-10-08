@@ -16,7 +16,7 @@ Both systems share the same core shape:
 | State shape | accounts, addressed by keys, holding data and lamports (Solana's smallest unit) | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
-| Concurrency discipline | non-conflicting txs run in parallel across programs; a losing tx fails and is resubmitted | the resource discipline is copied from the account model: non-conflicting actions run in parallel inside the one program, and so do non-conflicting blocks; the proof chain itself is sequential by construction |
+| Concurrency discipline | non-conflicting txs run in parallel across programs; a losing tx fails and is resubmitted | transactions with disjoint resources execute and prove in parallel, across blocks too; only the stitching is sequential, the batch and bundle proofs that chain them by construction ([How it all chains](chaining.md) defines the tiers) |
 | Money | native token, rent (a minimum-balance floor) on accounts | native KAS, fees and storage mass (an extra charge for creating small outputs, since every full node stores the unspent set; the [Kaspa appendix](appendix-kaspa-depth.md#storage-mass-paying-for-the-unspent-set) has the formula) |
 
 A Solana developer reading tt's guest code will feel at home: there are
@@ -115,9 +115,9 @@ short:
 | The question | Here |
 |---|---|
 | Validity or fraud proofs? | Validity: every settlement carries a zk proof every Kaspa node checks |
-| Forced inclusion? | Not shipped: no escape hatch; the tip moves only when someone settles ([The machinery](machinery.md)) |
+| Forced inclusion? | Data inclusion is permissionless (the lane has no gatekeeper); forced processing is not shipped: nothing forces the tip to advance, it moves when someone settles ([The machinery](machinery.md)) |
 | Sequencer failure? | There is no sequencer; whoever settles picks how far the tip moves, and anyone with a valid proof can settle |
-| Exit latency? | Confirmation window plus proving plus L1 inclusion ([How it all chains](chaining.md)); no measured numbers published yet |
+| Exit latency? | To entitlement: confirmation window plus proving plus L1 inclusion; to funds: plus the claim transaction's own confirmations ([How it all chains](chaining.md)); no measured numbers published yet |
 | Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block ([The transaction vocabulary](transactions.md)) |
 | Preconfirmations? | None as a protocol promise; anyone can run a node in execution mode, replay the lane, and read the pending state, anchored to the latest settlement |
 
