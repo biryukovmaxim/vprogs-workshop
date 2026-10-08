@@ -49,11 +49,10 @@ proving base was rolled back are thrown away and rebuilt against the
 surviving chain, reusing the
 lower-tier proofs that still chain; a settlement removed by a reorg
 before it is confirmed is simply resubmitted. Proof cancellation is
-the pipeline stopping work on bundles whose base was rolled back. The
-invariant: only the bundle covering the surviving chain is generated
-and settled; a canceled bundle is at most kept for its still-valid
-parts, and when cancellation is working it is never generated at all.
-This is
+the pipeline dropping work on bundles whose base was rolled back: the
+bundle that would have stood on the losing side is not generated, and
+one already in flight is abandoned, keeping its still-valid
+lower-tier proofs for reuse. The aggregate prover ships this. This is
 rare by construction: the machine only cites blocks already behind its
 confirmation window ([How it all chains](chaining.md)).
 
@@ -73,16 +72,18 @@ the price of later snapshots.
 
 [Chapter 4](transactions.md) kept exits to the leaf and the payout; here is the claim
 transaction itself. It pulls in the commitment UTXO, up to eight whole
-coins from the program's deposit pile (only the exit script can unlock
-them; the claim wallet picks which, and eight is its cap), and one
-ordinary coin of the builder's own to carry the fee. A claim pays a
-whole leaf or part of one; the unlock data names the deduct. The
-outputs: the deducted value paid to the lock the leaf names, the
-pile's untouched change re-locked at the same script for the
-remaining claimants, a fresh commitment with the paid part removed
-for the next claimant, and the unspent part of the fee coin back. The
-commitment is a self-updating UTXO: each claim spends it and hands
-the next claimant a tree with less left to claim.
+coins from the program's deposit pile (the claim wallet, the
+builder-side tool, picks which; the cap of eight is protocol, not
+wallet policy, because it sizes the script itself), and one ordinary
+coin of the builder's own to carry the fee. A claim pays a whole leaf
+or the part the swept coins cover; the unlock data names the deduct.
+The outputs, in the order the script pins them: output 0 is the
+payout, the deducted value paid to the lock the leaf names; output 1
+is the fresh commitment with the paid part removed, serving the next
+claimant; then the pile's untouched change, re-locked at the same
+deposit lock for the remaining claimants; then the unspent part of
+the fee coin back. The commitment is a self-updating UTXO: each claim
+spends it and hands the next claimant a tree with less left to claim.
 
 ```mermaid
 flowchart LR
@@ -106,21 +107,47 @@ the branch, to equal the embedded root. A leaf hashes as SHA-256 over
 a leaf tag, the destination's script bytes, and the amount; a branch
 node as SHA-256 over a branch tag and its two children
 ([definitions](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_tree.rs#L81-L88)).
-The handover is also script work: the same branch folded around the
-reduced leaf gives the next root, the script hashes its own bytes
-with that root and the new count into the next commitment's script
-hash, and output 1 must be exactly that, with the commitment's own
-value passing through unchanged. When the last leaf empties there is
-no output 1; the final claim folds the commitment's residual value
-into the payout instead. The deposit coins are conserved exactly and
-the fee burns only from the claimer's collateral coin, so swept value
-cannot ride out anywhere but the payout and the pile
+The handover is also script work: the same branch
+folded around the reduced leaf gives the next root, and the script
+takes its own template bytes, as revealed in the claim's unlock data,
+prefixed with the new root and count, hashes them into the next
+commitment's script hash, and requires output 1 to be exactly that,
+with the commitment's own value passing through unchanged. The count
+rides along for the endgame: it drops by one only when a claim empties
+a leaf whole, and reaching zero is what tells the script the tree is
+done. While any leaf remains, the payout is exactly the deduct; when
+the last leaf empties there is no output 1 left to carry the
+commitment's value, so the script folds it into the final payout
+instead (output 0 becomes the deduct plus the commitment's own
+value). The deposit coins are conserved exactly and the fee burns
+only from the claimer's collateral coin, so swept value cannot ride
+out anywhere but the payout and the pile
 ([the full phase list](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_script.rs#L178-L203)).
 
+Two background facts close the money flow. First, the commitment's
+own value: the settlement that emits exits funds the permission
+output from the settler's own wallet, alongside the fee; the amount
+is pinned in the covenant script, and none of it is program money.
+Every claim passes it through unchanged, and the final claim folds it
+into the payout, which is why the last claimant collects it. Second,
+what the pile coins are locked with: each is a deposit that paid the
+program's deposit address, a P2SH whose [redeem script derives from
+the covenant id
+alone](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/delegate_script.rs#L1-L25)
+and demands that the spending transaction itself run under that same
+covenant. No key ever unlocks a deposit; only the machine's own
+covenant transactions can move one, and the claim script does not
+take its funding on faith: it [rebuilds the expected lock bytes from
+its own covenant id
+on-chain](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_script.rs#L530)
+and counts only inputs that match, so coins from another program or a
+plain wallet output cannot sneak in as funding.
+
 And the tree's build site: each transaction's proof journals the
-exits it emitted, and the bundle proof's verifier replays them, in
-canonical order (journal order within a transaction, transaction
-order within a batch, batch order within the
+exits it emitted, and the aggregator guest, while proving the bundle,
+replays them from those journals in canonical order (journal order
+within a transaction, transaction order within a batch, batch order
+within the
 bundle, [accumulator](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/withdrawal/exit_accumulator.rs#L1-L23)),
 into the one tree whose root the settlement carries.
 
