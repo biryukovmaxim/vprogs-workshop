@@ -6,8 +6,7 @@ cryptography.
 
 A zkVM runs an ordinary program (normal instructions, normal toolchain),
 but alongside the result it produces a **receipt**: a small artifact that
-proves "this exact program, on this exact input, produced this exact
-output". Anyone can verify the receipt in milliseconds, without re-running
+proves "this exact program produced this exact output record". Anyone can verify the receipt in milliseconds, without re-running
 the program and without trusting whoever ran it. The key property:
 verification cost is nearly independent of execution cost. A program may
 run for an hour; its receipt still checks in milliseconds and is only a
@@ -15,12 +14,19 @@ few kilobytes.
 
 Verification takes three things: the receipt, the journal (the claimed
 output record), and the image id (the hash of the program binary).
-The exact input is committed inside the receipt itself; the journal is
-the output the outside world checks. Given all three, the zkVM's
+The input is not one of them: a receipt pairs with the image id and
+the journal and nothing else, so two runs with different inputs that
+produce the same journal look identical from the outside. That suits
+this machine: the proving host assembles each guest's input
+privately, and everything the settlement must pin travels in the
+journal. Given the three, the zkVM's
 verifier answers one question, did this exact program produce this
-exact output, and it answers by checking the mathematics inside the
+exact journal, and it answers by checking the mathematics inside the
 receipt, never by re-running the program. Underneath, that mathematics
-is polynomial arithmetic; this book stays at that level.
+is polynomial arithmetic; this book stays at that level. One
+expectation to leave at the door: zero-knowledge here is verification
+technology, not privacy. Journals, lane entries, and program state
+are public data.
 
 ```mermaid
 flowchart LR
@@ -34,18 +40,24 @@ flowchart LR
 
 The journal deserves a second look, because everything downstream
 hangs from it. It is the guest's public output, its stdout, and it is
-one of the parameters zk verify takes: a receipt does not verify
-against "this program ran somehow", it verifies against this exact
-program, that exact input, and exactly this journal. That turns the
-journal into the proof's claim. A batch proof's journal states one
-transition, "from this previous state root, lane tip and L1 context,
-to this new one"; the aggregator compounds a run of such claims; the
-bundle proof's journal is the claim the settlement submits. L1 never
-stores the journal. When the settlement script runs zk verify, it
-hashes its own on-chain numbers into the journal digest the receipt
-must commit, so the proof only holds for exactly the values on the
-chain ([How it all chains](chaining.md) follows the chain of digests; the
-script side is the last section of this chapter).
+one of the inputs zk verification checks the receipt against: a
+receipt does not verify against "this program ran somehow", it
+verifies against this exact program and exactly this journal. That
+turns the journal into the proof's claim. vprogs writes three of
+them: a transaction's journal records what that one transaction did,
+the exits it emitted included; a batch journal states one transition,
+"from this previous state root, lane tip and L1 context, to this new
+one"; the bundle journal is the settlement's claim, and the
+aggregator compounds a run of batch claims into it. L1 never stores
+any of them. When the settlement script runs the zk-verify opcode
+(two sections down), it hashes its own on-chain numbers into the
+journal digest the receipt must commit, so the proof only holds for
+exactly the values on the chain; and because the bundle journal is
+exactly those named values in canonical form, anyone holding the
+settlement can rebuild the digest and check the receipt without
+asking the operator ([How it all chains](chaining.md)
+follows the chain of digests; the script side is the last section of
+this chapter).
 
 ## What vprogs uses today
 
@@ -56,8 +68,10 @@ RISC-V ELF form) with its own
 
 - the **transaction guest** is the application itself: tt's runtime and
   rules, compiled with the framework's runtime processor. It executes one
-  transaction's actions against state and produces the per-transaction
-  proof.
+  transaction's actions against the resource bytes they touch and
+  produces the per-transaction proof; state roots exist only at the
+  batch level ([the state tree appendix](appendix-state-tree.md) draws
+  the split).
 - the [**batch guest**](https://github.com/kaspanet/vprogs/tree/055ae28a/zk/batch-prover) verifies a block's transaction receipts and
   compounds them into one proof per batch.
 - the [**aggregator**](https://github.com/kaspanet/vprogs/tree/055ae28a/zk/aggregate-prover) compounds a run of batch proofs into the single proof
