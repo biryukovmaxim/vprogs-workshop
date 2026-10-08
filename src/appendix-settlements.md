@@ -1,7 +1,7 @@
 # Appendix: settlement and exit mechanics
 
 [Chapter 4](transactions.md) kept the settlement and the exit to what they attest and pay,
-and [chapter 5](chaining.md) kept the block model to its simplified form; this page
+and [How it all chains](chaining.md) kept the block model to its simplified form; this page
 carries the mechanics a careful reader asks about next. Nothing here
 changes the design; it is the same machine, closer up.
 
@@ -43,7 +43,7 @@ fails that check, so a settlement cannot leave a hole.
 
 ## What if cited blocks reorganize?
 
-The proving pipeline has tiers ([chapter 7](zkvm.md) lists the three guests), and a reorg
+The proving pipeline has tiers ([The zkVM, briefly](zkvm.md) lists the three guests), and a reorg
 invalidates only what stood on the reorganized side. Bundles whose
 proving base was rolled back are thrown away and rebuilt against the
 surviving chain, reusing the
@@ -55,7 +55,7 @@ and settled; a canceled bundle is at most kept for its still-valid
 parts, and when cancellation is working it is never generated at all.
 This is
 rare by construction: the machine only cites blocks already behind its
-confirmation window ([chapter 5](chaining.md)).
+confirmation window ([How it all chains](chaining.md)).
 
 ## The anchor window and the long stall
 

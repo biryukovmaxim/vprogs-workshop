@@ -27,7 +27,7 @@ result. What it computes is defined by the program, not by the executor.
 **The provers** produce proofs of the execution, in three stages, one
 guest program each: the transaction guest proves one transaction, the
 batch guest compounds a block of those proofs, and the aggregator
-compounds batches into the single proof a settlement carries ([chapter 7](zkvm.md)
+compounds batches into the single proof a settlement carries ([The zkVM, briefly](zkvm.md)
 details the pipeline). Batch proofs chain within a bundle, and bundles
 chain across settlements, so the pipeline is a chain by construction.
 
@@ -46,7 +46,7 @@ bigger deployment could scale each separately.
 
 ## Who are you trusting, again?
 
-With the roles named, the trust question from [chapter 3](based-rollup.md) gets concrete.
+With the roles named, the trust question from [Based rollup on Kaspa](based-rollup.md) gets concrete.
 The bridge can't invent L1 facts; the proofs check everything against
 the real chain. The executor can't cheat; its output is proven. The
 settler can't settle a fabricated state; Kaspa verifies the proof before accepting
@@ -63,7 +63,7 @@ the bridge only reads public chain data, and the lane is public. So
 anyone can, in principle, stand up this same open stack against the
 same lane and continue where the last operator stopped. The limits of
 that claim: resuming means running a proving stack, real work at real
-cost ([chapter 9](building-an-app.md) says who would pay), so it is a capability, not a
+cost ([Building an app on it](building-an-app.md) says who would pay), so it is a capability, not a
 service anyone promises. Second, exits already committed to the
 permission tree are claimable by their holders alone; no operator sits
 in that loop.

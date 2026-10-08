@@ -91,7 +91,7 @@ the application.
   one. In-place
   migration does not ship, and draining the old instance still needs
   someone to keep its stack settling; an instance everyone is leaving
-  is the least likely to keep one, which is [chapter 6](machinery.md)'s liveness trust
+  is the least likely to keep one, which is [The machinery](machinery.md)'s liveness trust
   at its sharpest.
 
 ## What it costs
@@ -99,7 +99,7 @@ the application.
 - **No free composability.** Solana programs share one state machine, so
   one program can call another atomically. Each vprogs program is its own
   proved system; cross-program calls are future work, sketched but not
-  shipped ([chapter 10](single-sovereign-apps.md) lives inside this limitation).
+  shipped ([Single sovereign apps](single-sovereign-apps.md) lives inside this limitation).
 - **The runtime is your responsibility.** Nobody else guarantees your
   rules make sense. The framework's batteries (locks, unlockers, signers)
   are the strong default, and `runtime.rs`'s job is largely
@@ -115,10 +115,10 @@ short:
 | The question | Here |
 |---|---|
 | Validity or fraud proofs? | Validity: every settlement carries a zk proof every Kaspa node checks |
-| Forced inclusion? | Not shipped: no escape hatch; the tip moves only when someone settles ([chapter 6](machinery.md)) |
+| Forced inclusion? | Not shipped: no escape hatch; the tip moves only when someone settles ([The machinery](machinery.md)) |
 | Sequencer failure? | There is no sequencer; whoever settles picks how far the tip moves, and anyone with a valid proof can settle |
-| Exit latency? | Confirmation window plus proving plus L1 inclusion ([chapter 5](chaining.md)); no measured numbers published yet |
-| Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block ([chapter 4](transactions.md)) |
+| Exit latency? | Confirmation window plus proving plus L1 inclusion ([How it all chains](chaining.md)); no measured numbers published yet |
+| Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block ([The transaction vocabulary](transactions.md)) |
 | Preconfirmations? | None as a protocol promise; anyone can run a node in execution mode, replay the lane, and read the pending state, anchored to the latest settlement |
 
 In Solana the runtime belongs to the network; in a vprogs rollup it

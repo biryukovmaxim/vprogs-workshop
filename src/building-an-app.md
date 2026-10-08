@@ -60,7 +60,7 @@ operator proving cycles until the fee battery is placed.
 There is no pre-proof filter, deliberately: whoever filters decides what
 counts as garbage, and the lane's promise is that inclusion is not
 anyone's decision. Skipping an entry cannot hide; it shows up as a
-stalled lane tip, [chapter 6](machinery.md)'s stall, visible rather than silent. Running
+stalled lane tip, [The machinery](machinery.md)'s stall, visible rather than silent. Running
 the stack is pure cost in tt, so the "someone will resume it" story
 depends on enthusiasm until that battery is placed.
 
@@ -104,7 +104,7 @@ An indexer is a view over one of these nodes; it inherits whatever that
 node is worth trusting. Your own indexer against the operator's node
 buys nicer queries, not independence. One more check the shape allows:
 the settlement's receipt is public data on L1 and verifies in
-milliseconds against the pinned image ids ([chapter 7](zkvm.md)); consensus runs
+milliseconds against the pinned image ids ([The zkVM, briefly](zkvm.md)); consensus runs
 that check on every settlement, so running it yourself matters only if
 you do not process the chain yourself.
 

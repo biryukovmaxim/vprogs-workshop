@@ -41,7 +41,7 @@ difficulty from a window of blocks chosen by DAA score, and the
 emission schedule, including the reward halvings, is defined over DAA
 score. Both counters ride every block header, so both only move
 forward; that is what lets the program treat DAA score as a clock
-([chapter 4](transactions.md)). The per-block context the program reads inside each proof
+([The transaction vocabulary](transactions.md)). The per-block context the program reads inside each proof
 window, timestamp, DAA score, blue score, is committed by the chain
 itself ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)).
 

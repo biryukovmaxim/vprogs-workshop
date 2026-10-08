@@ -58,7 +58,7 @@ store cannot quietly produce valid proofs.
 
 ## Checking one account against L1
 
-The verification [chapter 9](building-an-app.md) sketches, as a walk:
+The verification [Building an app on it](building-an-app.md) sketches, as a walk:
 
 1. Read the settled digest from L1. The settlement's own data names
    the digest it moved to, and its continuation output locks that
@@ -73,5 +73,5 @@ The proving host runs this same walk for every touched account on
 every batch, so every piece exists; the missing part is the endpoint.
 Nothing in the check is operator-specific: the path either hashes to
 the settled root or it does not. What the walk cannot cover is state
-newer than the last settlement; that gap is [chapter 9](building-an-app.md)'s, and only the
+newer than the last settlement; that gap is [Building an app on it](building-an-app.md)'s, and only the
 next settlement's proof or your own re-execution closes it.

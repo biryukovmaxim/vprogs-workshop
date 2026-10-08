@@ -11,7 +11,7 @@ operator cannot rewrite the scoreboard either, because the scoreboard is
 a proof, not a statement by anyone.
 
 This is [**vprog-tictactoe**](https://github.com/biryukovmaxim/vprog-tictactoe/tree/fe6b0e8) (we'll call it *tt*), a working example built
-on [**vprogs**](https://github.com/kaspanet/vprogs/tree/055ae28a), a framework for *based computation* on Kaspa ([chapter 3](based-rollup.md)
+on [**vprogs**](https://github.com/kaspanet/vprogs/tree/055ae28a), a framework for *based computation* on Kaspa ([Based rollup on Kaspa](based-rollup.md)
 explains the word). The game is chosen for size: tic-tac-toe is small
 enough to hold in your head and still exercises every part of the
 framework, a proof of concept, not a claim that this game needs a
@@ -35,7 +35,7 @@ A live demo of tt runs alongside this material.
 
 Two things to state up front. First, everything the machine needs is
 live on Kaspa mainnet; the demo itself runs on the public testnet, a
-demonstration network with looser security assumptions ([chapter 3](based-rollup.md) gives
+demonstration network with looser security assumptions ([Based rollup on Kaspa](based-rollup.md) gives
 the details). Second, safety and liveness are different guarantees. The
 chain guarantees that no one can falsify state or steal funds, but
 moving money requires the machine to keep running. Who runs it, what can

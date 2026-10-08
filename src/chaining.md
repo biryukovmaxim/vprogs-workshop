@@ -14,7 +14,7 @@ Vocabulary check before it piles up; five words, one pipeline:
 - the latest aggregate, the one a settlement carries, is the *bundle
   proof*;
 - the guest program that does the compounding is the *aggregator*
-  ([chapter 7](zkvm.md)).
+  ([The zkVM, briefly](zkvm.md)).
 
 One word in that list needs more room. An *aggregate* is any such
 compaction; a *bundle* is one built as a settlement candidate against
@@ -85,13 +85,13 @@ aggregate proof compounds a run of them.
 L1 never sees the journal directly, and does not need to: the journal
 is the proof's claim, the parameter zk verify checks the receipt
 against, and the settlement script pins its on-chain numbers to the
-journal digest the receipt commits ([chapter 7](zkvm.md#the-journal-what-the-proof-claims)
+journal digest the receipt commits ([The zkVM, briefly](zkvm.md#the-journal-what-the-proof-claims)
 has the role it plays). What lands on L1 is one settlement
 per proved window, and a window spans a range of blocks: the
 settlement commits the final state digest of the range, the lane tip
 execution had read to, the block proof point, and, where the window
 emitted exits, the permission-tree commitment, all backed by the one
-proof that covers the whole range of blocks ([chapter 4](transactions.md) lists what each
+proof that covers the whole range of blocks ([The transaction vocabulary](transactions.md) lists what each
 settlement carries). From the L1's point of view, then, the program's
 history is a chain of 32-byte state roots, one per settlement, and
 every step inside a window is provably reachable from the one before.
@@ -168,6 +168,6 @@ without one). And everything inside it, every move of every game,
 every deposit, every balance, is a 32-byte root away, verified by a proof
 anyone can check. What L1 does *not* enforce is freshness: nothing on-chain
 forces a settlement to advance the tip to today's lane head; the tip moves
-when the operator settles, and an operator can stall ([chapter 6](machinery.md) lists
+when the operator settles, and an operator can stall ([The machinery](machinery.md) lists
 the stall cases). The rest of this book covers who runs the machine, what
 proves it, and what building on it is like.

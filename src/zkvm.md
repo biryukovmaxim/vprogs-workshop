@@ -44,7 +44,7 @@ bundle proof's journal is the claim the settlement submits. L1 never
 stores the journal. When the settlement script runs zk verify, it
 hashes its own on-chain numbers into the journal digest the receipt
 must commit, so the proof only holds for exactly the values on the
-chain ([chapter 5](chaining.md) follows the chain of digests; the
+chain ([How it all chains](chaining.md) follows the chain of digests; the
 script side is the last section of this chapter).
 
 ## What vprogs uses today
@@ -70,7 +70,7 @@ way. Each level's proof then covers the checks it did, which is how
 proofs nest.
 
 All three image ids are pinned at bootstrap, alongside the covenant id
-([chapter 4](transactions.md)),
+([The transaction vocabulary](transactions.md)),
 and every proof names the exact images its guest ran, so "the rules" are
 never an ambiguous reference. One property of the pipeline matters for
 everything downstream: bundles prove in sequence, each on top of the last,
@@ -80,7 +80,7 @@ makes the digest chain a chain.
 The sequence also shapes latency. A prover that keeps up stays a fixed
 distance behind the chain; one that cannot keep up falls behind without
 bound, so settlements wait and exits wait to be committed: the same
-liveness exposure [chapter 6](machinery.md) names.
+liveness exposure [The machinery](machinery.md) names.
 
 Recovery is catching up: a stalled machine proves a larger window that
 reaches a recent block, then settles again. The anchor-window limit and
