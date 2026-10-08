@@ -24,8 +24,8 @@ This chapter summarizes what exists, what does not, and what it costs.
   details). Dev-mode stub receipts are strictly for the local
   demo; the testnet deployments prove for real.
 - **Operational hardening.** The machinery survives restarts, reorgs, and
-  pruned nodes (nodes that have discarded old block data); snapshot
-  bootstrap, resume, and catch-up modes exist because operations demanded
+  pruned nodes (nodes that have discarded old block data); bootstrap,
+  resume, and catch-up start modes exist because operations demanded
   them.
 
 ## What it is not yet

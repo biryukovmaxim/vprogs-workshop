@@ -47,12 +47,17 @@ itself ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)).
 
 ## Storage mass: paying for the unspent set
 
-A full node keeps three things. Headers and the blockdag structure
-between them: forever. The unspent transaction output set, one entry
-per output created and not yet spent: forever, it is the state every
-node must consult to validate. Full block data, transactions with
-their bodies: only for a bounded recent window on ordinary (pruned)
-nodes; archival nodes keep everything.
+A full node keeps two things forever and one thing briefly. The
+unspent transaction output set, one entry per output created and not
+yet spent: forever, it is the state every node must consult to
+validate. Full block data, transactions with their bodies: only for a
+bounded recent window on ordinary (pruned) nodes. And the old chain
+itself, headers with their commitments: ordinary nodes keep the
+parts consensus still needs, the chains the pruning proof covers and
+the recent window, and delete the rest; a node joining late crosses
+the gap with a proof-of-work-checked pruning proof instead of
+validating from genesis. Archival nodes keep everything, headers
+included.
 
 That asymmetry is why outputs cost. A transaction's mass, the weight
 its fee is priced on, is the larger of two terms
@@ -71,3 +76,20 @@ minimum-relay rules (the glossary's dust entry) floor how small an
 output may be, and storage mass prices the splitting itself. Both
 limits meet in this book's deposit pile: an exit claim that splits the
 pile can divide it only as far as relay rules and storage mass allow.
+
+## Reconstructing the program from L1
+
+What the pruning asymmetry means for the rollup, as one ladder. A
+node that has followed the chain since the program deployed watched
+every header and body itself, so it can verify every commitment and
+replay every lane entry without trusting anyone; to keep that
+property forever it must keep the data, or know an archival peer. A
+node joining later starts from a pruning proof: headers it can trust
+by proof of work, commitments included, as far back as the retained
+chains reach. KIP-21 deliberately bounds the active-lane commitment
+set to sit inside that reach, so a fresh node can always verify the
+current lane commitments. Replaying lane entries older than the
+pruning window, say to rebuild state from deployment, needs block
+bodies, which by then only archival nodes serve. The machine meets
+this reality with its start modes, bootstrap, resume, and catch-up
+([Where things stand](state-of-the-union.md)).

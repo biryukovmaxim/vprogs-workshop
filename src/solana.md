@@ -118,7 +118,7 @@ short:
 | Forced inclusion? | Data inclusion is permissionless (the lane has no gatekeeper); forced processing is not shipped: nothing forces the tip to advance, it moves when someone settles ([The machinery](machinery.md)) |
 | Sequencer failure? | There is no sequencer; whoever settles picks how far the tip moves, and anyone with a valid proof can settle |
 | Exit latency? | To entitlement: confirmation window plus proving plus L1 inclusion; to funds: plus the claim transaction's own confirmations ([How it all chains](chaining.md)); no measured numbers published yet |
-| Data availability? | The lane on Kaspa itself: public, consensus-ordered, provable to any block ([The transaction vocabulary](transactions.md)) |
+| Data availability? | The lane on Kaspa itself: public, consensus-ordered, its commitments verifiable from any node's retained headers; entry data older than the pruning window needs an archival node ([the Kaspa appendix](appendix-kaspa-depth.md#reconstructing-the-program-from-l1)) |
 | Preconfirmations? | None as a protocol promise; anyone can run a node in execution mode, replay the lane, and read the pending state, anchored to the latest settlement |
 
 In Solana the runtime belongs to the network; in a vprogs rollup it
