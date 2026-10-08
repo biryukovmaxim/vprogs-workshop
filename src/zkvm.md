@@ -87,6 +87,13 @@ while it runs, and the aggregator checks each batch receipt the same
 way. Each level's proof then covers the checks it did, which is how
 proofs nest.
 
+Why a transaction tier at all? Parallelism and reorgs. Transactions
+with disjoint resources prove at the same time, independently; and
+when a reorg leaves the transactions' order unchanged, their proofs
+are reused exactly as they are, with only the compounding redone
+([the settlement appendix](appendix-settlements.md#what-if-cited-blocks-reorganize)
+tells the same story for bundles).
+
 All three image ids are pinned at bootstrap, alongside the covenant id
 ([The transaction vocabulary](transactions.md)),
 and every proof names the exact images its guest ran, so "the rules" are

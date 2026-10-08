@@ -156,8 +156,10 @@ real transaction, paying a real Kaspa fee from the user's own funds, mined
 by the network's miners like any payment. The subnetwork is a label the
 node's consensus tracks: it gossips, orders, and accounts for lane
 traffic alongside ordinary payments. Carrying registered lanes is a
-consensus rule, not an opt-in a miner could quietly refuse. Each lane
-has a per-block capacity limit; entries over the limit wait for later
+consensus rule, not an opt-in a miner could quietly refuse; the L1
+side enforces no admission rules beyond that, and a program may
+layer its own entry rules if it wants them. Each lane
+has a gas limit per L1 block; entries over the limit wait for later
 blocks, and nothing is dropped or refused. And the node
 itself will hand anyone a cryptographic proof of what the lane contained up
 to any confirmed block. There is no lane operator to refuse an entry;
