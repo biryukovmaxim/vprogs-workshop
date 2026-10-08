@@ -240,31 +240,40 @@ exactly one commitment, ever.
 The mental model is one list per settlement, not one account per
 user: a settlement that emitted exits locks the list of exactly those
 exits into one commitment output, and a leaf is one line of the list,
-an L1 lock plus an amount. The tree itself lives off-chain; L1 holds
-only its root, inside the commitment's script, and a claimant brings
-the leaf and its branch when claiming.
+an L1 lock plus an amount. The tree itself lives off-chain, with
+whoever serves the program's data (the DA and index layer of
+[chapter 6](machinery.md)); L1 holds only its root, inside the
+commitment's script, and a claimant brings the leaf and its branch
+when claiming.
 
 The full journey of one withdrawal:
 
 1. you publish a signed *withdraw* action to the lane, naming how much
    and which L1 lock to pay;
 2. execution debits your L2 balance and emits an exit leaf, "(your L1
-   lock, amount)"; the settlement covering that window carries the
-   commitment;
+   lock, amount)"; the window's exits become one tree inside the
+   bundle proof, the proof's journal commits its root, and the
+   settlement covering that window carries the commitment;
 3. once that settlement is confirmed, the claim is an ordinary L1
    transaction: whoever builds it, you, the operator, or anyone
    offering claims as a service, spends the commitment, reveals your
    leaf and its branch, and the script pays the lock the leaf names.
 
 A user claims with one ordinary Kaspa transaction that spends that
-commitment. The claim's unlock data reveals the leaf and its branch in
-the tree; the script checks the branch against the committed root, takes
-the amount and the destination lock from the leaf, and requires the
-payment to match both. The payout is funded from the program's deposit
-pile; the untouched remainder is re-locked at the same script. A fresh
-commitment with this leaf deducted serves the next claimant. So the same
+commitment. The commitment is locked at a P2SH script whose bytes
+embed the tree's root, and the claim's unlock data reveals the leaf,
+its branch in the tree, and how much of the leaf to deduct. The
+script's first job is verification: it hashes the leaf (destination
+script and amount), folds it up the branch, and requires the result
+to equal the embedded root; the payment must go to the lock the leaf
+names, for exactly the deduct, which may be a whole leaf or part of
+one. Its second job is the handover: it folds the same branch around
+the reduced leaf to compute the next root, and the change becomes a
+fresh commitment with the paid part removed, serving the next
+claimant. The payout is funded from the program's deposit pile; the
+untouched remainder is re-locked at the same script. So the same
 exit can never be paid twice: the leaf lives in one commitment, the UTXO
-spent is gone, and the new commitment no longer contains it. Claims on
+spent is gone, and the new commitment carries only what is left. Claims on
 one commitment contend like any two spends of one coin: one wins, the
 loser rebuilds against the fresh commitment; claims on different
 commitments pay out in parallel. What does not ship is a
@@ -284,8 +293,12 @@ rides, what each output is) and what happens when two claims race are
 
 Like the deposit policy, the permission tree is a ready-made part: the
 framework ships the accumulator, the L1 commitment format, and the claim
-flow. A program with different needs could, in principle, ship its own exit
-design; the settlement shape would not change.
+flow. It is also the universal shape: the payout happens in an
+ordinary L1 transaction that the claimant builds and pays for, so the
+program itself never has to compute transaction mass or fees to get
+value out. A program with different needs could, in principle, ship
+its own exit design (direct payouts, several trees); the settlement
+shape would not change.
 
 ## User actions
 
