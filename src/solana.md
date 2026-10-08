@@ -16,7 +16,7 @@ Both systems share the same core shape:
 | State shape | accounts, addressed by keys, holding data and lamports (Solana's smallest unit) | resources, addressed by derived ids, holding data and balances |
 | User intent | signed transactions naming programs and accounts | signed user actions naming targets in program state |
 | Execution | a runtime validates and applies each transaction | a runtime validates and applies each action |
-| Concurrency discipline | non-conflicting txs run in parallel; a losing tx fails and is resubmitted | proving parallelizes per transaction; batch and bundle proofs chain sequentially by construction |
+| Concurrency discipline | non-conflicting txs run in parallel across programs; a losing tx fails and is resubmitted | the resource discipline is copied from the account model: non-conflicting actions run in parallel inside the one program, and so do non-conflicting blocks; the proof chain itself is sequential by construction |
 | Money | native token, rent (a minimum-balance floor) on accounts | native KAS, fees and storage mass (an extra charge for creating small outputs, since every full node stores the unspent set; the [Kaspa appendix](appendix-kaspa-depth.md#storage-mass-paying-for-the-unspent-set) has the formula) |
 
 A Solana developer reading tt's guest code will feel at home: there are
