@@ -71,12 +71,18 @@ the price of later snapshots.
 ## An exit claim, up close
 
 [The transaction vocabulary](transactions.md) kept exits to the leaf and the payout; here is the claim
-transaction itself. It pulls in the commitment UTXO, up to eight whole
+transaction itself. It pulls in the commitment UTXO, up to eight
 coins from the program's deposit pile (the claim wallet, the
 builder-side tool, picks which; the cap of eight is protocol, not
-wallet policy, because it sizes the script itself), and one ordinary
-coin of the builder's own to carry the fee. A claim pays a whole leaf
-or the part the swept coins cover; the unlock data names the deduct.
+wallet policy: the script unrolls its per-input checks, so the cap
+sizes the script, and the script's hash is the on-chain commitment),
+and one ordinary
+coin of the builder's own to carry the fee. The deduct is the
+builder's choice, any amount up to the leaf's whole value; the swept
+coins must cover it exactly, and the unlock data names it. The
+network's relay floors apply to the claim's outputs like any
+transaction's; tt's withdrawal minimum is the app-level guard
+upstream, not script law.
 The outputs, in the order the script pins them: output 0 is the
 payout, the deducted value paid to the lock the leaf names; output 1
 is the fresh commitment with the paid part removed, serving the next
@@ -113,29 +119,40 @@ takes its own template bytes, as revealed in the claim's unlock data,
 prefixed with the new root and count, hashes them into the next
 commitment's script hash, and requires output 1 to be exactly that,
 with the commitment's own value passing through unchanged. The count
-rides along for the endgame: it drops by one only when a claim empties
-a leaf whole, and reaching zero is what tells the script the tree is
+rides along for the endgame: it drops by one whenever a deduct takes
+its leaf to zero, a whole-leaf claim or the last sliver of a partial
+series, and reaching zero is what tells the script the tree is
 done. While any leaf remains, the payout is exactly the deduct; when
 the last leaf empties there is no output 1 left to carry the
 commitment's value, so the script folds it into the final payout
 instead (output 0 becomes the deduct plus the commitment's own
-value). The deposit coins are conserved exactly and the fee burns
-only from the claimer's collateral coin, so swept value cannot ride
-out anywhere but the payout and the pile
+value, and with no continuation the later outputs shift up: the pile
+change, when there is one, lands at index 1, the fee change after
+it). The deposit coins are conserved exactly, their sum must equal
+the payout plus the pile change, and they may never burn: the fee
+comes only from the claimer's collateral coin, whose unburned
+remainder returns as the trailing change output, so swept value
+cannot ride out anywhere but the payout and the pile
 ([the full phase list](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_script.rs#L178-L203)).
 
 Two background facts close the money flow. First, the commitment's
 own value: the settlement that emits exits funds the permission
 output from the settler's own wallet, alongside the fee; the amount
-is pinned in the covenant script, and none of it is program money.
-Every claim passes it through unchanged, and the final claim folds it
-into the payout, which is why the last claimant collects it. Second,
+is a small constant pinned in the covenant script, there to keep the
+commitment output above the network's output floors (a commitment
+below them could not be spent and would strand the tree), and none
+of it is program money. Every claim passes it through unchanged, and
+the final claim folds it into the payout; the fold is the mechanism
+closing the tree, not a bounty. Second,
 what the pile coins are locked with: each is a deposit that paid the
 program's deposit address, a P2SH whose [redeem script derives from
 the covenant id
 alone](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/delegate_script.rs#L1-L25)
 and demands that the spending transaction itself run under that same
-covenant. No key ever unlocks a deposit; only the machine's own
+covenant (a covenant transaction: Kaspa's covenant rules, KIP-20, let
+a script refuse to run outside transactions bound to its covenant
+id, and consensus enforces the binding; the glossary's covenant
+entry has it). No key ever unlocks a deposit; only the machine's own
 covenant transactions can move one, and the claim script does not
 take its funding on faith: it [rebuilds the expected lock bytes from
 its own covenant id
@@ -162,7 +179,10 @@ Claims against the same commitment are spends of one coin, so they
 conflict: two claims racing in the mempool behave like any double-spend.
 One wins; the other's transaction can no longer confirm (its input is
 gone), and the wallet rebuilds it against the new commitment once it
-sees the winner. Claims against different settlements' commitments are
+sees the winner. A reorg plays the same card from the other side: a
+claim that confirmed against a commitment output the reorg removes
+goes with it (its input is gone) and is rebuilt against the
+surviving settlement's commitment. Claims against different settlements' commitments are
 independent and pay out in parallel. The machine watches landed claims
 to update its own books, marking exits claimed in program state, not
 as an additional safety check, and a malformed claim fails its own
