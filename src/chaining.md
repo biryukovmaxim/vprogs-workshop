@@ -82,7 +82,11 @@ is the deposit address the step credited, hashed; the exit commitment
 is the permission tree's). A batch proof attests one such step; an
 aggregate proof compounds a run of them.
 
-L1 never sees the journal directly. What lands there is one settlement
+L1 never sees the journal directly, and does not need to: the journal
+is the proof's claim, the parameter zk verify checks the receipt
+against, and the settlement script pins its on-chain numbers to the
+journal digest the receipt commits ([chapter 7](zkvm.md#the-journal-what-the-proof-claims)
+has the role it plays). What lands on L1 is one settlement
 per proved window, and a window spans a range of blocks: the
 settlement commits the final state digest of the range, the lane tip
 execution had read to, the block proof point, and, where the window

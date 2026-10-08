@@ -30,6 +30,23 @@ flowchart LR
     R --> V["L1-verified settlements"]
 ```
 
+## The journal: what the proof claims
+
+The journal deserves a second look, because everything downstream
+hangs from it. It is the guest's public output, its stdout, and it is
+one of the parameters zk verify takes: a receipt does not verify
+against "this program ran somehow", it verifies against this exact
+program, that exact input, and exactly this journal. That turns the
+journal into the proof's claim. A batch proof's journal states one
+transition, "from this previous state root, lane tip and L1 context,
+to this new one"; the aggregator compounds a run of such claims; the
+bundle proof's journal is the claim the settlement submits. L1 never
+stores the journal. When the settlement script runs zk verify, it
+hashes its own on-chain numbers into the journal digest the receipt
+must commit, so the proof only holds for exactly the values on the
+chain ([chapter 5](chaining.md) follows the chain of digests; the
+script side is the last section of this chapter).
+
 ## What vprogs uses today
 
 vprogs is built on **[RISC0](https://risczero.com)**, a zkVM for RISC-V programs. The proving
