@@ -15,7 +15,12 @@ were not counted in an earlier step. One chain block plus its
 mergeset's uncounted transactions is one block to the machine: one
 witness set, one batch, one step of execution. The dag's parallelism
 is flattened before execution begins, which is why the rest of the
-book can speak of a plain sequence of blocks.
+book can speak of a plain sequence of blocks. The machine never deals
+with the parallel blocks directly: its attention is the selected
+chain, and each selected block arrives with the transactions Kaspa's
+ordering assigned to it. Which parallel block's transactions ride
+which selected block is the chain's own assignment, identical at
+every node; the machine consumes the result.
 
 ## Snapshot claims, chained
 
@@ -62,7 +67,7 @@ The opcode that reads lane commitments (KIP-21's, a different one
 from the [KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md) opcode that verifies proofs) has a reach limit: it serves
 commitments only from a recent window of blocks, roughly the last
 twelve hours' worth, so a
-settlement cannot cite an anchor older than that. A machine stalled longer
+settlement cannot cite a block proof point older than that. A machine stalled longer
 than that must first prove its way forward to a recent block, then
 settle. The chaining shape is what makes that recovery possible: a proof
 window can span many blocks, so the backlog drains in larger windows, at

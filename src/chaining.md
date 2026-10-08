@@ -67,7 +67,7 @@ sequenceDiagram
     P-->>OP: batch proofs
     OP->>P: compound into one proof up to block N
     P-->>OP: bundle proof
-    OP->>L1: settlement: (new_state, new_lane_tip, prove-to block N) + proof
+    OP->>L1: settlement: (new_state, new_lane_tip, block proof point N) + proof
     Note over L1: confirmation window passes
     L1-->>U: exit entitlements live, user claims via permission spend
 ```
@@ -141,8 +141,8 @@ settlement, and past that depth both are as permanent as any Kaspa
 payment. The commitment-reading opcode does enforce one bound of its
 own: it serves commitments only from a recent window of blocks,
 roughly the last twelve hours' worth. The header check reads one
-block: the prove-to block the settlement names (the block proof
-point of [The transaction vocabulary](transactions.md)). Where the
+block: the block proof point the settlement names
+([The transaction vocabulary](transactions.md) defines it). Where the
 proving window started needs no header of its own; the previous
 settlement already pinned it. A machine
 stalled longer than that must first prove a window that reaches a recent
