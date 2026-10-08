@@ -8,9 +8,10 @@ proofs.
 Vocabulary check before it piles up; six terms, one pipeline:
 
 - a *witness* is confirmed L1 data fed to execution;
-- a *tx proof* proves one transaction's execution; transactions with
-  disjoint resources execute and prove in parallel, across blocks
-  too;
+- a *tx proof* proves one transaction's execution; transactions that
+  write disjoint resources execute and prove in parallel, across
+  blocks too, while actions inside one transaction always run in
+  sequence and contending transactions take the chain's order;
 - a *batch* is the work over one block, and its proof is a *batch
   proof*;
 - runs of batches compound into *aggregate* proofs;
