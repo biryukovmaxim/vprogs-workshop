@@ -5,7 +5,7 @@ chapter (the lane, deposits, exits, user actions, settlements) moves
 at once, across multiple L1 blocks, tied together by
 proofs.
 
-Vocabulary check before it piles up; five words, one pipeline:
+Vocabulary check before it piles up; six terms, one pipeline:
 
 - a *witness* is confirmed L1 data fed to execution;
 - a *tx proof* proves one transaction's execution; transactions with
@@ -81,7 +81,9 @@ lane tip, new lane tip, and the L1 context it saw*. The lane entries a
 step consumed are the run between its two lane tips, every published
 action up to the new one; where the step credited deposits or emitted
 exits, their commitments ride the same entry (the deposit commitment
-is the deposit address the step credited, hashed; the exit commitment
+is the deposit address the step credited, hashed, a constant under
+tt's shared address but the carrier of real information under a
+per-user address policy; the exit commitment
 is the permission tree's). A batch proof attests one such step; an
 aggregate proof compounds a run of them.
 
@@ -116,12 +118,16 @@ every active lane: one root over the tips of all active lanes, where
 each lane's tip is a running hash folded over every entry the lane
 has ever carried. The tip is therefore a commitment value, not a
 bookmark: replay the lane's entries through the hash and you land on
-it. That is what makes the check tight. A batch guest consumes a run
+it. That is what makes the check tight. The fold follows the chain's
+own order, one selected-chain block (its absorbed mergeset included)
+at a time, the same order execution consumes ([the settlement appendix](appendix-settlements.md#what-counts-as-one-block)
+defines one block). A batch guest consumes a run
 of entries and journals the two tips it moved between, so its claim
 is hash-bound to exactly those entries, and the settlement script
 requires the proof's journal to commit the tip value the cited
-block's header actually carries, reading the header commitment with
-the KIP-21 opcode and comparing. Fabricate or skip one lane entry and
+block's header actually carries: the script derives this lane's
+committed value from the journal's lane tip and compares it with
+what the KIP-21 opcode serves for the cited block. Fabricate or skip one lane entry and
 the recomputed tip no longer matches the header, so a proof about a
 fabricated or stale L1 history cannot satisfy a node that follows the
 real chain (the
@@ -133,9 +139,11 @@ A reorg deep enough to remove the cited block would also remove the
 settlement, and past that depth both are as permanent as any Kaspa
 payment. The commitment-reading opcode does enforce one bound of its
 own: it serves commitments only from a recent window of blocks,
-roughly the last twelve hours' worth. The check itself reads only the
-window's end block; where the window started is already pinned by the
-previous settlement. A machine
+roughly the last twelve hours' worth. The header check reads one
+block: the prove-to block the settlement names (the block proof
+point of [The transaction vocabulary](transactions.md)). Where the
+proving window started needs no header of its own; the previous
+settlement already pinned it. A machine
 stalled longer than that must first prove a window that reaches a recent
 block, then settle; the chaining shape makes that possible (the [settlement appendix](appendix-settlements.md#the-anchor-window-and-the-long-stall)
 covers the recovery).

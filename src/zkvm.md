@@ -47,14 +47,17 @@ turns the journal into the proof's claim. vprogs writes three of
 them: a transaction's journal records what that one transaction did,
 the exits it emitted included; a batch journal states one transition,
 "from this previous state root, lane tip and L1 context, to this new
-one"; the bundle journal is the settlement's claim, and the
-aggregator compounds a run of batch claims into it. L1 never stores
+one"; the bundle journal is the settlement's claim; the aggregator
+verifies the batch proofs behind it and states the window's
+endpoints. L1 never stores
 any of them. When the settlement script runs the zk-verify opcode
-(two sections down), it hashes its own on-chain numbers into the
+(below), it hashes its own on-chain numbers into the
 journal digest the receipt must commit, so the proof only holds for
 exactly the values on the chain; and because the bundle journal is
-exactly those named values in canonical form, anyone holding the
-settlement can rebuild the digest and check the receipt without
+exactly those named values in one fixed layout, anyone holding the
+settlement can rebuild the digest, SHA-256 over the 352 canonical
+bytes ([the field list](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/covenant/src/script.rs#L6-L19)),
+and check the receipt without
 asking the operator ([How it all chains](chaining.md)
 follows the chain of digests; the script side is the last section of
 this chapter).
@@ -102,7 +105,8 @@ that recovery are the [settlement appendix](appendix-settlements.md#the-anchor-w
 
 And where does verification happen? On-chain, in consensus. Kaspa's script
 engine ships a zk-verify opcode ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md), activated with Toccata, a Kaspa network upgrade); the
-settlement's script calls it with the receipt, and every Kaspa node
+settlement's script calls it with the receipt and with the journal
+digest rebuilt from the settlement's own script data, and every Kaspa node
 executing that transaction runs the check. The verifier identity (which
 image ids, which proof system)
 is baked into the covenant's script hash, so "which rules am I trusting?"

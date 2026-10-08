@@ -85,9 +85,10 @@ Kaspa's own proposal process (KIPs, the network's improvement
 proposals), activated on Kaspa mainnet by the Toccata hard fork, a
 coordinated upgrade. [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md) added covenant ids, so scripts can bind
 outputs to one program instance's identity. [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md) added lane
-commitments: every block header carries a commitment to each active
-lane's entries, so membership in a lane is provable from the chain
-itself ([How it all chains](chaining.md) has the mechanism). Proof verification is
+commitments: every block header carries a commitment to the active
+lanes' entries, so a lane's history is committed in the chain's
+headers and reconstructible from the chain itself
+([How it all chains](chaining.md) has the mechanism). Proof verification is
 therefore a consensus rule, not a service: every Kaspa node that
 executes a settlement runs the check, and a bad-proof settlement is
 invalid, rejected like a bad signature. The check is verification, not
