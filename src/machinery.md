@@ -66,7 +66,10 @@ that claim: resuming means running a proving stack, real work at real
 cost ([Building an app on it](building-an-app.md) says who would pay), so it is a capability, not a
 service anyone promises. Second, exits already committed to the
 permission tree are claimable by their holders alone; no operator sits
-in that loop.
+in that loop. The claim data travels the same way everything else
+does: the tree is rebuilt from public data, its leaves ride the
+proofs' journals, and anyone running the stack reconstructs the
+identical tree, so withholding a branch means withholding L1 itself.
 
 Permissionless settlement is also open to griefers. A griefer with a proving
 stack can settle empty extensions: bundles that execute nothing new and
@@ -74,7 +77,11 @@ leave the lane tip behind its true head, so pending actions (yours,
 perhaps) stay unsettled for as long as the griefer keeps winning. Both
 sides spend the same continuation output, so each link is a mempool
 race: whoever confirms first wins, the loser's settlement dies with its
-input, and its proving work is wasted. The honest side can be drawn
+input. The loser's proving work is not wasted, though: an empty
+extension leaves the digest and the proving chain where they were, so
+the honest bundle's proofs still chain and are re-targeted against the
+new continuation (a reorg is the case that invalidates work outright,
+and the [settlement appendix](appendix-settlements.md) covers its reuse story). The honest side can be drawn
 into losing races the same way. Nothing on-chain punishes any of this;
 cost is the only limit; both sides pay it. What the griefer cannot
 touch is safety: state stays unforgeable, committed exits stay
