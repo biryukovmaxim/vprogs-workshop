@@ -59,18 +59,22 @@ appendix that carries the complete version.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
   Settlements commit it on L1. [Chapter 4](transactions.md) builds it.
-- <a id="covenant-id"></a>**Covenant id**: the 32-byte identity of one program instance: its deposit
-  address, its lane, and the exact rule-set version it proves, all
-  bundled into one name. The book often says *the covenant* for the
+- **Lane**: the program's public inbox: a labeled stream (a Kaspa
+  subnetwork) of ordinary transactions carrying users' signed actions.
+  Miners mine them like any
+  other payment; there is no gatekeeper to refuse an entry.
+- <a id="covenant-id"></a>**Covenant id**: the blake2b hash of the covenant's redeem script.
+  That one script pins everything the instance is: the guest image
+  ids (the exact rule-set version), the lane, and the state digest
+  and lane tip the instance chains from, so one 32-byte name commits
+  to code, lane, and settlement chain together. The deposit address
+  derives from it in turn. The book often says *the covenant* for the
   instance this id names.
 - **Guest**: the program's own code, running inside the proving machine
   (the zkVM), as opposed to the framework around it.
 - **Image id**: the cryptographic hash of one guest program binary.
   Pinning image ids fixes the exact code and proof stack an instance
-  runs (chapters [4](transactions.md) and [7](zkvm.md)).
-- **Lane**: the program's public inbox: a labeled stream of ordinary Kaspa
-  transactions carrying users' signed actions. Miners mine them like any
-  other payment; there is no gatekeeper to refuse an entry.
+  runs ([The transaction vocabulary](transactions.md) and [The zkVM, briefly](zkvm.md)).
 - **Mempool**: the set of transactions announced to the network but not
   yet included in a block.
 - **Execution**: the guest program doing its work: reading confirmed

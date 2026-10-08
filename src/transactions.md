@@ -410,13 +410,17 @@ means the *shape* doesn't depend on which one you use.
 
 One term is left, and it names the whole thing: a **covenant id**, the
 32-byte identity of one program instance. Deposits pay into it,
-settlements chain within it, exits reference it. And the full list of
-what a settlement chain is pinned to is short: the covenant id fixes the
-instance, and the image ids of the exact guest binaries ([The zkVM, briefly](zkvm.md)) fix
-the code and proof stack it runs. The pins chain together: the
-covenant's script hash is computed from the pinned image ids, and both
-the deposit address and the covenant id derive from that script, so
-rules, id, and address change together. Anyone can recompute the hash
+settlements chain within it, exits reference it. The pins chain
+together in one direction. The covenant's redeem script embeds the
+three guest image ids ([The zkVM, briefly](zkvm.md) fixes the code and
+proof stack), the lane key, and the state digest and lane tip the
+instance chains from ([the pin
+list](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/covenant/src/script.rs#L107-L130)).
+The covenant id is that script's hash, and the deposit address derives
+from the covenant id ([a short derived
+script](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/delegate_script.rs#L1-L25)),
+so rules, lane, id, and address change together: swap one image id or
+the lane and the hash matches nothing. Anyone can recompute the hash
 and check the address before depositing; the tooling is a script today,
 not a website, so in practice you rely on someone you trust having run
 it, the same trust in the code that [Based rollup on Kaspa](based-rollup.md)'s table already counted.
@@ -426,7 +430,7 @@ migrate to new images, but no such mechanism ships today.
 
 In tt's live deployment the covenant id is literally a constant. At
 bootstrap the operator funds an initial output locked by the
-covenant's script at its genesis state; that output is the settlement
+covenant's script with the genesis state root embedded; that output is the settlement
 chain's first link, and every settlement descends from it.
 
 With the vocabulary in hand: how do proofs tie all four tx types together
