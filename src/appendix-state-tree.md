@@ -33,9 +33,10 @@ nodes, version pointers). The store is a cache with a
 proof: every input execution consumed, the actions in the lane, the
 deposits, the block context, is public on Kaspa, so replaying them
 reproduces the same tree, root for root. A rebuild seeds at the
-covenant's deployment, not at a recent settlement: the whole history
-is the witness, and starting near the tip would miss lane entries the
-state already absorbed.
+covenant's deployment, not at a recent settlement: a digest is 32
+bytes and holds no state, so rebuilding means replaying inputs, and
+the whole history is the witness; a seed near the tip has no inputs
+before it.
 
 ## Proving with the tree
 
@@ -49,7 +50,17 @@ input (input the receipt never publishes; what the receipt commits is
 the result, the two roots); the batch guest checks the proof's keys are strictly ordered,
 checks that every resource the transactions touched is accounted for
 in it, and recomputes both roots, before and after, in one walk over
-the witness. Those two roots leave the proof as the journal's
+the witness. That walk is also where the before-bytes are
+authenticated. A receipt does not bind its input, so a host could in
+principle hand a transaction guest fabricated current bytes; but the
+multiproof commits every touched account's before-hash under the
+previous root, and that root is the journal's prev_state, asserted
+equal to the prior batch's new_state and pinned on L1 by the
+settlement chain. Fabricated before-bytes hash to a different
+prev_state and the chain of assertions breaks. The unbound input is
+safe because nothing trusts it: everything the guests consumed is
+re-derived against committed roots inside the proof stack. Those two
+roots leave the proof as the journal's
 prev_state and new_state; the aggregator asserts each batch's
 prev_state equals the previous batch's new_state, and the settlement
 script pins the same chaining on L1. After proving, the host checks

@@ -68,7 +68,7 @@ position exists. "Sparse" means the empty positions are not stored
 anywhere: the tree is a rule for computing what an empty spot would hash
 to, so where a thing sits never depends on what else is present.
 
-Eight leaf slots out of an unbounded number of them, each addressed by
+Eight leaf slots out of effectively unbounded positions (tree depth 256), each addressed by
 position:
 
 ```mermaid
@@ -114,8 +114,8 @@ transaction can carry. The L2 is what you build with them: the program
 executes off-chain, over the full state, and publishes the digest.
 Everything that must be trusted rides ordinary Kaspa transactions: they
 carry users' intent in, order it, commit state back, and pay value out.
-The machine
-publishes four kinds of transaction, and from the L1's side, from
+Four kinds of transaction make up the machine's whole traffic (users
+publish three; the machine publishes settlements), and from the L1's side, from
 Kaspa's side, they all have exactly the same shape: same fields, same
 validation, nothing marked out in protocol. The split into four is not
 an L1 distinction at all; it is semantics from the L2, the program's
@@ -271,7 +271,8 @@ one. Its second job is the handover: it folds the same branch around
 the reduced leaf to compute the next root, and the change becomes a
 fresh commitment with the paid part removed, serving the next
 claimant. The payout is funded from the program's deposit pile; the
-untouched remainder is re-locked at the same script. So the same
+pile's untouched remainder is re-locked at the deposit address's
+script. So the same
 exit can never be paid twice: the leaf lives in one commitment, the UTXO
 spent is gone, and the new commitment carries only what is left. Claims on
 one commitment contend like any two spends of one coin: one wins, the
@@ -424,7 +425,8 @@ the lane and the hash matches nothing. Anyone can recompute the hash
 and check the address before depositing; the tooling is a script today,
 not a website, so in practice you rely on someone you trust having run
 it, the same trust in the code that [Based rollup on Kaspa](based-rollup.md)'s table already counted.
-An image id that changes by one byte no longer matches its pin, which is
+A binary that changes by one byte hashes to a different image id,
+which no longer matches its pin; that is
 why an upgrade means moving to a new instance ([Solana: the real difference](solana.md)); the pin could in principle
 migrate to new images, but no such mechanism ships today.
 
