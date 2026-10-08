@@ -12,7 +12,7 @@ This chapter summarizes what exists, what does not, and what it costs.
   its own runtime and rules, a node with DA APIs, a scripted scenario
   driver, a browser wallet signing with the same wire library the zkVM
   verifies. The full loop (deposit, play, settle, exit) runs locally
-  against an in-process simnet L1 in minutes.
+  in minutes against an in-process simulated Kaspa network (a simnet).
 - **Testnet with real proofs.** The same stack has run end-to-end on
   Kaspa testnet-10: a fresh covenant id, a full match, real GPU-produced
   proofs settling on the public testnet, exits claimed. The

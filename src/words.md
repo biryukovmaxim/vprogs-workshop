@@ -55,10 +55,10 @@ appendix that carries the complete version.
 - **Settlement**: the transaction that commits one new state digest of
   the program's off-chain (L2) state to Kaspa, spends the output only
   a valid settlement can spend, and chains to the settlement before
-  it. [Chapter 4](transactions.md) is about it.
+  it. [The transaction vocabulary](transactions.md) is about it.
 - **State digest**: a short fingerprint of the program's whole off-chain
   state: one 32-byte number that changes whenever the state does.
-  Settlements commit it on L1. [Chapter 4](transactions.md) builds it.
+  Settlements commit it on L1. [The transaction vocabulary](transactions.md) builds it.
 - **Lane**: the program's public inbox: a labeled stream (a Kaspa
   subnetwork) of ordinary transactions carrying users' signed actions.
   Miners mine them like any
@@ -82,7 +82,7 @@ appendix that carries the complete version.
   moving the state from one root to the next. It runs off-chain inside
   the zkVM; the proof is what makes its result trustworthy ([How it all chains](chaining.md)).
 - **Witness**: the confirmed L1 data execution reads: lane entries,
-  deposits, block context. [Chapter 5](chaining.md) builds the pipeline around it.
+  deposits, block context. [How it all chains](chaining.md) builds the pipeline around it.
 - **Journal**: the fixed-format record inside each proof: the state
   before, the state after, how far the lane had been read, which L1
   blocks execution saw, and the deposit and exit commitments where the
@@ -90,7 +90,7 @@ appendix that carries the complete version.
 - **Proof, receipt**: a few kilobytes of mathematics that convince anyone,
   without re-running the program, that a claimed execution really happened.
 - **Runtime**: the layer of code that checks and applies each action.
-  [Chapter 8](solana.md) is about who owns it.
+  [Solana: the real difference](solana.md) is about who owns it.
 - **Reorg (reorganization)**: now and then the network briefly agrees on
   one block order, then switches to another; the switched-away blocks
   "vanish". Shallow churn like this is normal and expected; deeply buried
@@ -102,7 +102,7 @@ appendix that carries the complete version.
 - <a id="liveness"></a>**Liveness**: the guarantee that someone keeps
   executing, proving, and settling, so actions and exits keep processing.
   Safety says no one can steal;
-  liveness says the machine does not stop. [Chapter 6](machinery.md) owns it.
+  liveness says the machine does not stop. [The machinery](machinery.md) owns it.
 - <a id="data-availability"></a>**Data availability**: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, rather than
   trusting someone's summary of it.

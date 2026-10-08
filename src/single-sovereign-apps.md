@@ -1,6 +1,6 @@
 # Single sovereign apps
 
-[Chapter 8](solana.md) named the costs; this chapter measures them. What *is* a
+[Solana: the real difference](solana.md) named the costs; this chapter measures them. What *is* a
 vprogs program today, and what isn't it yet?
 
 ## One covenant id, one instance

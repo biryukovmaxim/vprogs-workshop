@@ -1,6 +1,6 @@
 # The machinery
 
-[Chapter 5](chaining.md) showed how proofs tie the pieces together across L1 blocks.
+[How it all chains](chaining.md) showed how proofs tie the pieces together across L1 blocks.
 This chapter describes who runs what. Five roles cover the whole machine.
 
 ```mermaid
@@ -37,7 +37,7 @@ Kaspa.
 
 **The DA/index layer** is the read side: an operator can serve the
 program's current state over an API so apps can query it without
-replaying proofs. [Chapter 9](building-an-app.md) builds on it.
+replaying proofs. [Building an app on it](building-an-app.md) builds on it.
 
 In tt's deployment these roles are in-process components of the single
 `ttd` daemon (the framework's [reusable runner engine](https://github.com/kaspanet/vprogs/tree/055ae28a/runner)), plus the web app

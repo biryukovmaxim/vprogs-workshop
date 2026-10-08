@@ -1,6 +1,6 @@
 # Appendix: the state tree
 
-[Chapter 9](building-an-app.md) hands out the chain of anchors in one line: resource id,
+[Building an app on it](building-an-app.md) hands out the chain of anchors in one line: resource id,
 leaf, root, settled digest. This page is the tree itself: its shape,
 where the bytes live, how proving uses it, and the walk that checks a
 single account against L1.

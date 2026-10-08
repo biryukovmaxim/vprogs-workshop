@@ -85,8 +85,9 @@ Kaspa's own proposal process (KIPs, the network's improvement
 proposals), activated on Kaspa mainnet by the Toccata hard fork, a
 coordinated upgrade. [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md) added covenant ids, so scripts can bind
 outputs to one program instance's identity. [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md) added lane
-commitments: the node's consensus anchors, references, and proves the
-subset of transactions belonging to one lane. Proof verification is
+commitments: every block header carries a commitment to each active
+lane's entries, so membership in a lane is provable from the chain
+itself ([How it all chains](chaining.md) has the mechanism). Proof verification is
 therefore a consensus rule, not a service: every Kaspa node that
 executes a settlement runs the check, and a bad-proof settlement is
 invalid, rejected like a bad signature. The check is verification, not
@@ -105,7 +106,10 @@ demo from a mainnet deployment is operational work, not protocol
 activation.
 
 With these three extensions (KIP-16 from above, plus KIP-20 and
-KIP-21), a based rollup removes both limits: the
+KIP-21), a based rollup removes both limits, KIP-16 doing the
+verification of arbitrary rules and KIP-20 with KIP-21 giving one
+instance's scattered outputs a shared identity and its data a
+canonical order: the
 program's state lives inside the proof, in whatever shape the program
 defines, and the rules can be arbitrary code, because the chain never runs
 them; it verifies a compact proof and moves money according to the
@@ -129,8 +133,9 @@ be anyone and still cannot produce a settlement for a state the
 program's rules don't allow. The proof either verifies on Kaspa or
 the settlement doesn't happen.
 
-One more point the table compresses: the deposit pile is pooled custody
-at a script, and its safety is exactly the safety of the pinned code,
+One more point the table compresses: the deposit pile, many separate
+coins locked at the one deposit address, is pooled custody at a
+script, and its safety is exactly the safety of the pinned code,
 bugs included. A rule-set bug that pays the wrong recipient drains the pile
 through perfectly valid proofs. That is what "trusting the code" means,
 and it is why the pinning in [The transaction vocabulary](transactions.md) matters.
@@ -141,7 +146,7 @@ settlement only exists if someone executes actions and settles proofs,
 and today that someone is the operator. No permissionless escape-hatch
 flow is shipped yet either: if every operator of an instance stops
 before your balance has become a committed exit, your funds wait until
-someone resumes the stack. Chapters [6](machinery.md) and [9](building-an-app.md) cover who can resume, at
+someone resumes the stack. [The machinery](machinery.md) and [Building an app on it](building-an-app.md) cover who can resume, at
 what cost, and what a griefer can and cannot do.
 
 ## The shape and the rules

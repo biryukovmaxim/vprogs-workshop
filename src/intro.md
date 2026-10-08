@@ -39,5 +39,5 @@ demonstration network with looser security assumptions ([Based rollup on Kaspa](
 the details). Second, safety and liveness are different guarantees. The
 chain guarantees that no one can falsify state or steal funds, but
 moving money requires the machine to keep running. Who runs it, what can
-stall it, and what happens when nobody does are covered in chapters [6](machinery.md),
-[7](zkvm.md), and [9](building-an-app.md).
+stall it, and what happens when nobody does are covered in [The machinery](machinery.md),
+[The zkVM, briefly](zkvm.md), and [Building an app on it](building-an-app.md).

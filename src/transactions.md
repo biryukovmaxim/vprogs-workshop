@@ -194,12 +194,12 @@ A deposit is how value enters, and it is one transaction seen from two
 sides. From the L1 side, money moves to the program's script: an
 output paying the **deposit address**, derived from the *covenant id*
 (the 32-byte identity of this program instance from the [glossary](words.md#covenant-id); this
-chapter pins it properly at the end), and spendable by proven exits
-only. From the L2 side, the payload names the owner: the signed
+chapter pins it properly at the end), and spendable only by exits
+already proven into a commitment. From the L2 side, the payload names the owner: the signed
 deposit action carried in the same transaction says which account the
 program must credit, and which lock authorizes that account when it is
 new (a lock here is the account's spending rule in program state, not
-the L1 output's lock; the locks section below pins the term). In tt
+the L1 output's lock; the closing table pins the term). In tt
 the deposit *is* the action: one lane transaction carries
 both.
 
@@ -208,14 +208,14 @@ a tt deposit, one ordinary Kaspa transaction
 ├── payload: the signed deposit action, "credit account X",
 │   plus X's lock if the account is new
 └── outputs: one output paying the program's deposit address;
-    only proven exits can ever spend it
+    only the covenant's scripts can ever spend it
 ```
 
 The proof binds the two sides: it checks that the output exists, pays
 the covenant-derived script, and credits exactly the account the
 signature named. Nobody can steer a deposit to a different account,
-and the landed coins sit at a script that only proven exits can
-unlock, never at an operator's key.
+and the landed coins sit at a script only the covenant's own
+transactions can unlock, never at an operator's key.
 
 The shape is fixed (an L1 output, recognized by the program, proven into
 the state), but the *address policy* is the guest's choice (the *guest* is

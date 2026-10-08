@@ -46,8 +46,8 @@ The claim needs a boundary, because it is smaller than it sounds. A
 chain's hardest problems are agreement: what order transactions
 happened in, where the data lives, what counts as settled, what is
 final. The program re-solves none of them: it buys ordering, data
-availability, settlement, and finality from Kaspa unchanged (chapters [3](based-rollup.md)
-to [5](chaining.md)). What moves into the program is the layer Solana fixes in
+availability, settlement, and finality from Kaspa unchanged ([Based rollup on Kaspa](based-rollup.md)
+to [How it all chains](chaining.md)). What moves into the program is the layer Solana fixes in
 protocol, the system program's duties:
 
 - **Account creation and addressing.** On Solana the system program

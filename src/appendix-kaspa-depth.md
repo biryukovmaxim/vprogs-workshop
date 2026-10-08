@@ -39,7 +39,8 @@ well behind the selected chain, are excluded, so a flood of badly
 connected blocks cannot inflate the counter. The network reads mining
 difficulty from a window of blocks chosen by DAA score, and the
 emission schedule, including the reward halvings, is defined over DAA
-score. Both counters ride every block header, so both only move
+score. Both counters ride every block header and inherit each block's
+history through its parents, so both only move
 forward; that is what lets the program treat DAA score as a clock
 ([The transaction vocabulary](transactions.md)). The per-block context the program reads inside each proof
 window, timestamp, DAA score, blue score, is committed by the chain
@@ -66,7 +67,8 @@ compute mass, covering verification work, and storage mass, covering
 the unspent-set growth the transaction leaves behind. Storage mass
 rises when a transaction splits value into many small outputs and is
 offset when it consolidates small inputs: dust is expensive to create
-and cheap to sweep. In the relaxed form, the storage term is a
+and cheap to sweep. KIP-9 defines a strict and a relaxed storage
+formula and the network runs the relaxed one: the storage term is a
 constant times the positive part of the sum of reciprocals of output
 values minus the sum of reciprocals of input values; the constant and
 the integer rounding rules live in the KIP. The rule exists because a

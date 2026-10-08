@@ -36,15 +36,16 @@ state. [tt's node](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8
 The web app is then a perfectly ordinary frontend: fetch state, render a
 board, post signed actions. There is no Anchor-style IDL or generated
 client yet: the WASM wire library is the client SDK, and the endpoints
-above are hand-written. All the exotic machinery from chapters [3](based-rollup.md) to [6](machinery.md) is
+above are hand-written. All the exotic machinery from [Based rollup on Kaspa](based-rollup.md) through [The machinery](machinery.md) is
 behind two habits: *sign locally, read the index*.
 
 ## Who pays for what
 
 Users pay ordinary Kaspa fees for their own lane actions and deposits;
 each action rides a normal transaction funded from the user's own UTXOs,
-and an exit claim is likewise the claimant's own transaction, its fee
-carried by one of the claimer's own coins (the [settlement appendix](appendix-settlements.md#an-exit-claim-up-close) has
+and an exit claim is likewise an ordinary transaction, built by
+whoever claims (the user, a subsidized operator, a claims service),
+its fee carried by one of the builder's own coins (the [settlement appendix](appendix-settlements.md#an-exit-claim-up-close) has
 the shape).
 The operator pays the settlement transactions' fees and the proving
 compute. tt itself charges nothing inside the program today; an in-program

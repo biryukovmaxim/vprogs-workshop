@@ -1,13 +1,13 @@
 # Appendix: settlement and exit mechanics
 
-[Chapter 4](transactions.md) kept the settlement and the exit to what they attest and pay,
+[The transaction vocabulary](transactions.md) kept the settlement and the exit to what they attest and pay,
 and [How it all chains](chaining.md) kept the block model to its simplified form; this page
 carries the mechanics a careful reader asks about next. Nothing here
 changes the design; it is the same machine, closer up.
 
 ## What counts as one block
 
-[Chapter 5](chaining.md) treats one selected-chain block as one block to the machine.
+[How it all chains](chaining.md) treats one selected-chain block as one block to the machine.
 The full rule: a block on the selected chain absorbs the parallel
 blocks consensus folds into it, its *mergeset*, and the transactions
 those parallel blocks carry count as part of that step, provided they
@@ -70,7 +70,7 @@ the price of later snapshots.
 
 ## An exit claim, up close
 
-[Chapter 4](transactions.md) kept exits to the leaf and the payout; here is the claim
+[The transaction vocabulary](transactions.md) kept exits to the leaf and the payout; here is the claim
 transaction itself. It pulls in the commitment UTXO, up to eight whole
 coins from the program's deposit pile (the claim wallet, the
 builder-side tool, picks which; the cap of eight is protocol, not
