@@ -23,12 +23,12 @@ as one block.
 
 ## Blue score: how deep is this block
 
-A block's blue score is its selected parent's blue score plus the blue
-blocks in its mergeset. It is the selected chain's version of block
-height,
+A block's blue score is the number of blue blocks in its past: its
+selected parent's blue score plus the blue blocks in its own mergeset
+([the network's own wording](https://wiki.kaspa.org/blue-score)). It
+is the blockdag's version of block height,
 and it is the counter Kaspa counts confirmations in: depth is measured
-as blue-score distance along the selected chain, from the including
-block toward the current tip.
+as blue-score distance from the including block toward the current tip.
 Blue score only moves forward; a reorg replaces a stretch of the order,
 it does not rewind the counter.
 

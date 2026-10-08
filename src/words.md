@@ -20,9 +20,9 @@ appendix that carries the complete version.
   in its past. It only moves forward, so the program reads it as its
   clock: deadlines are differences in DAA score, not wall-clock time
   ([The transaction vocabulary](transactions.md)). Kaspa also paces mining difficulty and emission by it.
-  Its sibling, the **blue score**, is the depth counter along the
-  selected chain (the one line through the blockdag that everything
-  in this book executes along); Kaspa counts confirmations in it, and
+  Its sibling, the **blue score**, is the number of blue blocks in a
+  block's past, the blockdag's version of block height; Kaspa counts
+  confirmations in it, and
   the program sees it only as block context
   ([The transaction vocabulary](transactions.md)). The [appendix](appendix-kaspa-depth.md) separates the
   two exactly.
