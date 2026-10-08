@@ -8,6 +8,9 @@ proofs.
 Vocabulary check before it piles up; five words, one pipeline:
 
 - a *witness* is confirmed L1 data fed to execution;
+- a *tx proof* proves one transaction's execution; transactions with
+  disjoint resources execute and prove in parallel, across blocks
+  too;
 - a *batch* is the work over one block, and its proof is a *batch
   proof*;
 - runs of batches compound into *aggregate* proofs;
@@ -83,8 +86,8 @@ is the permission tree's). A batch proof attests one such step; an
 aggregate proof compounds a run of them.
 
 L1 never sees the journal directly, and does not need to: the journal
-is the proof's claim, the parameter zk verify checks the receipt
-against, and the settlement script pins its on-chain numbers to the
+is the proof's claim, one of the inputs zk verification checks the
+receipt against, and the settlement script pins its on-chain numbers to the
 journal digest the receipt commits ([The zkVM, briefly](zkvm.md#the-journal-what-the-proof-claims)
 has the role it plays). What lands on L1 is one settlement
 per proved window, and a window spans a range of blocks: the
@@ -109,10 +112,19 @@ actions submitted in block 3 and block 40 end up proven together into one
 settled state, with nothing in between silently dropped: the node's
 lane commitments ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)) give the lane one canonical history, and
 the proof binds its tip. Every block header carries a commitment to
-every active lane. When a node validates a settlement, the settlement
-script requires the proof's journal to commit the same value the header
-carries for the block the settlement names, so a proof about a fabricated
-or stale L1 history cannot satisfy a node that follows the real chain (the
+every active lane: one root over the tips of all active lanes, where
+each lane's tip is a running hash folded over every entry the lane
+has ever carried. The tip is therefore a commitment value, not a
+bookmark: replay the lane's entries through the hash and you land on
+it. That is what makes the check tight. A batch guest consumes a run
+of entries and journals the two tips it moved between, so its claim
+is hash-bound to exactly those entries, and the settlement script
+requires the proof's journal to commit the tip value the cited
+block's header actually carries, reading the header commitment with
+the KIP-21 opcode and comparing. Fabricate or skip one lane entry and
+the recomputed tip no longer matches the header, so a proof about a
+fabricated or stale L1 history cannot satisfy a node that follows the
+real chain (the
 [settlement appendix](appendix-settlements.md#can-a-range-be-skipped) has the mechanics, including why no range can be skipped).
 
 The machine only cites blocks already behind the confirmation window,
@@ -121,7 +133,9 @@ A reorg deep enough to remove the cited block would also remove the
 settlement, and past that depth both are as permanent as any Kaspa
 payment. The commitment-reading opcode does enforce one bound of its
 own: it serves commitments only from a recent window of blocks,
-roughly the last twelve hours' worth. A machine
+roughly the last twelve hours' worth. The check itself reads only the
+window's end block; where the window started is already pinned by the
+previous settlement. A machine
 stalled longer than that must first prove a window that reaches a recent
 block, then settle; the chaining shape makes that possible (the [settlement appendix](appendix-settlements.md#the-anchor-window-and-the-long-stall)
 covers the recovery).

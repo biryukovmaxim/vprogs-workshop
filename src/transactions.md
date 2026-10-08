@@ -334,7 +334,9 @@ settlement [attests three things](https://github.com/kaspanet/vprogs/blob/055ae2
   moment.
 - a **lane tip**: how far execution had read the program's action lane
   (the lane section above) when the snapshot was taken: "I have processed every
-  published action up to here."
+  published action up to here." Concretely the tip is a hash, the
+  lane's running commitment, not just a bookmark ([How it all chains](chaining.md)
+  pins the mechanism).
 - a **block proof point**: the last L1 block whose data execution
   consumed: "and the L1 data I saw was real up to this block."
 
