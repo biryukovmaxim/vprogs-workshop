@@ -75,12 +75,14 @@ the price of later snapshots.
 transaction itself. It pulls in the commitment UTXO, up to eight whole
 coins from the program's deposit pile (only the exit script can unlock
 them; the claim wallet picks which, and eight is its cap), and one
-ordinary coin of the builder's own to carry the fee. The outputs: the leaf's value paid to the lock the
-leaf names, the pile's untouched change re-locked at the same script for
-the remaining claimants, a fresh commitment with this leaf deducted for
-the next claimant, and the unspent part of the fee coin back. The
-commitment is a self-updating UTXO: each claim spends it and hands the
-next claimant a tree with one less leaf.
+ordinary coin of the builder's own to carry the fee. A claim pays a
+whole leaf or part of one; the unlock data names the deduct. The
+outputs: the deducted value paid to the lock the leaf names, the
+pile's untouched change re-locked at the same script for the
+remaining claimants, a fresh commitment with the paid part removed
+for the next claimant, and the unspent part of the fee coin back. The
+commitment is a self-updating UTXO: each claim spends it and hands
+the next claimant a tree with less left to claim.
 
 ```mermaid
 flowchart LR
@@ -92,6 +94,35 @@ flowchart LR
     C --> R["pile change, re-locked"]
     C --> X["fee-payer's change"]
 ```
+
+What the script itself checks: the commitment's redeem
+script [embeds the tree's root and the unclaimed-leaf
+count](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_script.rs#L718),
+and the unlock data supplies the leaf, its branch of sibling hashes,
+and the deduct. The script requires the deduct to be positive and no
+more than the leaf's amount, requires output 0 to pay the leaf's
+destination exactly the deduct, and requires the leaf hash, folded up
+the branch, to equal the embedded root. A leaf hashes as SHA-256 over
+a leaf tag, the destination's script bytes, and the amount; a branch
+node as SHA-256 over a branch tag and its two children
+([definitions](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_tree.rs#L81-L88)).
+The handover is also script work: the same branch folded around the
+reduced leaf gives the next root, the script hashes its own bytes
+with that root and the new count into the next commitment's script
+hash, and output 1 must be exactly that, with the commitment's own
+value passing through unchanged. When the last leaf empties there is
+no output 1; the final claim folds the commitment's residual value
+into the payout instead. The deposit coins are conserved exactly and
+the fee burns only from the claimer's collateral coin, so swept value
+cannot ride out anywhere but the payout and the pile
+([the full phase list](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/backend/risc0/api/src/permission_script.rs#L178-L203)).
+
+And the tree's build site: each transaction's proof journals the
+exits it emitted, and the bundle proof's verifier replays them, in
+canonical order (journal order within a transaction, transaction
+order within a batch, batch order within the
+bundle, [accumulator](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/withdrawal/exit_accumulator.rs#L1-L23)),
+into the one tree whose root the settlement carries.
 
 Who builds a claim is economics, not protocol. The user can build it
 and pay the fee; anyone can offer claims as a service; an operator who
