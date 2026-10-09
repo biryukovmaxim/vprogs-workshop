@@ -11,7 +11,7 @@ appendix that carries the complete version.
   a classic chain discards parallel blocks, a Kaspa block names several
   parents, so blocks mined at nearly the same time all count, and
   consensus orders the web into one agreed order of transactions,
-  roughly one block per second. The machine consumes that order; the
+  roughly ten blocks a second. The machine consumes that order; the
   shallow reorg churn the web leaves behind is why the confirmation
   window exists (the Reorg entry below). The
   [appendix](appendix-kaspa-depth.md) has the ordering in full.
@@ -65,18 +65,18 @@ appendix that carries the complete version.
   subnetwork) of ordinary transactions carrying users' signed actions.
   Miners mine them like any
   other payment; there is no gatekeeper to refuse an entry.
-- **Covenant**: Kaspa's mechanism ([KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md))
+- <a id="covenant-id"></a>**Covenant**: Kaspa's mechanism
+  ([KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md))
   for scripts that bind outputs to one program instance: a covenant
   transaction carries the instance's id, consensus enforces the
   binding, and a script can demand that its spender run under a named
   covenant. Settlements and exit claims are covenant transactions.
-- <a id="covenant-id"></a>**Covenant id**: the blake2b hash of the covenant's redeem script.
-  That one script pins everything the instance is: the guest image
+  The id, the blake2b hash of the covenant's redeem script, is the
+  32-byte name of the instance: that one script pins the guest image
   ids (the exact rule-set version), the lane, and the state digest
-  and lane tip the instance chains from, so one 32-byte name commits
-  to code, lane, and settlement chain together. The deposit address
-  derives from it in turn. The book often says *the covenant* for the
-  instance this id names.
+  and lane tip the instance chains from, so it commits to code, lane,
+  and settlement chain together, and the deposit address derives from
+  it in turn.
 - **Guest**: the program's own code, running inside the proving machine
   (the zkVM), as opposed to the framework around it.
 - **Image id**: the cryptographic hash of one guest program binary.
@@ -116,9 +116,12 @@ appendix that carries the complete version.
   executing, proving, and settling, so actions and exits keep processing.
   Safety says no one can steal;
   liveness says the machine does not stop. [The machinery](machinery.md) owns it.
-- <a id="data-availability"></a>**Data availability**: the guarantee that you can fetch the full record
+- <a id="data-availability"></a>**Data availability***: the guarantee that you can fetch the full record
   of what was published, yourself, from the network, rather than
-  trusting someone's summary of it.
+  trusting someone's summary of it. Ordinary nodes prune old block
+  bodies, so data from far enough back is served by archival peers,
+  and what they serve checks against the chain's own headers
+  ([the appendix](appendix-kaspa-depth.md#reconstructing-the-program-from-l1)).
 - **Mass**: the weight of a transaction that fees are priced on: the
   larger of compute mass (verification work) and storage mass (the
   unspent-set growth the transaction leaves behind; it rises when value

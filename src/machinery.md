@@ -71,22 +71,6 @@ does: the tree is rebuilt from public data, its leaves ride the
 proofs' journals, and anyone running the stack reconstructs the
 identical tree, so withholding a branch means withholding L1 itself.
 
-Permissionless settlement is also open to griefers. A griefer with a proving
-stack can settle empty extensions: bundles that execute nothing new and
-leave the lane tip behind its true head, so pending actions (yours,
-perhaps) stay unsettled for as long as the griefer keeps winning. Both
-sides spend the same continuation output, so each link is a mempool
-race: whoever confirms first wins, the loser's settlement dies with its
-input. The loser's proving work is not wasted, though: an empty
-extension leaves the digest and the proving chain where they were, so
-the honest bundle's proofs still chain and are re-targeted against the
-new continuation (a reorg is the case that invalidates work outright,
-and the [settlement appendix](appendix-settlements.md) covers its reuse story). The honest side can be drawn
-into losing races the same way. Nothing on-chain punishes any of this;
-cost is the only limit; both sides pay it. What the griefer cannot
-touch is safety: state stays unforgeable, committed exits stay
-claimable. What stalls is liveness.
-
 What is *not* shipped today is an escape hatch: a flow that lets a user
 force a settlement through without first running the machine. Until one
 exists, a balance that never became a committed exit waits for an

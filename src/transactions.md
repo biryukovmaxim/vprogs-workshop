@@ -229,7 +229,11 @@ equally valid choice. Same battery, different placement.
 ## Exits and the permission tree
 
 An exit is how value leaves: the program debits a user and emits an
-entitlement to withdraw on L1. The entitlements land in the
+entitlement to withdraw on L1. The mechanism below is the shipped
+standard part, not a rule of the framework: what the framework fixes
+is only that a window's exits fold into one commitment the settlement
+carries; the accumulator that builds it, and the claim flow behind
+it, are the program's choice. The shipped choice is the
 **permission tree**, an accumulator (a Merkle structure that answers one
 question: is this leaf in?) whose leaves are
 ["(L1 script, amount)" pairs](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/withdrawal/standard_spk.rs#L28-L34): who may claim how much, by L1 lock type.
@@ -296,22 +300,27 @@ rides, what each output is) and what happens when two claims race are
 
 Like the deposit policy, the permission tree is a ready-made part: the
 framework ships the accumulator, the L1 commitment format, and the claim
-flow. It is also the universal shape: the payout happens in an
+flow. In code the choice is literal: the guest implements a small
+exit-accumulator interface (record exits, return one commitment), and
+the framework ships the permission tree as one implementation, a
+no-exits no-op as another, for programs that never emit. The tree is
+also the universal shape: the payout happens in an
 ordinary L1 transaction that the claimant builds and pays for, so the
 program itself never has to compute transaction mass or fees to get
-value out. A program with different needs could, in principle, ship
-its own exit design (direct payouts, several trees); the settlement
-shape would not change.
+value out. A program with different needs can ship its own exit
+design (direct payouts, several trees); the settlement shape would
+not change.
 
 ## User actions
 
-Everything a user does inside the program is a signed action: [in tt](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/guest/src/program/action.rs#L34-L69) that's
-transferring balance, rotating your lock (switching the key that
+Everything a user does inside the program is a signed action. [tt's
+action.rs](https://github.com/biryukovmaxim/vprog-tictactoe/blob/fe6b0e8/guest/src/program/action.rs#L34-L69) defines
+them: transferring balance, rotating your lock (switching the key that
 authorizes your account, the move you want if a key leaks), depositing,
 withdrawing, creating
 a game, joining a game, placing a mark, forfeiting an expired turn. The
 program sees the chain's per-block context, timestamp, DAA score, and
-blue score, committed by the chain inside every proof window (KIP-21
+blue score, committed by the chain inside every proof window ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)
 commits them for exactly this use). Deadlines such as tt's turn timer
 are measured in DAA score, one of the chain's depth counters from the
 [glossary](words.md#daa-score), not in wall-clock time, so "expired" is
@@ -386,13 +395,14 @@ program's rules inside the proof, and the state digest moves with
 every settled window. Bob's turn timer, measured in DAA score,
 expires; the game resolves and the stake lands on Alice's balance.
 
-Leaving is two transactions. On L2, Alice sends a withdraw action;
-the window that processes it debits her balance and emits an exit
-leaf, and its settlement carries the commitment. On L1, once that
-settlement confirms, the claim spends the commitment and pays her
-lock (the Exits section above). That is the full trip: one deposit
-transaction in, a run of lane entries, one settlement with a
-commitment, one claim out.
+Leaving is two transactions, and the first is itself on L1: the
+withdraw action rides an ordinary lane transaction Alice signs and
+publishes, like every action; the window that processes it debits her
+balance and emits an exit leaf, and its settlement carries the
+commitment. The second is the claim: once that settlement confirms,
+it spends the commitment and pays her lock (the Exits section above).
+That is the full trip: one deposit transaction in, a run of lane
+entries, one settlement with a commitment, one claim out.
 
 ## Shape versus rules
 

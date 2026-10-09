@@ -128,7 +128,7 @@ is hash-bound to exactly those entries, and the settlement script
 requires the proof's journal to commit the tip value the cited
 block's header actually carries: the script derives this lane's
 committed value from the journal's lane tip and compares it with
-what the KIP-21 opcode serves for the cited block. Fabricate or skip one lane entry and
+what the [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md) opcode serves for the cited block. Fabricate or skip one lane entry and
 the recomputed tip no longer matches the header, so a proof about a
 fabricated or stale L1 history cannot satisfy a node that follows the
 real chain (the
@@ -162,7 +162,7 @@ of who-entered and who-may-leave.
 
 ## Waiting for finality, and surviving reorgs
 
-Kaspa orders blocks fast (roughly one per second), but "a block" is not yet "a fact". The machine
+Kaspa orders blocks fast (roughly ten a second), but "a block" is not yet "a fact". The machine
 follows the chain behind a confirmation window, a configurable number of
 confirmations, widened adaptively when the network looks reorg-prone, and
 treats a block as solid only inside it. If the chain reorganizes anyway,

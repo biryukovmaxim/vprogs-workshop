@@ -63,7 +63,7 @@ confirmation window ([How it all chains](chaining.md)).
 
 ## The anchor window and the long stall
 
-The opcode that reads lane commitments (KIP-21's, a different one
+The opcode that reads lane commitments ([KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)'s, a different one
 from the [KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md) opcode that verifies proofs) has a reach limit: it serves
 commitments only from a recent window of blocks, roughly the last
 twelve hours' worth, so a
@@ -154,7 +154,7 @@ program's deposit address, a P2SH whose [redeem script derives from
 the covenant id
 alone](https://github.com/kaspanet/vprogs/blob/055ae28a/zk/abi/src/delegate_script.rs#L1-L25)
 and demands that the spending transaction itself run under that same
-covenant (a covenant transaction: Kaspa's covenant rules, KIP-20, let
+covenant (a covenant transaction: Kaspa's covenant rules, [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md), let
 a script refuse to run outside transactions bound to its covenant
 id, and consensus enforces the binding; the glossary's covenant
 entry has it). No key ever unlocks a deposit; only the machine's own

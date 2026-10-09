@@ -20,7 +20,10 @@ so the full data behind that fingerprint, every account, balance, and
 game, is stored and served by an L2 provider, the operator's node. The
 actions and deposits do sit fully on the chain, in the lane. No external
 committee, no data-availability service, and no bridge token (no new
-coin standing in for the locked KAS) sits in between.
+coin standing in for the locked KAS) sits in between. One qualifier:
+ordinary Kaspa nodes prune old block bodies, so data from far enough
+back is served by archival peers, and what they serve checks against
+the chain's headers ([the appendix](appendix-kaspa-depth.md#reconstructing-the-program-from-l1)).
 
 A note for readers from the Ethereum ecosystem (others can skip this
 paragraph): in Ethereum discourse "based" means L1 proposers do the
@@ -106,9 +109,9 @@ settlement you can watch today is a testnet fact; what separates the
 demo from a mainnet deployment is operational work, not protocol
 activation.
 
-With these three extensions (KIP-16 from above, plus KIP-20 and
-KIP-21), a based rollup removes both limits, KIP-16 doing the
-verification of arbitrary rules and KIP-20 with KIP-21 giving one
+With these three extensions ([KIP-16](https://github.com/kaspanet/kips/blob/master/kip-0016.md) from above, plus [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md) and
+[KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md)), a based rollup removes both limits, KIP-16 doing the
+verification of arbitrary rules and [KIP-20](https://github.com/kaspanet/kips/blob/master/kip-0020.md) with [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md) giving one
 instance's scattered outputs a shared identity and its data a
 canonical order: the
 program's state lives inside the proof, in whatever shape the program
@@ -148,7 +151,7 @@ and today that someone is the operator. No permissionless escape-hatch
 flow is shipped yet either: if every operator of an instance stops
 before your balance has become a committed exit, your funds wait until
 someone resumes the stack. [The machinery](machinery.md) and [Building an app on it](building-an-app.md) cover who can resume, at
-what cost, and what a griefer can and cannot do.
+what cost.
 
 ## The shape and the rules
 

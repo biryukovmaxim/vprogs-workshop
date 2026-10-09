@@ -1,8 +1,9 @@
 # Appendix: Kaspa details behind the simplifications
 
-The glossary simplifies three Kaspa mechanisms: how the blockdag's web
-becomes one order, what the two depth counters count, and what storage
-mass charges for. This page carries the full versions. Nothing here
+The glossary simplifies four Kaspa mechanisms: how the blockdag's web
+becomes one order, what the two depth counters count, what storage
+mass charges for, and how long the network keeps full block data. This
+page carries the full versions. Nothing here
 changes the design; the machine reads the same L1 either way.
 
 ## From web to one order
@@ -69,7 +70,7 @@ compute mass, covering verification work, and storage mass, covering
 the unspent-set growth the transaction leaves behind. Storage mass
 rises when a transaction splits value into many small outputs and is
 offset when it consolidates small inputs: dust is expensive to create
-and cheap to sweep. KIP-9 defines a strict and a relaxed storage
+and cheap to sweep. [KIP-9](https://github.com/kaspanet/kips/blob/master/kip-0009.md) defines a strict and a relaxed storage
 formula and the network runs the relaxed one: the storage term is a
 constant times the positive part of the sum of reciprocals of output
 values minus the sum of reciprocals of input values; the constant and
@@ -90,7 +91,7 @@ replay every lane entry without trusting anyone; to keep that
 property forever it must keep the data, or know an archival peer. A
 node joining later starts from a pruning proof: headers it can trust
 by proof of work, commitments included, as far back as the retained
-chains reach. KIP-21 deliberately bounds the active-lane commitment
+chains reach. [KIP-21](https://github.com/kaspanet/kips/blob/master/kip-0021.md) deliberately bounds the active-lane commitment
 set to sit inside that reach, so a fresh node can always verify the
 current lane commitments. Replaying lane entries older than the
 pruning window, say to rebuild state from deployment, needs block
